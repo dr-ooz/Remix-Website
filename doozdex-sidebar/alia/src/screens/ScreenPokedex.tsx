@@ -246,7 +246,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       return groupedAndSorted()?.length ?? 0;
     },
     getScrollElement: () => parentRef,
-    estimateSize: () => 52,
+    estimateSize: () => 58,
   });
 
   const autoCompleteList = createMemo(() => Object.keys({ ...pokedex() }).toSorted());

@@ -383,11 +383,20 @@ export const STAT_COLOURS: string[] = JSON.parse(
 );
 export const statColour = (v: number) => STAT_COLOURS[Math.max(0, Math.min(STAT_COLOURS.length - 1, Math.floor(v / 10)))];
 
-// Type colors: the calc's own (src/css/main.css type pills), so the sidebar and calc always match.
-import calcCss from "../../../../src/css/main.css?raw";
-export const TYPE_COLOURS: Record<string, string> = Object.fromEntries(
-  [...calcCss.matchAll(/select\.type-pill option\[value="(\w+)"\] \{ background: (#[0-9a-fA-F]{3,8})/g)].map((m) => [m[1]!, m[2]!]),
+// Type colors: the site's one palette (src/js/remix_type_colors.js), read at build time.
+import typeColorsJs from "../../../../src/js/remix_type_colors.js?raw";
+export const TYPE_COLOURS: Record<string, string> = JSON.parse(
+  typeColorsJs.slice(typeColorsJs.indexOf("{", typeColorsJs.indexOf("var REMIX_TYPE_COLORS")), typeColorsJs.indexOf("}", typeColorsJs.indexOf("var REMIX_TYPE_COLORS")) + 1),
 );
+
+// Local color editor preview (localhost only): colors picked but not saved yet, this browser only.
+if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+  try {
+    const p = JSON.parse(localStorage.getItem("remixColorPreview") || "null");
+    if (p?.types) for (const t in p.types) if (t in TYPE_COLOURS && /^#[0-9a-f]{6}$/i.test(p.types[t])) TYPE_COLOURS[t] = p.types[t];
+    if (Array.isArray(p?.stats) && p.stats.length === STAT_COLOURS.length) STAT_COLOURS.splice(0, p.stats.length, ...p.stats);
+  } catch {}
+}
 
 export const TYPES: Option[] = [
   { label: "(Type)", value: "" },

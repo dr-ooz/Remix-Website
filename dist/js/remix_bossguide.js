@@ -22,28 +22,7 @@ $(document).on("click", "#bg-row .bg-mine-toggle", function () {
 });
 var BG_DESIGN_W = 1620; // px width the layout is designed at (3 cards across, like the sheet)
 
-// The calc's own type colors (main.css select.type-pill): [top, bottom]
-var BG_TYPE_COLORS = {
-	Bug: ["#cdd988", "#b7c955"], Dark: ["#bfb1b1", "#a39090"], Dragon: ["#9091ff", "#6062ff"],
-	Electric: ["#ffdb5c", "#ffcc16"], Fairy: ["#fcd2f2", "#fbbeec"], Fighting: ["#df917f", "#d16248"],
-	Fire: ["#f8b24c", "#f59100"], Flying: ["#b6cbff", "#96b5ff"], Ghost: ["#cdb3ee", "#b893e6"],
-	Grass: ["#a4d68e", "#7dc45d"], Ground: ["#e9b760", "#df981c"], Ice: ["#c8f9ff", "#b1f7ff"],
-	Normal: ["#d8d9d2", "#c7c9be"], Poison: ["#d486b1", "#c25290"], Psychic: ["#f4a3e2", "#f07cd6"],
-	Rock: ["#ddcfa7", "#cfbb81"], Steel: ["#a1aeb4", "#798b94"], Water: ["#99d1f6", "#6dbdf2"]
-};
-function bgDarken(hex, f) {
-	var n = parseInt(hex.slice(1), 16);
-	return "rgb(" + [n >> 16, n >> 8 & 255, n & 255].map(function (c) { return Math.round(c * f); }).join(",") + ")";
-}
-(function () {
-	var css = "";
-	for (var t in BG_TYPE_COLORS) {
-		var c = BG_TYPE_COLORS[t];
-		css += ".bg-t-" + t + "{background:linear-gradient(to bottom," + c[0] + "," + c[1] + ");color:" + bgDarken(c[1], 0.42) + "}\n";
-	}
-	document.head.insertAdjacentHTML("beforeend", "<style>" + css + "</style><style id='bg-tpl-style'></style>");
-})();
-
+// Type colors (.bg-t-<Type> classes) come from js/remix_type_colors.js.
 var BG_STATS = [["hp", "HP"], ["at", "Atk"], ["df", "Def"], ["sa", "Sp. A"], ["sd", "Sp. D"], ["sp", "Spe"]];
 var BG_EV_NAMES = {hp: "HP", at: "Atk", df: "Def", sa: "Sp. Atk", sd: "Sp. Def", sp: "Speed"};
 

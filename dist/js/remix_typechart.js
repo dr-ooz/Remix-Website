@@ -4,12 +4,12 @@
 // or item (same stats, same attacker, same field, so everything else cancels out).
 // Entries changed by the ability or item are shown in italics with a small mark.
 var REMIX_TC_TYPES = [
-	["Normal", "NOR", "#c7c9be"], ["Fire", "FIR", "#f59100"], ["Water", "WAT", "#6dbdf2"],
-	["Electric", "ELE", "#ffcc16"], ["Grass", "GRA", "#7dc45d"], ["Ice", "ICE", "#b1f7ff"],
-	["Fighting", "FIG", "#d16248"], ["Poison", "POI", "#c25290"], ["Ground", "GRO", "#df981c"],
-	["Flying", "FLY", "#96b5ff"], ["Psychic", "PSY", "#f07cd6"], ["Bug", "BUG", "#b7c955"],
-	["Rock", "ROC", "#cfbb81"], ["Ghost", "GHO", "#b893e6"], ["Dragon", "DRA", "#6062ff"],
-	["Dark", "DAR", "#a39090"], ["Steel", "STE", "#798b94"], ["Fairy", "FAI", "#fbbeec"]
+	["Normal", "NOR"], ["Fire", "FIR"], ["Water", "WAT"],
+	["Electric", "ELE"], ["Grass", "GRA"], ["Ice", "ICE"],
+	["Fighting", "FIG"], ["Poison", "POI"], ["Ground", "GRO"],
+	["Flying", "FLY"], ["Psychic", "PSY"], ["Bug", "BUG"],
+	["Rock", "ROC"], ["Ghost", "GHO"], ["Dragon", "DRA"],
+	["Dark", "DAR"], ["Steel", "STE"], ["Fairy", "FAI"]
 ];
 
 var remixTCHidden = false;
@@ -20,8 +20,7 @@ $(function () {
 		var chart = $('<div class="type-chart"><div class="tc-title">Type defenses</div><div class="tc-grid"></div>' +
 			'<button type="button" class="tc-toggle"></button></div>');
 		REMIX_TC_TYPES.forEach(function (t) {
-			chart.find(".tc-grid").append('<div class="tc-cell" data-type="' + t[0] + '"><span class="tc-tile" style="background:' +
-				t[2] + '">' + t[1] + '</span><span class="tc-val">&ndash;</span></div>');
+			chart.find(".tc-grid").append('<div class="tc-cell" data-type="' + t[0] + '"><span class="tc-tile">' + t[1] + '</span><span class="tc-val">&ndash;</span></div>');
 		});
 		$(this).append(chart);
 	});
