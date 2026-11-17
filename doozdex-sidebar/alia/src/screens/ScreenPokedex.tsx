@@ -1,3 +1,4 @@
+import { statBars, setStatBars, barsSoft, setBarsSoft, ROW_H_BARS } from "../components/Pokemon";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 import type { JSX } from "solid-js/jsx-runtime";
@@ -246,8 +247,11 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       return groupedAndSorted()?.length ?? 0;
     },
     getScrollElement: () => parentRef,
-    estimateSize: () => 58,
+    estimateSize: () => (statBars() ? ROW_H_BARS : 58),
   });
+
+  // row height changes with the stat display: re-measure the list when it's switched
+  createEffect(on(statBars, () => virtualizer.measure(), { defer: true }));
 
   const autoCompleteList = createMemo(() => Object.keys({ ...pokedex() }).toSorted());
 
@@ -357,8 +361,18 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
           </For>
         </div>
 
-        <div class="text-center text-sm font-bold">
-          <div>Click the Pokemon to see their changes on the Doozdex!</div>
+        <div class="flex items-center gap-1 text-sm font-bold">
+          <div class="flex-1 text-center">Click the Pokemon to see their changes on the Doozdex!</div>
+          <div class="flex flex-none flex-col gap-0.5">
+            <Button class="text-xs" onclick={() => setStatBars(!statBars())}>
+              {statBars() ? "Stat numbers" : "Stat bars"}
+            </Button>
+            <Show when={statBars()}>
+              <Button class="text-xs" onclick={() => setBarsSoft(!barsSoft())}>
+                {barsSoft() ? "Solid bars" : "Soft bars"}
+              </Button>
+            </Show>
+          </div>
         </div>
       </div>
 

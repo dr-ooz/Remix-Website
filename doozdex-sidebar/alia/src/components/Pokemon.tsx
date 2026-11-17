@@ -4,7 +4,8 @@
 //   close, stopping SPRITE_GAP px from the types;
 // - stats use fixed-width cells, so the text never runs into the abilities.
 
-const ROW_H = 58; // matches estimateSize in ScreenPokedex
+const ROW_H = 58; // matches estimateSize in ScreenPokedex (stat bars mode: ROW_H_BARS)
+export const ROW_H_BARS = 64; // taller rows for the stat bars; sprites keep the ROW_H size
 const ROW_LINE = 2; // px: the line under each Pokemon
 const SPRITE_SCALE = (ROW_H - ROW_LINE) / 30; // minisprites are 30px tall, drawn as tall as the row
 const SPRITE_GAP = 1.75; // px between the types and the sprite (half the old gap)
@@ -24,6 +25,23 @@ const SPRITE_SIZE: Record<string, number> = {
 const SPRITE_FILL: Record<string, number> = { wailord: 1 };
 const CONTENT_H = ROW_H - ROW_LINE;
 
+// Stat display: a little bar graph under the name (default) or colored numbers. Kept per browser.
+const BARS_KEY = "dzStatBars";
+const loadBars = () => { try { return localStorage.getItem(BARS_KEY) !== "off"; } catch { return true; } }; // bars by default
+export const [statBars, setStatBarsSignal] = createSignal(loadBars());
+// Bar look: "soft" (default: see-through fill with a solid top line) or "solid" (full color).
+const SOFT_KEY = "dzStatBarsSoft";
+const loadSoft = () => { try { return localStorage.getItem(SOFT_KEY) !== "off"; } catch { return true; } }; // soft by default
+export const [barsSoft, setBarsSoftSignal] = createSignal(loadSoft());
+export const setBarsSoft = (on: boolean) => {
+  setBarsSoftSignal(on);
+  try { localStorage.setItem(SOFT_KEY, on ? "on" : "off"); } catch {}
+};
+export const setStatBars = (on: boolean) => {
+  setStatBarsSignal(on);
+  try { localStorage.setItem(BARS_KEY, on ? "on" : "off"); } catch {}
+};
+
 export const Pokemon = (props: { data: PokemonData; datasetId: string; sheetId: string }) => {
   return (
     <div
@@ -40,10 +58,23 @@ export const Pokemon = (props: { data: PokemonData; datasetId: string; sheetId: 
           split evenly around the text so it stays centred like before. */}
       <div class="min-w-0 flex-1" />
 
-      <div class="z-30 mr-1 flex flex-none flex-col place-items-center py-1">
-        <Name data={props.data} />
-        <Stats data={props.data} />
-      </div>
+      <Show
+        when={statBars()}
+        fallback={
+          <div class="z-30 mr-1 flex flex-none flex-col place-items-center py-1">
+            <Name data={props.data} />
+            <Stats data={props.data} />
+          </div>
+        }
+      >
+        <div class="z-30 mr-1 flex h-full flex-none flex-col items-center">
+          {/* the bars run up under the name: their 150 line is the name's baseline */}
+          <div class="relative z-10 -mb-[6px] max-w-full leading-[24px] [&>div]:bg-transparent [&>div]:[text-shadow:0_0_3px_#000,0_0_2px_#000,0_0_1px_#000]">
+            <Name data={props.data} />
+          </div>
+          <StatBars data={props.data} />
+        </div>
+      </Show>
 
       <div class="min-w-0 flex-1" />
 
@@ -88,7 +119,7 @@ const Sprite = (props: { data: PokemonData; datasetId: string }) => {
   return (
     <div class="relative h-full min-w-0 flex-[1000_1_0%]" style={{ "max-width": `${SPRITE_AREA_MAX}px` }}>
       <div
-        class={cn("dz-sprite absolute -scale-x-100", shift() ? "z-20" : "z-0")}
+        class={cn("dz-sprite absolute -scale-x-100", statBars() ? "z-[35]" : shift() ? "z-20" : "z-0")}
         style={{
           bottom: `${lift()}px`,
           width: `${width()}px`,
@@ -141,6 +172,40 @@ const Stats = (props: { data: PokemonData }) => (
       </For>
     </div>
     <span class="ml-[2px] rounded-[3px] bg-black/50 px-[2px] text-xs font-bold italic">
+      {props.data.baseStats.reduce((a, c) => a + c, 0)}
+    </span>
+  </div>
+);
+
+// Bar graph version: one bar per stat, growing up from the bottom of the row. 150 reaches the
+// bottom of the name's letters; higher stats (rare, up to 250) carry on up behind the name.
+// The number sits on its bar.
+const StatBars = (props: { data: PokemonData }) => (
+  <div class="flex min-h-0 w-full flex-1 items-end">
+    <div class="flex h-full w-[15.3em] items-end gap-[2px] text-[10px]">
+      <For each={props.data.baseStats}>
+        {(v) => (
+          <div class="relative h-full flex-1">
+            <div
+              class="absolute right-0 bottom-0 left-0 rounded-t-[2px]"
+              style={
+                barsSoft()
+                  ? {
+                      height: `${(Math.min(v, 250) / 150) * 100}%`,
+                      background: `color-mix(in srgb, ${statColour(v)} 40%, transparent)`,
+                      "box-shadow": `inset 0 2px 0 ${statColour(v)}`,
+                    }
+                  : { height: `${(Math.min(v, 250) / 150) * 100}%`, background: statColour(v) }
+              }
+            />
+            <div class="absolute right-0 bottom-0 left-0 text-center text-[12px] leading-[14px] font-bold tracking-[-0.04em] text-white [text-shadow:0_0_2px_#000,0_0_2px_#000,0_0_1px_#000]">
+              {v}
+            </div>
+          </div>
+        )}
+      </For>
+    </div>
+    <span class="mb-px ml-[2px] rounded-[3px] bg-black/50 px-[2px] text-xs font-bold">
       {props.data.baseStats.reduce((a, c) => a + c, 0)}
     </span>
   </div>
