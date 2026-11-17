@@ -9,7 +9,7 @@ It has the Remix damage calc, the boss fight guide, and the DoozDex sidebar, wit
 ## Credits
 
 - **DoozDex sidebar:** built on **Alia**'s [DoozDex extension](https://github.com/alicedcodes/web-ext). Its structure, search
-  and layout are her work, which the sidebar here grows from.
+  and layout are her incredible work, which the sidebar here grows from. Thank you, Alia!
 - **Damage calc:** based on DSG's [Sweltering Sun calc](https://github.com/DarkShinyGiratina/Sweltering-Sun-Damage-Calc),
   built on the Pokémon Showdown damage calc by Honko, Austin, Kris and
   [contributors](https://github.com/DarkShinyGiratina/Sweltering-Sun-Damage-Calc/graphs/contributors).
