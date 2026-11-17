@@ -10172,6 +10172,26 @@ finally {
     }
     finally { if (e_1) throw e_1.error; }
 }
+{
+    var castform = SM["Castform"];
+    SM["Castform-Sandy"] = {
+        types: ["Flying", "Rock"], bs: Object.assign({}, SM["Castform-Snowy"].bs),
+        weightkg: 0.8, abilities: { 0: "Forecast" }, baseSpecies: "Castform"
+    };
+    castform.otherFormes = (castform.otherFormes || []).concat("Castform-Sandy");
+    var zygarde = SM["Zygarde"];
+    SM["Zygarde-Core"] = {
+        types: ["Dragon", "Bug"], bs: { hp: 54, at: 100, df: 71, sa: 61, sd: 85, sp: 115 },
+        weightkg: 0.1, abilities: { 0: "Power Construct" }, baseSpecies: "Zygarde"
+    };
+    zygarde.otherFormes = (zygarde.otherFormes || []).concat("Zygarde-Core");
+    var geodude = SM["Geodude"];
+    SM["Geodude-Steam"] = {
+        types: ["Fire", "Water"], bs: Object.assign({}, geodude.bs), weightkg: geodude.weightkg,
+        abilities: Object.assign({}, geodude.abilities), baseSpecies: "Geodude"
+    };
+    geodude.otherFormes = (geodude.otherFormes || []).concat("Geodude-Steam");
+}
 delete SM["Pikachu-Cosplay"];
 delete SM["Pikachu-Rock-Star"];
 delete SM["Pikachu-Belle"];
@@ -10272,7 +10292,9 @@ exports.REMIX_PERSONAL_UNMATCHED = [];
     var loose = function (n) { return n.normalize("NFD").toLowerCase().replace(/[^a-z0-9]/g, ""); };
     var ALIAS = {
         "basculinblue": "Basculin-Blue-Striped", "aegislash": "Aegislash-Shield", "zygarde50": "Zygarde",
-        "minior": "Minior-Meteor", "miniorred": "Minior-Pink"
+        "minior": "Minior-Meteor", "miniorred": "Minior-Pink",
+        "latiosmega": "Castform-Sandy",
+        "rattataalola": "Georupt-Steam"
     };
     var remove = remix_species_renames_1.REMIX_SPECIES_RENAMES.remove, rename = remix_species_renames_1.REMIX_SPECIES_RENAMES.rename;
     var renameLoose = {};
@@ -10309,6 +10331,10 @@ exports.REMIX_PERSONAL_UNMATCHED = [];
         for (var _0 = __values(Object.keys(remix_personal_1.REMIX_PERSONAL)), _1 = _0.next(); !_1.done; _1 = _0.next()) {
             var name_7 = _1.value;
             var calcName = ALIAS[loose(name_7)] || name_7;
+            if (calcName === "Castform-Sandy" && !remix_personal_1.REMIX_PERSONAL[name_7].types.includes("Flying"))
+                continue;
+            if (calcName === "Georupt-Steam" && !remix_personal_1.REMIX_PERSONAL[name_7].types.some(function (t) { return t === "Fire" || t === "Water"; }))
+                continue;
             if (removed.has(loose(calcName)))
                 continue;
             var target = byLoose[loose(renameLoose[loose(calcName)] || calcName)];
@@ -10332,6 +10358,11 @@ exports.REMIX_PERSONAL_UNMATCHED = [];
         }
         finally { if (e_9) throw e_9.error; }
     }
+    if (SM["Castform-Sandy"] && SM["Castform-Snowy"] && !applied.has("Castform-Sandy")) {
+        SM["Castform-Sandy"].bs = Object.assign({}, SM["Castform-Snowy"].bs);
+    }
+    if (SM["Georupt-Steam"] && SM["Georupt-Magma"] && !applied.has("Georupt-Steam"))
+        SM["Georupt-Steam"].bs = Object.assign({}, SM["Georupt-Magma"].bs);
     var _loop_3 = function (name_8) {
         var d = SM[name_8];
         if (applied.has(name_8) || !d.baseSpecies || !applied.has(d.baseSpecies))

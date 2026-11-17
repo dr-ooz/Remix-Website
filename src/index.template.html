@@ -6,6 +6,7 @@
     <title>Pok&eacute;mon Damage Calculator</title>
     <link type="text/css" rel="stylesheet" href="./js/vendor/select2/select2.css" />
     <link type="text/css" rel="stylesheet" href="./css/main.css?" />
+    <link type="text/css" rel="stylesheet" href="./css/remix_guide.css?" />
     <!--<link type="text/css" rel="stylesheet" href="./css/dynamic.css?" /> -->
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -80,6 +81,8 @@ function toggleTheme() {
         <button type="button" class="btn" id="ko-text-toggle" onclick="remixToggleKOText()" title="Show or hide the KO chance text (e.g. &quot;guaranteed 2HKO&quot;) at the end of the result">&#127919; KO text: Shown</button>
         <button type="button" class="btn" id="hp-memory-toggle" onclick="remixToggleHPMemory()" title="On: each Pok&eacute;mon keeps the HP you set when you switch away and back. Off: every Pok&eacute;mon you switch to starts at full HP">&#10084;&#65039; Dynamic HP: On</button>
         <button type="button" class="btn" id="sprites-toggle" onclick="remixToggleMainSprites()" title="Show or hide the big Pok&eacute;mon and item sprites in the panels (team sprites always stay)">&#128444;&#65039; Sprites: Shown</button>
+        <button type="button" class="btn" id="detailed-toggle" onclick="remixToggleDetailed()" title="Show the enemy trainer's whole team as big boss-guide cards under the calc (instead of the small team box)">&#128203; Detailed Team Layout: Off</button>
+        <button type="button" class="btn" id="doozdex-toggle" onclick="remixToggleDoozdex()" title="Show or hide the DoozDex search sidebar (Pok&eacute;dex, moves, type chart)">&#128214; DoozDex: Hidden</button>
         </span>
         </span>
         <script>if (!document.body.classList.contains('dark')) document.getElementById('theme-toggle').innerHTML = '&#127769; Dark mode';</script>
@@ -1693,6 +1696,12 @@ function toggleTheme() {
     <script type="text/javascript" src="./js/remix_residual.js?"></script>
     <script type="text/javascript" src="./js/remix_doubles_ai_data.js?"></script>
     <script type="text/javascript" src="./js/remix_doubles_panel.js?"></script>
+    <script type="text/javascript" src="./js/remix_art.js?"></script>
+    <script type="text/javascript" src="./js/remix_stat_colors.js?"></script>
+    <script type="text/javascript" src="./js/remix_guide_data.js?"></script>
+    <script type="text/javascript" src="./js/remix_bossguide.js?"></script>
+    <script type="text/javascript" src="./js/remix_compact.js?"></script>
+    <script type="text/javascript" src="./js/remix_doozdex_sidebar.js?"></script>
 </div>
 
 <div class="credits">Original Calc created by Honko and maintained by Austin and Kris. Sweltering Sun Remix Calc by Dooz.

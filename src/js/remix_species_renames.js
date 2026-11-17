@@ -3,14 +3,15 @@ var REMIX_SPECIES_RENAMES = {
  "remove": [
   "Meowth",
   "Rattata-Alola",
-  "Audino",
   "Raticate-Alola",
   "Mewtwo-Mega-X",
   "Vivillon-Fancy",
-  "Vivillon-Pokeball"
+  "Vivillon-Pokeball",
+  "Latios-Mega",
+  "Latias-Mega"
  ],
  "rename": {
-  "Geodude": "Georupt",
+  "Geodude": "Georupt-Magma",
   "Geodude-Alola": "Geodude",
   "Meowth-Alola": "Meowth",
   "Pidgeotto": "Avicero",
@@ -33,8 +34,8 @@ var REMIX_SPECIES_RENAMES = {
   "Pansage": "Chimpower",
   "Clamperl": "Tapu Bibi",
   "Klang": "Achroma",
-  "Shellos": "Neurego",
-  "Shellos-East": "Shellos",
+  "Shellos-East": "Neurego",
+  "Gastrodon": "Gastrodon-West",
   "Silcoon": "Chrysalyx",
   "Kecleon": "Guzzleon",
   "Meloetta": "Meloetta-Techno",
@@ -52,6 +53,17 @@ var REMIX_SPECIES_RENAMES = {
   "Minior-Indigo": "Minior-Water",
   "Minior-Orange": "Minior-Fire",
   "Minior-Violet": "Minior-Dragon",
-  "Minior-Yellow": "Minior-Electric"
- }
+  "Minior-Yellow": "Minior-Electric",
+  "Audino": "Kangakid",
+  "Geodude-Steam": "Georupt-Steam",
+  "Nidoran-M": "Nidoran",
+  "Dugtrio": "Drugtrio",
+  "Dugtrio-Alola": "Drumtrio",
+  "Burmy-Sandy": "Burmy-Sand",
+  "Wormadam-Sandy": "Wormadam-Sand",
+  "Wishiwashi": "Wishiwashi-Solo"
+ },
+ "noOldNameSearch": [
+  "Kangakid"
+ ]
 };

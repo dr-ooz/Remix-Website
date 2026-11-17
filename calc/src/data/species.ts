@@ -10126,6 +10126,31 @@ for (const [base, forms] of REMIX_COSMETIC_FORMS) {
   }
 }
 
+// Sweltering Sun Remix: forms the extractor can't name (Sandy Castform lives in the Mega Latios personal slot,
+// Zygarde Core shares the 10% form's name), so they're added here. Game data (2026-11-15):
+// Sandy Castform = Snowy's stats, Flying/Rock (Forecast in sand); Zygarde Core = form 2, Dragon/Bug.
+{
+  const castform = SM["Castform"] as any;
+  SM["Castform-Sandy"] = {
+    types: ["Flying", "Rock"], bs: Object.assign({}, (SM["Castform-Snowy"] as any).bs),
+    weightkg: 0.8, abilities: {0: "Forecast"}, baseSpecies: "Castform",
+  } as any;
+  castform.otherFormes = (castform.otherFormes || []).concat("Castform-Sandy");
+  const zygarde = SM["Zygarde"] as any;
+  SM["Zygarde-Core"] = {
+    types: ["Dragon", "Bug"], bs: {hp: 54, at: 100, df: 71, sa: 61, sd: 85, sp: 115},
+    weightkg: 0.1, abilities: {0: "Power Construct"}, baseSpecies: "Zygarde",
+  } as any;
+  zygarde.otherFormes = (zygarde.otherFormes || []).concat("Zygarde-Core");
+  // Georupt-Steam (renamed from Geodude-Steam below): Georupt-Magma's stats and abilities, Fire/Water.
+  const geodude = SM["Geodude"] as any;
+  SM["Geodude-Steam"] = {
+    types: ["Fire", "Water"], bs: Object.assign({}, geodude.bs), weightkg: geodude.weightkg,
+    abilities: Object.assign({}, geodude.abilities), baseSpecies: "Geodude",
+  } as any;
+  geodude.otherFormes = (geodude.otherFormes || []).concat("Geodude-Steam");
+}
+
 delete SM["Pikachu-Cosplay"];
 delete SM["Pikachu-Rock-Star"];
 delete SM["Pikachu-Belle"];
@@ -10163,7 +10188,7 @@ delete SM["Pikachu-Libre"];
 
 // Sweltering Sun Remix: types + base stats from the game's personal data (remix-data/pokedex.json).
 // The extractor uses the game's original names, so each name goes through the same renames as the calc
-// (Shellos -> Neurego, Shellos-East -> Shellos...) before a loose match (case/spaces/punctuation/accents).
+// (Shellos-East -> Neurego...) before a loose match (case/spaces/punctuation/accents).
 // Removed species are skipped. Unmatched names are listed in REMIX_PERSONAL_UNMATCHED.
 export const REMIX_PERSONAL_UNMATCHED: string[] = [];
 {
@@ -10172,6 +10197,8 @@ export const REMIX_PERSONAL_UNMATCHED: string[] = [];
   const ALIAS: {[k: string]: string} = {
     "basculinblue": "Basculin-Blue-Striped", "aegislash": "Aegislash-Shield", "zygarde50": "Zygarde",
     "minior": "Minior-Meteor", "miniorred": "Minior-Pink",
+    "latiosmega": "Castform-Sandy", // the Mega Latios personal slot holds Sandy Castform's data
+    "rattataalola": "Georupt-Steam", // the Alolan Rattata personal slot holds Georupt-Steam's data
   };
   const {remove, rename} = REMIX_SPECIES_RENAMES;
   const renameLoose: {[k: string]: string} = {};
@@ -10182,6 +10209,10 @@ export const REMIX_PERSONAL_UNMATCHED: string[] = [];
   const applied = new Set<string>();
   for (const name of Object.keys(REMIX_PERSONAL)) {
     const calcName = ALIAS[loose(name)] || name;
+    // the Mega Latios slot only counts as Sandy Castform once it holds Sandy's data (Flying type)
+    if (calcName === "Castform-Sandy" && !REMIX_PERSONAL[name].types.includes("Flying")) continue;
+    // same for Georupt-Steam: only once the slot holds a Fire or Water type (not vanilla Alolan Rattata)
+    if (calcName === "Georupt-Steam" && !REMIX_PERSONAL[name].types.some((t: string) => t === "Fire" || t === "Water")) continue;
     if (removed.has(loose(calcName))) continue;
     const target = byLoose[loose(renameLoose[loose(calcName)] || calcName)];
     if (!target) { REMIX_PERSONAL_UNMATCHED.push(name); continue; }
@@ -10191,6 +10222,12 @@ export const REMIX_PERSONAL_UNMATCHED: string[] = [];
     if (p.bs && p.bs.hp) d.bs = Object.assign({}, d.bs, p.bs);
     applied.add(target);
   }
+  // Sandy Castform has Snowy's stats (only its types differ)
+  if (SM["Castform-Sandy"] && SM["Castform-Snowy"] && !applied.has("Castform-Sandy")) {
+    (SM["Castform-Sandy"] as any).bs = Object.assign({}, (SM["Castform-Snowy"] as any).bs);
+  }
+  // Georupt-Steam: Georupt's stats until the Alolan Rattata personal slot holds its data
+  if (SM["Georupt-Steam"] && SM["Georupt-Magma"] && !applied.has("Georupt-Steam")) (SM["Georupt-Steam"] as any).bs = Object.assign({}, (SM["Georupt-Magma"] as any).bs);
   // Cosmetic forms the calc adds itself (Deerling seasons, Burmy cloaks) follow their base.
   for (const name of Object.keys(SM)) {
     const d = SM[name] as any;

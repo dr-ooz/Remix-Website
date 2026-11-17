@@ -1,0 +1,247 @@
+<title>Remix Dex Order</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky toolbar over a wrapping wall of family cards, read left-to-right like a dex page. */
+:root {
+  --bg: #f3f1f6; --panel: #ffffff; --card: #ffffff; --line: #d9d3e2; --fg: #221d2b; --muted: #6c6479;
+  --accent: #6a4fd8; --accent-soft: #e7e0fb; --cp: #2f8f83; --cp-soft: #dcf1ee; --hit: #f2b632; --sprite-bg: #ece8f2;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --z: 1;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
+  --accent: #9d86ff; --accent-soft: #2f2747; --cp: #5cc4b6; --cp-soft: #1d3633; --hit: #f2b632; --sprite-bg: #2c2636; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
+  --accent: #9d86ff; --accent-soft: #2f2747; --cp: #5cc4b6; --cp-soft: #1d3633; --hit: #f2b632; --sprite-bg: #2c2636; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+h1 { font-family: var(--display); font-size: 1.25rem; margin: 0; letter-spacing: 0.01em; }
+.count { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
+input[type=search] { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); width: 13rem; max-width: 100%; }
+button { font: inherit; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.warn { border-color: #d9534f; color: #d9534f; }
+.zoom { display: flex; gap: 2px; }
+.zoom button { padding: 6px 9px; font-family: var(--mono); font-weight: 500; }
+.zoom button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+.status { font-size: 0.8rem; color: var(--muted); min-width: 10rem; }
+.status.dirty { color: var(--hit); }
+.help { padding-block: 8px 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  font-size: 0.82rem; color: var(--muted); max-width: 70rem; }
+.help b { color: var(--fg); font-weight: 600; }
+.wall { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start;
+  padding-block: 12px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 4px 6px 5px; cursor: grab; user-select: none;
+  display: flex; flex-direction: column; gap: 3px; max-width: 100%; touch-action: manipulation; }
+.card.hit { outline: 3px solid var(--hit); outline-offset: 1px; }
+.card.moved { box-shadow: inset 0 -2px 0 var(--accent); }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; min-width: 0; }
+.pos { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); background: none; border: 0; padding: 0; cursor: text; }
+.pos:hover { color: var(--accent); }
+.pos-in { font-family: var(--mono); font-size: 0.72rem; width: 3.6rem; padding: 0 3px; border: 1px solid var(--accent); border-radius: 4px; background: var(--bg); color: var(--fg); }
+/* the card is as wide as its sprites; a longer name wraps onto more lines instead of widening it */
+.card { width: min-content; }
+.name { font-family: var(--display); font-weight: 700; font-size: 0.8rem; line-height: 1.15; text-wrap: balance; }
+.sprites { display: flex; flex-wrap: wrap; gap: 1px; }
+.sprites.cols3 { max-width: calc(var(--z) * 40px * 3 + 2px); }
+.sp { width: calc(var(--z) * 40px); height: calc(var(--z) * 30px); background-image: url(sprites.png); background-repeat: no-repeat;
+  background-size: calc(var(--z) * 1280px) calc(var(--z) * 870px); image-rendering: pixelated; border-radius: 3px; background-color: var(--sprite-bg); }
+.ghost { opacity: 0.35; }
+.chosen { cursor: grabbing; }
+@media (max-width: 600px) { .tools { margin-left: 0; } input[type=search] { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="bar">
+  <h1>Remix Dex Order</h1>
+  <span class="count" id="count"></span>
+  <div class="tools">
+    <input type="search" id="find" placeholder="Find a Pokémon…" aria-label="Find a Pokémon">
+    <div class="zoom" role="group" aria-label="Sprite size">
+      <button type="button" id="z1" data-z="1" aria-pressed="false">1x</button>
+      <button type="button" id="z15" data-z="1.5" aria-pressed="false">1.5x</button>
+      <button type="button" id="z2" data-z="2" aria-pressed="false">2x</button>
+    </div>
+    <button type="button" id="reset" class="warn">Reset to list order</button>
+    <button type="button" id="submit" class="primary">Submit order</button>
+    <span class="status" id="status" role="status">Loading saved order…</span>
+  </div>
+</div>
+<p class="help"><b>Drag a card</b> to move the whole family. <b>Click its # number</b> to type a new position. <b>Submit order</b> saves it for Claude to read; until then your changes are kept only in this browser.</p>
+<div class="wall" id="wall" aria-label="Families in dex order"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<script>
+const FAMILIES = [{"id":"bulbasaur","m":[["Bulbasaur",1],["Ivysaur",2],["Venusaur",3],["Venusaur-Mega",4]]},{"id":"charmander","m":[["Charmander",5],["Charmeleon",6],["Charizard",7],["Charizard-Mega-X",8],["Charizard-Mega-Y",9]]},{"id":"squirtle","m":[["Squirtle",10],["Wartortle",11],["Blastoise",12],["Blastoise-Mega",13]]},{"id":"caterpie","m":[["Caterpie",14],["Metapod",15],["Venomoth",16]]},{"id":"combee","m":[["Combee",17],["Vespiquen",18],["Beedrill",19],["Beedrill-Mega",20]]},{"id":"venonat","m":[["Venonat",21],["Butterfree",22]]},{"id":"pidgey","m":[["Pidgey",23],["Pidgeot",24],["Pidgeot-Mega",25]]},{"id":"rattata","m":[["Rattata",26],["Raticate",27],["Raticate-Mega",28]]},{"id":"spearow","m":[["Spearow",29],["Fearow",30],["Skarmory",31]]},{"id":"ekans","m":[["Ekans",32],["Arbok",33]]},{"id":"pichu","m":[["Pichu",34],["Pikachu",35],["Dedenne",36],["Togedemaru",37],["Emolga",38],["Pachirisu",39],["Plusle",40],["Minun",41],["Raichu",42],["Raichu-Alola",43]],"label":"Pikaclones","cols":5},{"id":"sandshrew","m":[["Sandshrew",44],["Sandslash",45]]},{"id":"sandshrewalola","m":[["Sandshrew-Alola",46],["Sandslash-Alola",47]]},{"id":"nidoran","m":[["Nidoran",48],["Nidorino",49],["Nidorina",50],["Nidoking",51],["Nidoqueen",52]]},{"id":"cleffa","m":[["Cleffa",53],["Clefairy",54],["Clefable",55]]},{"id":"vulpix","m":[["Vulpix",56],["Ninetales",57]]},{"id":"vulpixalola","m":[["Vulpix-Alola",58],["Ninetales-Alola",59]]},{"id":"igglybuff","m":[["Igglybuff",60],["Jigglypuff",61],["Wigglytuff",62]]},{"id":"oddish","m":[["Oddish",63],["Gloom",64],["Vileplume",65],["Bellossom",66]]},{"id":"paras","m":[["Paras",67],["Parasect",68]]},{"id":"diglett","m":[["Diglett",69],["Drugtrio",70],["Drumtrio",71]]},{"id":"wackitt","m":[["Wackitt",72],["Tauros",73],["Cryogonal",74]]},{"id":"meowth","m":[["Meowth",75],["Persian",76],["Persian-Mega",77]]},{"id":"psyduck","m":[["Psyduck",78],["Golduck",79]]},{"id":"mankey","m":[["Mankey",80],["Primeape",81]]},{"id":"growlithe","m":[["Growlithe",82],["Arcanine",83]]},{"id":"poliwag","m":[["Poliwag",84],["Poliwhirl",85],["Poliwrath",86],["Politoed",87]]},{"id":"abra","m":[["Abra",88],["Kadabra",89],["Alakazam",90],["Alakazam-Mega",91]]},{"id":"machop","m":[["Machop",92],["Machoke",93],["Machamp",94],["Sawk",95],["Throh",96]]},{"id":"spellsprout","m":[["Spellsprout",97],["Weepinspell",98],["Victreebrew",99],["Carnivoid",100]]},{"id":"tentacool","m":[["Tentacool",101],["Tentacruel",102]]},{"id":"geodude","m":[["Geodude",103],["Graveler",104],["Golem",105],["Graveler-Alola",106],["Golem-Alola",107]]},{"id":"ponyta","m":[["Ponyta",108],["Rapidash",109]]},{"id":"slowpoke","m":[["Slowpoke",110],["Slowbro",111],["Slowbro-Mega",112],["Slowking",113]]},{"id":"magnemite","m":[["Magnemite",114],["Magneton",115],["Magnezone",116]]},{"id":"farfetchd","m":[["Farfetch’d",117]]},{"id":"doduo","m":[["Doduo",118],["Dodrio",119]]},{"id":"seel","m":[["Seel",120],["Dewgong",121]]},{"id":"grimer","m":[["Grimer",122],["Muk",123]]},{"id":"grimeralola","m":[["Grimer-Alola",124],["Muk-Alola",125]]},{"id":"shellder","m":[["Shellder",126],["Cloyster",127]]},{"id":"gastly","m":[["Gastly",128],["Haunter",129],["Gengar",130],["Gengar-Mega",131]]},{"id":"onix","m":[["Onix",132],["Steelix",133],["Steelix-Mega",134]]},{"id":"zubat","m":[["Zubat",135],["Golbat",136],["Crobat",137]]},{"id":"drowzee","m":[["Drowzee",138],["Hypno",139]]},{"id":"krabby","m":[["Krabby",140],["Kingler",141]]},{"id":"voltorb","m":[["Voltorb",142],["Electrode",143]]},{"id":"exeggcute","m":[["Exeggcute",144],["Exeggutor",145],["Exeggutor-Alola",146]]},{"id":"cubone","m":[["Cubone",147],["Marowak",148],["Marowak-Alola",149]]},{"id":"tyrogue","m":[["Tyrogue",150],["Hitmonlee",151],["Hitmonchan",152],["Hitmontop",153]]},{"id":"lickitung","m":[["Lickitung",154],["Lickilicky",155]]},{"id":"koffing","m":[["Koffing",156],["Weezing",157]]},{"id":"rhyhorn","m":[["Rhyhorn",158],["Rhydon",159],["Rhyperior",160]]},{"id":"happiny","m":[["Happiny",161],["Chansey",162],["Blissey",163]]},{"id":"tangela","m":[["Tangela",164],["Tangrowth",165]]},{"id":"kangakid","m":[["Kangakid",166],["Kangaskhan",167],["Kangaskhan-Mega",168]]},{"id":"goldeen","m":[["Goldeen",169],["Seaking",170]]},{"id":"staryu","m":[["Staryu",171],["Starmie",172]]},{"id":"mimejr","m":[["Mime Jr.",173],["Mr. Mime",174],["Bouffalant",175]]},{"id":"smoochum","m":[["Smoochum",176],["Jynx",177],["Meloetta-Pirouette",178],["Meloetta-Techno",179]]},{"id":"munchlax","m":[["Munchlax",180],["Snorlax",181]]},{"id":"pindle","m":[["Pindle",182],["Herakuna",183],["Pinsir",184],["Pinsir-Mega",185],["Heracross",186],["Heracross-Mega",187]]},{"id":"scyther","m":[["Scyther",188],["Scizor",189],["Scizor-Mega",190]]},{"id":"elekid","m":[["Elekid",191],["Electabuzz",192],["Electivire",193]]},{"id":"magby","m":[["Magby",194],["Magmar",195],["Magmortar",196]]},{"id":"magikarp","m":[["Magikarp",197],["Gyarados",198],["Gyarados-Mega",199]]},{"id":"porygon","m":[["Porygon",200],["Porygon2",201],["Porygon-Z",202]]},{"id":"omanyte","m":[["Omanyte",203],["Omastar",204]]},{"id":"kabuto","m":[["Kabuto",205],["Kabutops",206]]},{"id":"tyrunt","m":[["Tyrunt",207],["Tyrantrum",208],["Druddigon",209],["Aerodactyl",210],["Aerodactyl-Mega",211]]},{"id":"primora","m":[["Primora",212],["Aurorus",213],["Lapras",214],["Tropius",215]]},{"id":"horsea","m":[["Horsea",216],["Seadra",217],["Kingdra",218]]},{"id":"dratini","m":[["Dratini",219],["Dragonair",220],["Dragonite",221]]},{"id":"eevee","m":[["Eevee",222],["Vaporeon",223],["Jolteon",224],["Flareon",225],["Umbreon",226],["Espeon",227],["Glaceon",228],["Leafeon",229],["Sylveon",230]],"cols":3},{"id":"raikou","m":[["Raikou",231],["Entei",232],["Suicune",233]]},{"id":"avicero","m":[["Avicero",234],["Articuno",235],["Zapdos",236],["Moltres",237]]},{"id":"mew","m":[["Mew",238],["Mewtwo",239]]},{"id":"chikorita","m":[["Chikorita",240],["Bayleef",241],["Meganium",242]]},{"id":"cyndaquil","m":[["Cyndaquil",243],["Quilava",244],["Typhlosion",245]]},{"id":"totodile","m":[["Totodile",246],["Croconaw",247],["Feraligatr",248]]},{"id":"sentret","m":[["Sentret",249],["Furret",250]]},{"id":"hoothoot","m":[["Hoothoot",251],["Noctowl",252]]},{"id":"ledyba","m":[["Ledyba",253],["Ledian",254]]},{"id":"spinarak","m":[["Spinarak",255],["Ariados",256]]},{"id":"chinchou","m":[["Chinchou",257],["Lanturn",258]]},{"id":"togepi","m":[["Togepi",259],["Togetic",260],["Togekiss",261]]},{"id":"natu","m":[["Natu",262],["Xatu",263]]},{"id":"mareep","m":[["Mareep",264],["Flaaffy",265],["Ampharos",266],["Ampharos-Mega",267]]},{"id":"azurill","m":[["Azurill",268],["Marill",269],["Azumarill",270]]},{"id":"bonsly","m":[["Bonsly",271],["Sudowoodo",272]]},{"id":"hoppip","m":[["Hoppip",273],["Skiploom",274],["Jumpluff",275]]},{"id":"aipom","m":[["Aipom",276],["Ambipom",277]]},{"id":"sunkern","m":[["Sunkern",278],["Sunflora",279]]},{"id":"yanma","m":[["Yanma",280],["Yanmega",281]]},{"id":"wooper","m":[["Wooper",282],["Quagsire",283]]},{"id":"murkrow","m":[["Murkrow",284],["Honchkrow",285]]},{"id":"misdreavus","m":[["Misdreavus",286],["Mismagius",287]]},{"id":"wynaut","m":[["Wynaut",288],["Wobbuffet",289]]},{"id":"girafarig","m":[["Girafarig",290]]},{"id":"pineco","m":[["Pineco",291],["Forretress",292]]},{"id":"gligar","m":[["Gligar",293],["Gliscor",294]]},{"id":"snubbull","m":[["Snubbull",295],["Granbull",296]]},{"id":"pyukumuku","m":[["Pyukumuku",297],["Qwilfish",298],["Corsola",299],["Octillery",300]]},{"id":"sneasel","m":[["Sneasel",301],["Weavile",302]]},{"id":"teddiursa","m":[["Teddiursa",303],["Ursaring",304]]},{"id":"slugma","m":[["Slugma",305],["Magcargo",306]]},{"id":"unown","m":[["Unown",307],["Stantler",308],["Sigilyph",309]]},{"id":"swinub","m":[["Swinub",310],["Piloswine",311],["Mamoswine",312]]},{"id":"mantyke","m":[["Mantyke",313],["Mantine",314]]},{"id":"houndour","m":[["Houndour",315],["Houndoom",316],["Houndoom-Mega",317]]},{"id":"phanpy","m":[["Phanpy",318],["Donphan",319]]},{"id":"smeargle","m":[["Smeargle",320]]},{"id":"delibird","m":[["Delibird",321]]},{"id":"miltick","m":[["Miltick",322],["Miltank",323]]},{"id":"larvitar","m":[["Larvitar",324],["Pupitar",325],["Tyranitar",326],["Tyranitar-Mega",327]]},{"id":"lugia","m":[["Lugia",328],["Ho-Oh",329]]},{"id":"celebi","m":[["Celebi",330]]},{"id":"treecko","m":[["Treecko",331],["Grovyle",332],["Sceptile",333],["Sceptile-Mega",334]]},{"id":"torchic","m":[["Torchic",335],["Combusken",336],["Blaziken",337],["Blaziken-Mega",338]]},{"id":"mudkip","m":[["Mudkip",339],["Marshtomp",340],["Swampert",341],["Swampert-Mega",342]]},{"id":"poochyena","m":[["Poochyena",343],["Mightyena",344]]},{"id":"zigzagoon","m":[["Zigzagoon",345],["Linoone",346],["Heatmor",347]]},{"id":"wurmple","m":[["Wurmple",348],["Cascoon",349],["Dustox",350]]},{"id":"lotad","m":[["Lotad",351],["Lombre",352],["Ludicolo",353]]},{"id":"seedot","m":[["Seedot",354],["Nuzleaf",355],["Shiftry",356]]},{"id":"wingull","m":[["Wingull",357],["Pelipper",358]]},{"id":"ralts","m":[["Ralts",359],["Kirlia",360],["Gardevoir",361],["Gardevoir-Mega",362],["Gallade",363],["Gallade-Mega",364]]},{"id":"surskit","m":[["Surskit",365],["Masquerain",366]]},{"id":"shroomish","m":[["Shroomish",367],["Breloom",368]]},{"id":"slakoth","m":[["Slakoth",369],["Vigoroth",370],["Slaking",371]]},{"id":"nincada","m":[["Nincada",372],["Ninjask",373],["Shedinja",374]]},{"id":"whismur","m":[["Whismur",375],["Loudred",376],["Exploud",377]]},{"id":"makuhita","m":[["Makuhita",378],["Hariyama",379]]},{"id":"nosepass","m":[["Nosepass",380],["Probopass",381]]},{"id":"skitty","m":[["Skitty",382],["Delcatty",383]]},{"id":"sableye","m":[["Sableye",384],["Sableye-Mega",385]]},{"id":"mawile","m":[["Mawile",386],["Mawile-Mega",387]]},{"id":"aron","m":[["Aron",388],["Lairon",389],["Aggron",390],["Aggron-Mega",391]]},{"id":"meditite","m":[["Meditite",392],["Medicham",393],["Medicham-Mega",394]]},{"id":"electrike","m":[["Electrike",395],["Manectric",396],["Manectric-Mega",397]]},{"id":"pupulse","m":[["Pupulse",398],["Jolbeat",399],["Fluibeat",400],["Vitabeat",401]]},{"id":"gulpin","m":[["Gulpin",402],["Swalot",403]]},{"id":"carvanha","m":[["Carvanha",404],["Sharpedo",405],["Sharpedo-Mega",406]]},{"id":"wailmer","m":[["Wailmer",407],["Wailord",408]]},{"id":"numel","m":[["Numel",409],["Camerupt",410],["Camerupt-Mega",411]]},{"id":"spoink","m":[["Spoink",412],["Grumpig",413]]},{"id":"trapinch","m":[["Trapinch",414],["Vibrava",415],["Flygon",416]]},{"id":"cacnea","m":[["Cacnea",417],["Cacturne",418],["Maractus",419]]},{"id":"swablu","m":[["Swablu",420],["Altaria",421],["Altaria-Mega",422]]},{"id":"zangoose","m":[["Zangoose",423],["Seviper",424]],"label":"Seviper & Zangoose"},{"id":"solrock","m":[["Solrock",425],["Lunatone",426]],"label":"Solrock & Lunatone"},{"id":"spinda","m":[["Spinda",427]]},{"id":"barboach","m":[["Barboach",428],["Whiscash",429]]},{"id":"corphish","m":[["Corphish",430],["Crawdaunt",431]]},{"id":"baltoy","m":[["Baltoy",432],["Claydol",433]]},{"id":"lileep","m":[["Lileep",434],["Cradily",435]]},{"id":"anorith","m":[["Anorith",436],["Armaldo",437]]},{"id":"feebas","m":[["Feebas",438],["Milotic",439]]},{"id":"castform","m":[["Castform",440],["Castform-Sunny",441],["Castform-Rainy",442],["Castform-Snowy",443],["Castform-Sandy",444]]},{"id":"shuppet","m":[["Shuppet",445],["Banette",446],["Banette-Mega",447]]},{"id":"duskull","m":[["Duskull",448],["Dusclops",449],["Dusknoir",450]]},{"id":"chingling","m":[["Chingling",451],["Chimecho",452]]},{"id":"lunare","m":[["Lunare",453],["Absol",454],["Absol-Mega",455]]},{"id":"snorunt","m":[["Snorunt",456],["Froslass",457],["Glalie",458],["Glalie-Mega",459]]},{"id":"spheal","m":[["Spheal",460],["Sealeo",461],["Walrein",462]]},{"id":"remoraid","m":[["Remoraid",463],["Huntail",464],["Gorebyss",465]]},{"id":"relicanth","m":[["Relicanth",466]]},{"id":"luvdisc","m":[["Luvdisc",467],["Alomomola",468]]},{"id":"bagon","m":[["Bagon",469],["Shelgon",470],["Salamence",471],["Salamence-Mega",472]]},{"id":"beldum","m":[["Beldum",473],["Metang",474],["Metagross",475],["Metagross-Mega",476]]},{"id":"taillow","m":[["Taillow",477],["Swellow",478],["Latios",479],["Latias",480]]},{"id":"regirock","m":[["Regirock",481],["Regice",482],["Registeel",483],["Regigigas",484]]},{"id":"jirachi","m":[["Jirachi",485]]},{"id":"deoxys","m":[["Deoxys",486],["Deoxys-Attack",487],["Deoxys-Defense",488],["Deoxys-Speed",489]]},{"id":"turtwig","m":[["Turtwig",490],["Grotle",491],["Torterra",492]]},{"id":"chimchar","m":[["Chimchar",493],["Monferno",494],["Infernape",495]]},{"id":"piplup","m":[["Piplup",496],["Prinplup",497],["Empoleon",498]]},{"id":"starly","m":[["Starly",499],["Staravia",500],["Staraptor",501]]},{"id":"bidoof","m":[["Bidoof",502],["Bibarel",503]]},{"id":"kricketot","m":[["Kricketot",504],["Kricketune",505]]},{"id":"shinx","m":[["Shinx",506],["Luxio",507],["Luxray",508]]},{"id":"budew","m":[["Budew",509],["Roselia",510],["Roserade",511]]},{"id":"cranidos","m":[["Cranidos",512],["Rampardos",513]]},{"id":"shieldon","m":[["Shieldon",514],["Bastiodon",515]]},{"id":"burmyplant","m":[["Burmy-Plant",516],["Wormadam-Plant",517],["Beautifly",518]]},{"id":"burmysand","m":[["Burmy-Sand",519],["Wormadam-Sand",520],["Mothim",521]]},{"id":"burmysnow","m":[["Burmy-Snow",522],["Wormadam-Snow",523],["Vivillon",524]]},{"id":"buizel","m":[["Buizel",525],["Floatzel",526]]},{"id":"cherubi","m":[["Cherubi",527],["Cherrim",528],["Cherrim-Sunshine",529]]},{"id":"shellos","m":[["Shellos",530],["Gastrodon-West",531],["Gastrodon-East",532]]},{"id":"drifloon","m":[["Drifloon",533],["Drifblim",534]]},{"id":"buneary","m":[["Buneary",535],["Lopunny",536],["Lopunny-Mega",537]]},{"id":"glameow","m":[["Glameow",538],["Purugly",539]]},{"id":"stunky","m":[["Stunky",540],["Skuntank",541]]},{"id":"bronzor","m":[["Bronzor",542],["Bronzong",543]]},{"id":"chatot","m":[["Chatot",544]]},{"id":"spiritomb","m":[["Spiritomb",545]]},{"id":"gible","m":[["Gible",546],["Gabite",547],["Garchomp",548],["Garchomp-Mega",549]]},{"id":"riolu","m":[["Riolu",550],["Lucario",551],["Lucario-Mega",552]]},{"id":"hippopotas","m":[["Hippopotas",553],["Hippowdon",554]]},{"id":"skorupi","m":[["Skorupi",555],["Drapion",556]]},{"id":"croagunk","m":[["Croagunk",557],["Toxicroak",558]]},{"id":"finneon","m":[["Finneon",559],["Lumineon",560]]},{"id":"snover","m":[["Snover",561],["Abomasnow",562],["Abomasnow-Mega",563]]},{"id":"rotom","m":[["Rotom",564],["Rotom-Heat",565],["Rotom-Wash",566],["Rotom-Frost",567],["Rotom-Fan",568],["Rotom-Mow",569]]},{"id":"georuptmagma","m":[["Georupt-Magma",570],["Heatran",571]]},{"id":"georuptsteam","m":[["Georupt-Steam",572],["Volcanion",573]]},{"id":"phione","m":[["Phione",574],["Manaphy",575]]},{"id":"shaymin","m":[["Shaymin",576],["Shaymin-Sky",577]]},{"id":"azelf","m":[["Azelf",578],["Mesprit",579],["Uxie",580]],"label":"Lake Trio"},{"id":"cresselia","m":[["Cresselia",581],["Darkrai",582]]},{"id":"victini","m":[["Victini",583]]},{"id":"snivy","m":[["Snivy",584],["Servine",585],["Serperior",586]]},{"id":"tepig","m":[["Tepig",587],["Pignite",588],["Emboar",589]]},{"id":"oshawott","m":[["Oshawott",590],["Dewott",591],["Samurott",592]]},{"id":"patrat","m":[["Patrat",593],["Watchog",594]]},{"id":"purrloin","m":[["Purrloin",595],["Liepard",596]]},{"id":"lillipup","m":[["Lillipup",597],["Herdier",598],["Stoutland",599]]},{"id":"paneeni","m":[["Paneeni",600],["Simisage",601],["Simisear",602],["Simipour",603]]},{"id":"munna","m":[["Munna",604],["Musharna",605]]},{"id":"pidove","m":[["Pidove",606],["Tranquill",607],["Unfezant",608]]},{"id":"blitzle","m":[["Blitzle",609],["Zebstrika",610]]},{"id":"roggenrola","m":[["Roggenrola",611],["Boldore",612],["Gigalith",613]]},{"id":"woobat","m":[["Woobat",614],["Swoobat",615]]},{"id":"drilbur","m":[["Drilbur",616],["Excadrill",617]]},{"id":"timburr","m":[["Timburr",618],["Gurdurr",619],["Conkeldurr",620]]},{"id":"tympole","m":[["Tympole",621],["Palpitoad",622],["Seismitoad",623]]},{"id":"sewaddle","m":[["Sewaddle",624],["Swadloon",625],["Leavanny",626]]},{"id":"venipede","m":[["Venipede",627],["Whirlipede",628],["Scolipede",629]]},{"id":"cottonee","m":[["Cottonee",630],["Whimsicott",631]]},{"id":"petilil","m":[["Petilil",632],["Lilligant",633]]},{"id":"sandile","m":[["Sandile",634],["Krokorok",635],["Krookodile",636]]},{"id":"darumaka","m":[["Darumaka",637],["Darmanitan",638],["Darmanitan-Zen",639]]},{"id":"dwebble","m":[["Dwebble",640],["Crustle",641]]},{"id":"scraggy","m":[["Scraggy",642],["Scrafty",643]]},{"id":"yamask","m":[["Yamask",644],["Cofagrigus",645]]},{"id":"tirtouga","m":[["Tirtouga",646],["Carracosta",647]]},{"id":"archen","m":[["Archen",648],["Archeops",649]]},{"id":"trubbish","m":[["Trubbish",650],["Garbodor",651]]},{"id":"minccino","m":[["Minccino",652],["Cinccino",653]]},{"id":"gothita","m":[["Gothita",654],["Gothorita",655],["Gothitelle",656]]},{"id":"solosis","m":[["Solosis",657],["Duosion",658],["Reuniclus",659]]},{"id":"ducklett","m":[["Ducklett",660],["Swanna",661]]},{"id":"vanillite","m":[["Vanillite",662],["Vanillish",663],["Vanilluxe",664]]},{"id":"deerling","m":[["Deerling",665],["Sawsbuck",666]]},{"id":"karrablast","m":[["Karrablast",667],["Escavalier",668]]},{"id":"shelmet","m":[["Shelmet",669],["Accelgor",670]]},{"id":"foongus","m":[["Foongus",671],["Amoonguss",672]]},{"id":"frillish","m":[["Frillish",673],["Jellicent",674]]},{"id":"joltik","m":[["Joltik",675],["Galvantula",676]]},{"id":"ferroseed","m":[["Ferroseed",677],["Ferrothorn",678]]},{"id":"klink","m":[["Klink",679],["Klinklang",680]]},{"id":"tynamo","m":[["Tynamo",681],["Eelektrik",682],["Eelektross",683]]},{"id":"elgyem","m":[["Elgyem",684],["Beheeyem",685]]},{"id":"litwick","m":[["Litwick",686],["Lampent",687],["Chandelure",688]]},{"id":"axew","m":[["Axew",689],["Fraxure",690],["Haxorus",691]]},{"id":"cubchoo","m":[["Cubchoo",692],["Beartic",693]]},{"id":"stunfisk","m":[["Stunfisk",694]]},{"id":"mienfoo","m":[["Mienfoo",695],["Mienshao",696]]},{"id":"golett","m":[["Golett",697],["Golurk",698]]},{"id":"pawniard","m":[["Pawniard",699],["Bisharp",700]]},{"id":"rufflet","m":[["Rufflet",701],["Braviary",702]]},{"id":"vullaby","m":[["Vullaby",703],["Mandibuzz",704]]},{"id":"deino","m":[["Deino",705],["Zweilous",706],["Hydreigon",707]]},{"id":"larvesta","m":[["Larvesta",708],["Volcarona",709]]},{"id":"achroma","m":[["Achroma",710],["Genesect",711],["Magearna",712]]},{"id":"zorua","m":[["Zorua",713],["Zoroark",714],["Zeraora",715]]},{"id":"cobalion","m":[["Cobalion",716],["Terrakion",717],["Virizion",718],["Keldeo",719],["Keldeo-Resolute",720]],"label":"4 Musketeers"},{"id":"tornadus","m":[["Tornadus",721],["Tornadus-Therian",722],["Thundurus",723],["Thundurus-Therian",724],["Landorus",725],["Landorus-Therian",726]],"label":"Genies"},{"id":"kyurem","m":[["Kyurem",727],["Kyurem-Black",728],["Kyurem-White",729]]},{"id":"chespin","m":[["Chespin",730],["Quilladin",731],["Chesnaught",732]]},{"id":"fennekin","m":[["Fennekin",733],["Braixen",734],["Delphox",735]]},{"id":"froakie","m":[["Froakie",736],["Frogadier",737],["Greninja",738],["Greninja-Ash",739]]},{"id":"bunnelby","m":[["Bunnelby",740],["Diggersby",741]]},{"id":"fletchling","m":[["Fletchling",742],["Fletchinder",743],["Talonflame",744]]},{"id":"flabebe","m":[["Flabebe",745],["Floette",746],["Floette-Eternal",747],["Florges",748]]},{"id":"skiddo","m":[["Skiddo",749],["Gogoat",750]]},{"id":"litleo","m":[["Litleo",751],["Pyroar",752]]},{"id":"pancham","m":[["Pancham",753],["Pangoro",754]]},{"id":"furfrou","m":[["Furfrou",755],["Furfrou-Heart",756],["Furfrou-Star",757],["Furfrou-Diamond",758],["Furfrou-Debutante",759],["Furfrou-Matron",760],["Furfrou-Dandy",761],["Furfrou-La-Reine",762],["Furfrou-Kabuki",763],["Furfrou-Pharaoh",764]]},{"id":"espurr","m":[["Espurr",765],["Meowstic",766],["Meowstic-F",767]]},{"id":"honedge","m":[["Honedge",768],["Doublade",769],["Aegislash",770],["Aegislash-Blade",771]]},{"id":"spritzee","m":[["Spritzee",772],["Aromatisse",773]]},{"id":"swirlix","m":[["Swirlix",774],["Slurpuff",775]]},{"id":"inkay","m":[["Inkay",776],["Malamar",777]]},{"id":"binacle","m":[["Binacle",778],["Barbaracle",779]]},{"id":"skrelp","m":[["Skrelp",780],["Dragalge",781]]},{"id":"clauncher","m":[["Clauncher",782],["Clawitzer",783]]},{"id":"helioptile","m":[["Helioptile",784],["Heliolisk",785]]},{"id":"hawlucha","m":[["Hawlucha",786]]},{"id":"klefki","m":[["Klefki",787]]},{"id":"phantump","m":[["Phantump",788],["Trevenant",789]]},{"id":"pumpkaboo","m":[["Pumpkaboo",790],["Gourgeist-Small",791],["Gourgeist-Super",792]]},{"id":"bergmite","m":[["Bergmite",793],["Avalugg",794]]},{"id":"noibat","m":[["Noibat",795],["Noivern",796]]},{"id":"goomy","m":[["Goomy",797],["Sliggoo",798],["Goodra",799]]},{"id":"carbink","m":[["Carbink",800],["Diancie",801],["Diancie-Mega",802]]},{"id":"zygardecore","m":[["Zygarde-Core",803],["Zygarde-10%",804],["Zygarde-50%",805],["Zygarde-Complete",806]]},{"id":"hoopa","m":[["Hoopa",807],["Hoopa-Unbound",808]]},{"id":"rowlet","m":[["Rowlet",809],["Dartrix",810],["Decidueye",811]]},{"id":"litten","m":[["Litten",812],["Torracat",813],["Incineroar",814]]},{"id":"popplio","m":[["Popplio",815],["Brionne",816],["Primarina",817]]},{"id":"pikipek","m":[["Pikipek",818],["Trumbeak",819],["Toucannon",820]]},{"id":"yungoos","m":[["Yungoos",821],["Gumshoos",822]]},{"id":"grubbin","m":[["Grubbin",823],["Durant",824],["Charjabug",825],["Vikavolt",826]]},{"id":"crabrawler","m":[["Crabrawler",827],["Crabominable",828]]},{"id":"oricorio","m":[["Oricorio",829],["Oricorio-Pom-Pom",830],["Oricorio-Pa'u",831],["Oricorio-Sensu",832]]},{"id":"cutiefly","m":[["Cutiefly",833],["Ribombee",834]]},{"id":"rockruff","m":[["Rockruff",835],["Lycanroc",836],["Lycanroc-Midnight",837],["Lycanroc-Dusk",838]]},{"id":"wishiwashisolo","m":[["Wishiwashi-Solo",839],["Wishiwashi-School",840],["Basculin",841],["Basculin-Blue",842],["Bruxish",843]]},{"id":"mareanie","m":[["Mareanie",844],["Toxapex",845]]},{"id":"mudbray","m":[["Mudbray",846],["Mudsdale",847]]},{"id":"dewpider","m":[["Dewpider",848],["Araquanid",849]]},{"id":"fomantis","m":[["Fomantis",850],["Lurantis",851]]},{"id":"morelull","m":[["Morelull",852],["Shiinotic",853]]},{"id":"salandit","m":[["Salandit",854],["Salazzle",855]]},{"id":"stufful","m":[["Stufful",856],["Bewear",857]]},{"id":"bounsweet","m":[["Bounsweet",858],["Bounsour",859],["Steenee",860],["Tsareena",861]]},{"id":"comfey","m":[["Comfey",862]]},{"id":"chimpeace","m":[["Chimpeace",863],["Oranguru",864]]},{"id":"chimpower","m":[["Chimpower",865],["Passimian",866]]},{"id":"wimpod","m":[["Wimpod",867],["Golisopod",868]]},{"id":"sandygast","m":[["Sandygast",869],["Palossand",870]]},{"id":"minior","m":[["Minior",871],["Minior-Red",872],["Minior-Fire",873],["Minior-Electric",874],["Minior-Grass",875],["Minior-Water",876],["Minior-Ice",877],["Minior-Dragon",878]]},{"id":"komala","m":[["Komala",879]]},{"id":"mimikyu","m":[["Mimikyu",880]]},{"id":"torkoal","m":[["Torkoal",881],["Turtonator",882]]},{"id":"dunsparce","m":[["Dunsparce",883],["Drampa",884]]},{"id":"dhelmise","m":[["Dhelmise",885]]},{"id":"jangmoo","m":[["Jangmo-o",886],["Hakamo-o",887],["Kommo-o",888]]},{"id":"tapubibi","m":[["Tapu Bibi",889],["Tapu Koko",890],["Tapu Lele",891],["Tapu Bulu",892],["Tapu Fini",893]]},{"id":"typenull","m":[["Type: Null",894],["Silvally",895]]},{"id":"cosmog","m":[["Cosmog",896],["Cosmoem",897],["Solgaleo",898],["Lunala",899],["Necrozma",900]]},{"id":"neurego","m":[["Neurego",901],["Nihilego",902]]},{"id":"chrysalyx","m":[["Chrysalyx",903],["Pheromosa",904],["Buzzwole",905]]},{"id":"xurkitree","m":[["Xurkitree",906]]},{"id":"celesteela","m":[["Celesteela",907]]},{"id":"kartana","m":[["Kartana",908]]},{"id":"guzzleon","m":[["Guzzleon",909],["Guzzlord",910]]},{"id":"poipole","m":[["Poipole",911],["Naganadel",912]]},{"id":"stakataka","m":[["Stakataka",913]]},{"id":"blacephalon","m":[["Blacephalon",914]]},{"id":"marshadow","m":[["Marshadow",915]]},{"id":"ditto","m":[["Ditto",0]]}];
+const BY_ID = new Map(FAMILIES.map(f => [f.id, f]));
+const LIST_ORDER = FAMILIES.map(f => f.id);
+const DRAFT_KEY = "remixDexOrderDraft";
+const ZOOM_KEY = "remixDexOrderZoom";
+const wall = document.getElementById("wall"), statusEl = document.getElementById("status");
+let submitted = null; // ids last submitted
+let db = null;
+
+function store(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+function famName(f) {
+  if (f.label) return f.label;
+  const n = f.m[0][0];
+  // one Pokemon and its forms (Castform, Rotom, Deoxys...): just its name
+  if (f.m.every(x => x[0] === n || x[0].startsWith(n + "-"))) return n;
+  return f.m.length > 1 ? n + " line" : n;
+}
+function cardFor(f) {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.dataset.id = f.id;
+  el.title = f.m.map(x => x[0]).join(", ");
+  const head = document.createElement("div"); head.className = "head";
+  const pos = document.createElement("button"); pos.type = "button"; pos.className = "pos"; pos.title = "Type a new position";
+  const name = document.createElement("span"); name.className = "name"; name.textContent = famName(f);
+  head.append(pos, name);
+  const sp = document.createElement("div"); sp.className = "sprites";
+  const per = Math.min(f.m.length, f.cols || 8); // sprites per row: 8 at most, or the card's own (Eevee 3x3, Pikaclones 2x5)
+  sp.style.width = `calc(var(--z) * 40px * ${per} + ${per - 1}px)`;
+  for (const [n, i] of f.m) {
+    const s = document.createElement("div"); s.className = "sp";
+    s.style.backgroundPosition = `calc(var(--z) * ${-(i % 32) * 40}px) calc(var(--z) * ${-Math.floor(i / 32) * 30}px)`;
+    s.setAttribute("aria-label", n); s.title = n;
+    sp.append(s);
+  }
+  el.append(head, sp);
+  return el;
+}
+function currentOrder() { return [...wall.children].map(c => c.dataset.id); }
+function sanitize(ids) {
+  const seen = new Set(), out = [];
+  for (const id of ids || []) if (BY_ID.has(id) && !seen.has(id)) { seen.add(id); out.push(id); }
+  for (const id of LIST_ORDER) if (!seen.has(id)) out.push(id); // families added since: at the end
+  return out;
+}
+function render(ids) {
+  wall.replaceChildren(...ids.map(id => cardFor(BY_ID.get(id))));
+  renumber();
+}
+function renumber() {
+  const base = submitted || LIST_ORDER;
+  [...wall.children].forEach((c, i) => {
+    c.querySelector(".pos").textContent = "#" + (i + 1);
+    c.classList.toggle("moved", base[i] !== c.dataset.id);
+  });
+  document.getElementById("count").textContent = FAMILIES.length + " families · " +
+    FAMILIES.reduce((a, f) => a + f.m.length, 0) + " entries";
+}
+function same(a, b) { return a && b && a.length === b.length && a.every((x, i) => x === b[i]); }
+function setStatus(text, dirty) { statusEl.textContent = text; statusEl.classList.toggle("dirty", !!dirty); }
+function changed() {
+  renumber();
+  const ids = currentOrder();
+  if (same(ids, submitted || LIST_ORDER)) { store(DRAFT_KEY, null); setStatus(submitted ? "Matches your submitted order" : "List order (nothing submitted yet)"); }
+  else { store(DRAFT_KEY, JSON.stringify(ids)); setStatus("Unsubmitted changes (kept in this browser)", true); }
+}
+
+Sortable.create(wall, { animation: 120, ghostClass: "ghost", chosenClass: "chosen", filter: ".pos, .pos-in", preventOnFilter: false, onEnd: changed });
+
+// click the #number to move a card to a typed position
+wall.addEventListener("click", e => {
+  const pos = e.target.closest(".pos"); if (!pos) return;
+  const card = pos.closest(".card");
+  const inp = document.createElement("input"); inp.className = "pos-in"; inp.type = "number"; inp.min = 1; inp.max = wall.children.length;
+  inp.id = "pos-" + card.dataset.id; inp.value = [...wall.children].indexOf(card) + 1; inp.setAttribute("aria-label", "New position");
+  pos.replaceWith(inp); inp.focus(); inp.select();
+  let done = false;
+  const finish = apply => {
+    if (done) return; done = true;
+    const n = parseInt(inp.value, 10);
+    inp.replaceWith(pos);
+    if (apply && n >= 1) {
+      const kids = [...wall.children].filter(c => c !== card);
+      const at = Math.min(n - 1, kids.length);
+      at >= kids.length ? wall.append(card) : wall.insertBefore(card, kids[at]);
+      card.scrollIntoView({ block: "center" });
+    }
+    changed();
+  };
+  inp.addEventListener("keydown", ev => { if (ev.key === "Enter") finish(true); if (ev.key === "Escape") finish(false); });
+  inp.addEventListener("blur", () => finish(true));
+});
+
+// find
+document.getElementById("find").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase().replace(/[^a-z0-9%]/g, "");
+  let first = null;
+  for (const c of wall.children) {
+    const f = BY_ID.get(c.dataset.id);
+    const hit = q && f.m.some(x => x[0].toLowerCase().replace(/[^a-z0-9%]/g, "").includes(q));
+    c.classList.toggle("hit", !!hit);
+    if (hit && !first) first = c;
+  }
+  if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+});
+
+// zoom
+function setZoom(z) {
+  document.documentElement.style.setProperty("--z", z);
+  document.querySelectorAll(".zoom button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.z === String(z))));
+  store(ZOOM_KEY, String(z));
+}
+document.querySelectorAll(".zoom button").forEach(b => b.addEventListener("click", () => setZoom(b.dataset.z)));
+setZoom(load(ZOOM_KEY) || "1.5");
+
+// reset (two clicks, since confirm() is unavailable)
+const resetBtn = document.getElementById("reset"); let resetArmed = null;
+resetBtn.addEventListener("click", () => {
+  if (!resetArmed) { resetBtn.textContent = "Click again to reset"; resetArmed = setTimeout(() => { resetArmed = null; resetBtn.textContent = "Reset to list order"; }, 3000); return; }
+  clearTimeout(resetArmed); resetArmed = null; resetBtn.textContent = "Reset to list order";
+  render(LIST_ORDER); changed();
+});
+
+// submit
+const submitBtn = document.getElementById("submit");
+submitBtn.addEventListener("click", async () => {
+  if (!db) { setStatus("Can't save here: open this page signed in to claude.ai", true); return; }
+  const ids = currentOrder();
+  submitBtn.disabled = true; setStatus("Saving…");
+  try {
+    await db.doc("orders/canon").set({ families: ids, count: ids.length, submittedAt: new Date().toISOString() });
+    submitted = ids; store(DRAFT_KEY, null);
+    setStatus("Submitted " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
+    renumber();
+  } catch (e) {
+    setStatus("Save failed (" + (e && (e.code || e.message) || "error") + "). Your order is still kept in this browser.", true);
+  } finally { submitBtn.disabled = false; }
+});
+
+// start: the list order, then the submitted order, then this browser's unsubmitted draft
+let draft = null; try { draft = JSON.parse(load(DRAFT_KEY) || "null"); } catch (e) {}
+render(sanitize(draft || LIST_ORDER));
+if (draft) setStatus("Unsubmitted changes (kept in this browser)", true);
+(async () => {
+  const timer = setTimeout(() => { if (!db) setStatus(draft ? "Unsubmitted changes (offline: Submit unavailable)" : "Offline: Submit unavailable", true); }, 10000);
+  try { db = window.claude ? await window.claude.use("db") : null; } catch (e) { db = null; }
+  if (!db) { clearTimeout(timer); setStatus("Saving needs claude.ai sign-in; changes stay in this browser", true); return; }
+  try {
+    const snap = await db.doc("orders/canon").get();
+    clearTimeout(timer);
+    const data = snap && (snap.data ? snap.data() : snap);
+    if (data && data.families) {
+      submitted = sanitize(data.families);
+      if (!draft) render(submitted);
+      renumber();
+      if (!draft) setStatus("Showing your submitted order");
+    } else if (!draft) setStatus("List order (nothing submitted yet)");
+  } catch (e) { clearTimeout(timer); if (!draft) setStatus("List order (couldn't load the submitted order)"); }
+})();
+</script>

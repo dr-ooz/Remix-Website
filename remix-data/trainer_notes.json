@@ -1,0 +1,10 @@
+{
+"_readme": "Boss Guide settings + notes. includeRegularTrainers: false = only boss classes (tools/export_trainers.py BOSS_CLASSES) go into the calc. Per trainer (key = trainer id from trainers.json / the #number in trainers_showdown.txt): label = calc set name (default 'Name #id'), title = big header (default 'Class Name'), hide = true to leave out, notes = text under the team, mons = {\"Species\": \"note under that card\"}. itemSummaries: short line shown under an item (hover shows the full game text).",
+"includeRegularTrainers": false,
+"trainers": {
+ "556": {"title": "Hack Creator Dooz", "notes": ""}
+},
+"itemSummaries": {
+ "Quick Claw": "Always moves first once, then breaks"
+}
+}

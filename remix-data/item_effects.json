@@ -1387,10 +1387,10 @@
    "stab": [
     "Poison"
    ],
-   "resist": {
-    "Poison": 0.25
-   },
-   "selfStatus": "psn"
+   "selfStatus": "psn",
+   "immune": [
+    "Poison"
+   ]
   }
  ],
  "Solar Panel": [
@@ -1617,17 +1617,15 @@
     "Quilava",
     "Typhlosion"
    ],
-   "boost": {
-    "Fire": 1.5,
-    "Ice": 1.5,
-    "Electric": 1.5
-   },
-   "abilities": [
-    "Incinerate"
+   "trifecta": true,
+   "items": [
+    "Power Herb"
    ],
-   "resist": {
-    "Electric": 0.5
-   }
+   "statusImmune": [
+    "par",
+    "brn",
+    "frz"
+   ]
   }
  ],
  "Buried Idol": [
@@ -1898,14 +1896,14 @@
     "Cutiefly",
     "Ribombee"
    ],
-   "resist": {
-    "Grass": 0.5
-   },
    "abilities": [
     "Regenerator"
    ],
    "items": [
     "Big Root"
+   ],
+   "immune": [
+    "Grass"
    ]
   }
  ],
@@ -1999,6 +1997,67 @@
    ],
    "abilities": [
     "Amplifier"
+   ]
+  }
+ ],
+ "Geothermal Rock": [
+  {
+   "species": [
+    "Remoraid"
+   ],
+   "abilities": [
+    "Turboblaze"
+   ],
+   "weatherNeutral": true,
+   "stats": [
+    {
+     "stat": "sp",
+     "mult": 2,
+     "weather": [
+      "Rain",
+      "Heavy Rain",
+      "Sun",
+      "Harsh Sunshine"
+     ]
+    }
+   ]
+  },
+  {
+   "species": [
+    "Huntail"
+   ],
+   "abilities": [
+    "Turboblaze"
+   ],
+   "weatherNeutral": true,
+   "stats": [
+    {
+     "stat": "sp",
+     "mult": 2,
+     "weather": [
+      "Rain",
+      "Heavy Rain"
+     ]
+    }
+   ]
+  },
+  {
+   "species": [
+    "Gorebyss"
+   ],
+   "abilities": [
+    "Turboblaze"
+   ],
+   "weatherNeutral": true,
+   "stats": [
+    {
+     "stat": "sp",
+     "mult": 2,
+     "weather": [
+      "Sun",
+      "Harsh Sunshine"
+     ]
+    }
    ]
   }
  ]

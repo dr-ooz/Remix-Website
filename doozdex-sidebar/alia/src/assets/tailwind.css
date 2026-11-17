@@ -1,0 +1,16 @@
+@import "tailwindcss" important;
+
+@theme {
+  --default-font-family: Verdana, "system-ui", sans-serif;
+
+  --color-ability: oklch(0.5 0 0);
+}
+
+html {
+  overflow: hidden;
+}
+
+select:has(option[value=""]:checked) {
+  color: rgba(255, 255, 255, 0.7);
+  border-color: var(--color-white);
+}

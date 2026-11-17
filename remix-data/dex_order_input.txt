@@ -1,0 +1,713 @@
+# DEX ORDER
+ditto should be last mon in the dex, just putting it here so i don't forget
+--
+bulbasaur line unchanged
+--
+charmander line unchanged
+--
+squirtle line unchanged
+--
+venomoth line:
+caterpie, metapod, venomoth
+--
+combee line:
+combee, vespiquen, beedrill, mega beedrill
+--
+butterfree line:
+venonat, butterfree
+--
+pidgeot line
+pidgey, pidgeot, mega pidgeot
+--
+raticate line:
+rattata > raticate > mega raticate
+--
+spearow line:
+spearow, fearow, skarmory
+--
+ekans, arbok
+--
+pichu, pikachu, dedenne, togedemaru, emolga, pachirisu, plusle, minun, raichu, alolan raichu
+--
+sandshrew > sandslash
+~
+alolan sandshrew > alolan sandslash
+--
+nidoran-m (rename just nidoran)
+nidorino
+nidorina
+nidoking
+nidoqueen
+--
+cleffa > clefairy > clefable
+--
+vulpix > ninetales
+~
+alolan vulpix > alolan ninetales
+--
+igglybuff, jigglypuff, wigglytuff
+--
+oddish, gloom, vileplume, bellossom
+--
+paras, parasect
+--
+diglett (kantonian) > dugtrio and dugtrio alola
+rename alolan dugtrio into Drumtrio, and regular dugtrio into Drugtrio
+--
+alolan diglett (rename to Wackitt) > tauros > cryogonal
+--
+meowth > persian > mega persian
+--
+psyduck/golduck
+--
+mankey primeape
+--
+growlithe arcanine
+--
+poliwag > poliwhirl > poliwrath/politoed
+--
+abra kadabra alakazam mega
+--
+machop, machoke, machamp, sawk, throh
+--
+spellsprout, weepinspell, victreebrew, carnivoid
+--
+tentacool/tentacruel
+--
+geodude (alola, but take off the alola tag just call it geodude)
+graveler > golem
+alolan graveler > alolan golem
+--
+ponyta rapidash
+--
+slowpoke, slowbro, mega, slowking
+--
+magnemite magneton magnezone
+--
+farfetch'd
+--
+doduo dodrio
+--
+seel dewgong
+-- 
+grimer > muk
+~
+alolan grimer > alolan muk
+--
+shellder cloyster
+--
+gastly/gengar line (all 4)
+--
+onix > steelix > mega steelix
+--
+zubat line (all 3)
+--
+drowzee > hypno
+--
+krabby > kingler
+-- 
+voltorb > electrode
+--
+exeggucute exeggutor alolan exeggutor
+--
+cubone, marowak, alolan marowak
+--
+tyrogue, hitmonlee, hitmonchan, hitmontop
+--
+lickitung > lickilicky
+--
+koffing > weezing
+-- 
+rhyhorn, rhydon, rhyperior
+--
+happiny, chansey, blissey
+--
+tangela, tangrowth
+--
+kangakid, kangaskhan, mega
+--
+goldeen, seaking
+--
+staryu, starmie
+--
+mime jr, mr mime, bouffalant (keep blacephalon later in the dex for now even tho its part of this family)
+--
+smoochum, jynx, both meloettas (Pirouette and Techno)
+--
+munchlax, snorlax
+--
+pindle/herakuna line:
+pindle, herakuna, pinsir/mega pinsir, heracross/mega heracross
+--
+scyther, scizor, mega scizor
+--
+elekid electabuzz electivire
+--
+magby magmar magmortar
+--
+magikarp gyarados mega
+--
+porygon, porygon2, porygon-z
+--
+omanyte, omastar
+--
+kabuto, kabutops
+--
+tyrunt, tyrantrum, druddigon, aerodactyl and mega
+--
+primora (amaura), aurorus, lapras, tropius
+--
+horsea, seadra, kingdra
+--
+dratini dragonair dragonite
+--
+eevee
+vaporeon jolteon flareon
+umbreon espeon
+glaceon leafeon
+sylveon
+~
+raikou
+entei
+suicune
+--
+avicero (pidgeotto), articuno zapdos moltres
+--
+mew, mewtwo (pixies are part of mew family but i wont group them, like with blacephalon keeping them later)
+--
+chikorita line
+--
+typhlosion line
+-- 
+feraligatr line
+--
+sentret line
+--
+hoothoot line
+--
+ledyba line
+--
+spinarak line
+--
+chinchou lanturn
+--
+togepi togetic togekiss
+--
+natu xatu
+-- 
+Mareep line (including mega as always)
+--
+azurill, marill, azumarill
+--
+bonsly, sudowoodo
+--
+hoppip line
+--
+aipom ambipom
+--
+sunkern sunflora
+-- 
+yanma yanmega
+--
+wooper quagsire
+--
+murkrow honchkrow
+-- 
+misdreavus mismagius
+--
+wynaut wobbuffet
+--
+girafarig
+--
+pineco forretress
+--
+gligar gliscor
+--
+snubbull granbull
+--
+pyukumuku, qwilfish, corsola, octillery
+--
+sneasel weavile
+--
+teddiursa ursaring
+-- 
+slugma magcargo
+--
+unown stantler sigilyph (put stakataka later)
+--
+swinub piloswine mamoswine
+--
+mantyke mantine
+--
+houndoom line
+--
+Phanpy donphan
+--
+smeargle
+--
+miltick (scatterbug) miltank
+--
+tyranitar line
+--
+lugia ho-oh
+--
+celebi
+--
+treecko line
+--
+torchic line
+--
+mudkip line
+--
+poochyena line
+--
+zigzagoon, linoone, heatmor
+--
+wurmple, cascoon, dustox
+--
+lotad line
+--
+seedot line
+--
+wingull line
+--
+ralts, kirlia, gardevoir, mega gardevoir, gallade, mega gallade
+--
+surskit masquerain
+--
+shroomish line
+--
+slaking line
+--
+nincada line
+--
+exploud line
+--
+hariyama line
+--
+nosepass probopass
+--
+delcatty line
+--
+sableye / mega
+--
+mawile / mega
+--
+aggron line
+--
+meditite line
+--
+electrike line
+--
+pupulse (spewpa), jolbeat, fluibeat (volbeat/illumise), vitabeat (mega audino, needs renaming i think in sidebar at least)
+--
+gulpin line
+-- 
+sharpedo line
+-- 
+wailmer line
+--
+camerupt line
+--
+spoink grumpig
+-- 
+flygon line
+--
+cacnea, cacturne, maractus
+--
+swablu line
+--
+zangoose, seviper
+--
+solrock, lunatone
+--
+spinda
+--
+barboach line
+--
+corphish line
+--
+baltoy line
+--
+lileep line
+--
+anorith line
+--
+feebas line
+--
+castform and its forms
+--
+shuppet line
+--
+duskull line including dusknoir
+--
+chingling chimecho
+--
+lunare, absol, mega absol
+--
+snorunt, froslass, glalie, mega glalie
+--
+spheal line
+--
+remoraid huntail gorebyss
+--
+relicanth
+--
+luvdisc, alomomola
+--
+bagon line
+-- 
+beldum line
+--
+taillow, swellow, latios, latias (remove the megas from the sidebar and calc, castform sandy replaced mega latios anyways)
+--
+regirock, regice, registeel, regigigas
+--
+jirachi
+--
+deoxys forms
+--
+turtwig line
+-- 
+chimchar line
+-- 
+piplup line
+-- 
+starly line
+--
+bidoof line
+--
+kricketot line
+--
+shinx line
+--
+budew, roselia, roserade
+--
+cranidos line
+--
+shieldon line
+--
+burmy plant, wormadam plant, beautifly
+~
+burmy sand, wormadam sand, mothim (rename from sandy to sand)
+~
+burmy snow, wormadam snow, vivillon
+--
+buizel line
+--
+cherubi line
+--
+shellos
+followed by both gastrodons 
+--
+drifloon line
+--
+buneary line
+--
+glameow line
+--
+stunky line
+--
+bronzor line
+--
+chatot
+--
+spiritomb
+--
+gible line
+--
+riolu line
+--
+hippowdon line
+--
+drapion line
+--
+toxicroak line
+-- 
+finneon line
+-- 
+snover line
+--
+rotom and forms
+--
+georupt magma > heatran
+--
+georupt steam > volcanion
+--
+phione > manaphy
+--
+shaymin (both)
+--
+azelf, mesprit, uxie
+--
+cresselia darkrai
+--
+remove giratina (both forms)
+--
+victini
+--
+snivy line
+--
+tepig line
+--
+oshawott line
+--
+Patrat line
+--
+liepard line
+--
+lillipup line
+--
+paneeni, simisage, simisear, simipour
+--
+munna line
+--
+pidove line
+--
+blitzle line
+-- 
+roggenrola line
+--
+woobat line
+--
+drilbur line
+--
+timburr line
+--
+tympole line
+--
+sewaddle line
+--
+venipede line
+--
+cottonee line
+--
+petilil line
+--
+sandile line
+--
+darumaka line
+--
+dwebble line
+--
+scraggy line
+--
+yamask line
+--
+tirtouga line
+-- 
+archen line
+--
+trubbish line
+--
+minccino line
+--
+gothita line
+-- 
+solosis line
+--
+ducklett line
+--
+vanillite line
+--
+sawsbuck line
+--
+karrablast line
+--
+shelmet line
+--
+foonguss line
+--
+frillish line
+--
+joltik line
+--
+ferroseed line
+--
+klink, klinklang (no klang, that's achroma)
+--
+tynamo line
+--
+elgyem line
+--
+litwick line
+-- 
+axew line
+--
+cubchoo line
+--
+stunfisk
+--
+mienfoo line
+--
+golett line
+--
+pawniard line
+--
+rufflet line
+--
+vullaby line
+--
+deino line
+--
+larvesta line
+--
+achroma, genesect, magearna
+--
+zorua, zoroark, zeraora
+-- 
+swords of justice (cobalion, terrakion, virizion, keldeo both forms)
+--
+genies (tornadus, thundurus, landorus, all forms)
+--
+kyurem + both forms
+--
+chespin line
+--
+fennekin line
+--
+froakie line including ash gren
+--
+bunnelby line
+--
+talonflame line
+-- 
+flabebe line (including floette eternal)
+--
+skiddo line
+--
+pancham line
+--
+furfrou and all forms
+--
+espurr line
+--
+honedge line
+--
+spritzee line
+--
+slurpuff line
+--
+inkay line
+--
+binacle line
+--
+skrelp line
+--
+clauncher line
+--
+helioptile line
+--
+hawlucha
+-- 
+klefki
+--
+Phantump line
+-- 
+pumpkaboo line + super and small gourgeist only (2 forms)
+--
+bergmite line
+--
+noibat line
+--
+goomy line
+--
+carbink and diancie
+--
+zygarde cre, zygarde 10%, zygarde 50%, and zygarde complete (not displaying zygarde 50%-c or w/e on sidebar or calc since they have identical mechanics besides turning into the form)
+--
+hoopa
+--
+rowlet line
+--
+Litten line
+--
+popplio line
+--
+pikipek line
+-- 
+yungoos line
+--
+grubbin, durant, charjabug, vikavolt
+--
+crabrawler, crabominable
+--
+oricorio forms
+--
+cutiefly line
+--
+rockruff line
+--
+wishiwashi (rename base to solo)
+wishiwashi (school)
+basculin (both forms)
+bruxish
+--
+mareanie toxapex
+--
+mudbray line
+--
+dewpider line
+--
+fomantis line
+--
+Morelull line
+--
+salandit line
+--
+stufful line
+--
+bounsweet, bounsour, steenee, tsareena
+--
+comfey
+--
+chimpeace, oranguru
+--
+chimpower, passimian
+--
+wimpod golisopod
+--
+sandygast palossand
+--
+minior meteor + all core colors
+--
+komala
+--
+torkoal turtonator
+--
+dunsparce drampa
+--
+dhelmise
+--
+jangmo-o line
+--
+Tapu Bibi + the 4 tapus
+--
+type null silvally
+--
+cosmog, cosmoem, solgaleo, lunala, necrozma (don't list the 3 necrozma forms of dawn wings/mane/ultra in sidebar, all of the "remove this legend" notes btw should only apply to the sidebar, they should stay in the calc bc they'll be on boss fights, just not usable)
+--
+neurego and nihilego
+--
+chrysalyx, pheromosa, buzzwole
+--
+xurkitree
+--
+celesteela
+--
+kartana
+--
+guzzleon, guzzlord
+--
+poipole, naganadel
+--
+stakataka
+--
+blacephalon
+--
+marshadow
+--
+ditto (can show up at start and finish of sidebar just to be cute why not)
+
+let me know if i missed any mons
+# LIST COMPLETE (user, 2026-11-16)

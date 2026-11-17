@@ -73,6 +73,7 @@
 		if (!md || md.category === "Status" || moveName === "(No Move)") return null;
 		var opts = {ability: atk.ability, item: atk.item};
 		if (md.multihit && md.multihit[0] === 2 && md.multihit[1] === 5) opts.hits = 3;
+		if (atk.daiTrifecta) opts.overrides = {remixTrifectaType: atk.daiTrifecta}; // type locked for the turn
 		var mv = new calc.Move(gen, moveName, opts);
 		if (mv.category === "Status") return null;
 		var r = calc.calculate(gen, atk, def, mv, field);
@@ -179,20 +180,40 @@
 	var revealed = {};
 	try { revealed = JSON.parse(localStorage.getItem("remixDaiRevealed") || "{}"); } catch (e) {}
 	function noAbility(p) { var c = p.clone(); c.ability = "(No Ability)"; return c; } // not undefined: that refills the default
-	// Does this ability give an immunity (a type doing 0 only because of it) or block status?
-	function revealable(p) {
-		if (!p.ability || p.ability === "(No Ability)") return false;
-		if (STATUS_ABILITIES.some(function (a) { return p.hasAbility(a); })) return true;
-		if (typeof remixTCDamage !== "function") return false;
-		var atk = remixTCGetAttacker(), f = new calc.Field({gameType: "Doubles"}), bare = noAbility(p);
-		return REMIX_TC_TYPES.some(function (t) { return remixTCDamage(atk, p, t[0], f) === 0 && remixTCDamage(atk, bare, t[0], f) > 0; });
+	function noItem(p) { var c = p.clone(); c.item = undefined; return c; }
+	// What does the AI only learn once it's revealed? An ability that gives an immunity (a type doing 0 only
+	// because of it) or blocks status, and a held item that gives an immunity (Poison Ivy, Fairy Flower,
+	// Cell Battery, Magmarizer...). The game keeps one "revealed" flag per Pokemon for both (Battle.cro Rule44).
+	// Air Balloon announces itself on switch-in, so it doesn't count.
+	function revealSources(p) {
+		var out = {ability: false, item: false};
+		var hasAb = p.ability && p.ability !== "(No Ability)";
+		if (hasAb && STATUS_ABILITIES.some(function (a) { return p.hasAbility(a); })) out.ability = true;
+		if (typeof remixTCDamage !== "function") return out;
+		var atk = remixTCGetAttacker(), f = new calc.Field({gameType: "Doubles"});
+		var immuneBut = function (bare) {
+			return REMIX_TC_TYPES.some(function (t) { return remixTCDamage(atk, p, t[0], f) === 0 && remixTCDamage(atk, bare, t[0], f) > 0; });
+		};
+		if (hasAb && !out.ability) out.ability = immuneBut(noAbility(p));
+		if (p.item && p.item !== "Air Balloon") out.item = immuneBut(noItem(p));
+		return out;
 	}
-	// Estimate as the AI sees it: an unrevealed immunity is ignored (it thinks Earthquake hits Levitate).
+	function revealNames(p) {
+		var r = p.daiReveal || {}, n = [];
+		if (r.ability) n.push(p.ability);
+		if (r.item) n.push(p.item);
+		return n;
+	}
+	// Estimate as the AI sees it: an unrevealed immunity is ignored (it thinks Earthquake hits Levitate,
+	// or Sludge Bomb hits a Poison Ivy Serperior).
 	function aiEstimate(atk, def, moveName, field) {
 		var e = estimate(atk, def, moveName, field);
 		if (e && e.dmg === 0 && !def.daiRevealed && def.daiCanReveal) {
-			var e2 = estimate(atk, noAbility(def), moveName, field);
-			if (e2 && e2.dmg > 0) { e2.unseen = def.ability; return e2; }
+			var r = def.daiReveal, bare = def;
+			if (r.ability) bare = noAbility(bare);
+			if (r.item) bare = noItem(bare);
+			var e2 = estimate(atk, bare, moveName, field);
+			if (e2 && e2.dmg > 0) { e2.unseen = revealNames(def).join(" / "); return e2; }
 		}
 		return e;
 	}
@@ -257,15 +278,18 @@
 		if (!panel || typeof calc === "undefined") return;
 		var ids = {}, P = {};
 		["A", "B", "L", "R"].forEach(function (s) { ids[s] = q("#dai-sel-" + s).value; P[s] = buildPoke(ids[s]); });
-		// your side: "Ability revealed" toggle, only when the ability gives an immunity or blocks status
+		// your side: "revealed" toggle, only when the ability / item gives an immunity (or the ability blocks status)
 		["A", "B"].forEach(function (s) {
 			var box = $("#dai-slot-" + s + " .dai-reveal");
 			if (!P[s]) { box.hide(); return; }
-			P[s].daiCanReveal = revealable(P[s]);
+			P[s].daiReveal = revealSources(P[s]);
+			P[s].daiCanReveal = P[s].daiReveal.ability || P[s].daiReveal.item;
 			P[s].daiRevealed = P[s].daiCanReveal && !!revealed[ids[s]];
-			box.toggle(P[s].daiCanReveal).attr("title", "Has the AI seen " + P[s].ability + " yet? Until then it ignores the ability's immunity / status blocks.")
+			var what = revealNames(P[s]).join(" / ");
+			box.toggle(!!P[s].daiCanReveal).attr("title", "Has the AI seen " + what + " yet? Until then it ignores " +
+				(P[s].daiReveal.item ? "the immunity" : "the ability's immunity / status blocks") + ". One flag covers both ability and item, like in game.")
 				.find("input").prop("checked", P[s].daiRevealed);
-			box.find("span").text(P[s].ability + " revealed");
+			box.find("span").text(what + " revealed");
 		});
 		try { localStorage.setItem("remixDaiPicks", JSON.stringify(ids)); } catch (e) {}
 		drawSprites(ids, P);
@@ -279,6 +303,15 @@
 		var field;
 		try { field = createField().clone().swap(); field.gameType = "Doubles"; } catch (e) { field = new calc.Field({gameType: "Doubles"}); }
 		var M = {}, best = {}, spreadBest = {};
+		// Trifecta (ability or Typhlosion-line Cell Battery): Normal moves take one type for the whole turn,
+		// picked against both foes together (the game sums its estimate over every foe), not per target.
+		ais.forEach(function (a) {
+			P[a].daiTrifecta = "";
+			try {
+				if (typeof remixHasTrifecta === "function" && remixHasTrifecta(P[a]))
+					P[a].daiTrifecta = remixTrifectaPick(calc.Generations.get(gen), P[a], foes.map(function (f) { return P[f]; }), field);
+			} catch (e) {}
+		});
 		ais.forEach(function (a) {
 			M[a] = {}; best[a] = {};
 			var names = moveNames(P[a]);
@@ -315,7 +348,9 @@
 		var h = "<table class='dai-table'><tr><th>AI move</th>" + foes.map(function (f) { return "<th>vs " + esc(name(f)) + "</th>"; }).join("") + "</tr>";
 		ais.forEach(function (a) {
 			moveNames(P[a]).forEach(function (mn, i) {
-				h += "<tr><td>" + esc(name(a)) + ": " + esc(mn) + "</td>" + foes.map(function (f) {
+				var md = calc.MOVES[gen][mn];
+				var lock = P[a].daiTrifecta && md && md.type === "Normal" && md.category !== "Status" ? " (" + P[a].daiTrifecta + ", Trifecta)" : "";
+				h += "<tr><td>" + esc(name(a)) + ": " + esc(mn) + esc(lock) + "</td>" + foes.map(function (f) {
 					var e = M[a][f][i];
 					return "<td class='" + (e && e.ko ? "dai-ko" : "") + "'" + (e && e.unseen ? " title='Really 0%: the AI does not know " + esc(e.unseen) + " yet'" : "") + ">" +
 						(!e ? "status" : e.pct.toFixed(1) + "%" + (e.ko ? " KO" : "") + (e.unseen ? " *" : "")) + "</td>";
@@ -431,8 +466,9 @@
 		$(window).on("resize", function () { alignPanel(); schedule(); });
 	}
 
-	// Compact (up to 760px), centred under the three calc columns.
+	// Opens as a window over the page (remix_compact.js layout): no column alignment needed.
 	function alignPanel() {
+		return;
 		var cols = $(".wrapper > .panel:visible"), panel = $("#dai-panel");
 		if (!cols.length || !panel.length || !panel.is(":visible")) return;
 		var left = Infinity, right = -Infinity;
@@ -442,12 +478,21 @@
 		panel.css("margin-left", ((left + right) / 2 - w / 2 - panel.offset().left) + "px"); // measured, so padding doesn't matter
 	}
 
-	// "Doubles AI Calc" button above Singles / Doubles: show / hide the panel (remembered; hidden by default).
-	var daiShown = false;
-	try { daiShown = localStorage.getItem("remixDaiShown") === "shown"; } catch (e) {}
+	// "Doubles AI Calc" button above Singles / Doubles: opens / closes the window.
+	var daiShown = false; // always starts closed (it's a window now)
 	function showDaiState() {
-		$("#dai-panel").toggle(daiShown);
-		$("#dai-open").html((daiShown ? "Hide" : "Show") + " Doubles AI Calc <span class='dai-open-hint'>(Scroll Down)</span>").toggleClass("on", daiShown);
+		var panel = $("#dai-panel");
+		if (panel.length && !panel.parent().is("#dai-backdrop")) {
+			$("<div id='dai-backdrop'></div>").appendTo("body").append(panel).on("mousedown", function (e) {
+				if (e.target === this) $("#dai-open").click();
+			});
+			panel.prepend("<button type='button' class='remix-modal-x dai-x' title='Close'>&times;</button>");
+			panel.on("click", ".dai-x", function () { $("#dai-open").click(); });
+			$(document).on("keydown", function (e) { if (e.key === "Escape" && daiShown) $("#dai-open").click(); });
+		}
+		panel.toggle(daiShown);
+		$("#dai-backdrop").toggle(daiShown);
+		$("#dai-open").html((daiShown ? "Close" : "Open") + " Doubles AI Calc").toggleClass("on", daiShown);
 		if (daiShown) { alignPanel(); refreshChoices(); schedule(); }
 	}
 	function buildToggle() {
@@ -455,9 +500,7 @@
 		if (!fmt.length || $("#dai-open").length) return;
 		$('<button type="button" id="dai-open" class="dai-open"></button>').insertBefore(fmt).on("click", function () {
 			daiShown = !daiShown;
-			try { localStorage.setItem("remixDaiShown", daiShown ? "shown" : "hidden"); } catch (e) {}
 			showDaiState();
-			if (daiShown) document.getElementById("dai-panel").scrollIntoView({behavior: "smooth", block: "nearest"});
 		});
 	}
 

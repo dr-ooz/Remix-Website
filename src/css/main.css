@@ -712,6 +712,11 @@ body.dark .select2-container .select2-choice, body.dark .select2-container-multi
 body.dark .select2-container .select2-choice .select2-arrow { background: #2b2533 !important; border-left-color: #4a4256 !important; }
 body.dark .select2-drop, body.dark .select2-drop.select2-drop-above { background: #2b2533; color: #fff; border-color: #6e5a88; }
 body.dark .select2-search input { background-color: #1f1a26 !important; color: #fff; border-color: #4a4256; }
+/* select2 paints a white gradient over the box: keep only its search icon on the dark background */
+body.dark .select2-search input, body.dark .select2-search input.select2-active {
+	background: #1f1a26 url("../js/vendor/select2/select2.png") no-repeat 100% -22px !important;
+}
+body.dark .select2-search input.select2-active { background-image: url("../js/vendor/select2/select2-spinner.gif") !important; background-position: 100% center !important; }
 body.dark .select2-results .select2-highlighted { background: #5b2f82; color: #fff; }
 body.dark .select2-results .select2-result-label { color: inherit; }
 body.dark .select2-results li.select2-result-with-children > .select2-result-label { color: #c9a6ef; }
@@ -1296,3 +1301,5 @@ body:not(.dark) .dai-t-yellow { color: #b8960a; }
 .dai-left { flex: 0 0 auto; min-width: 0; }
 .remix-apply.heals { border-color: #3f9a5a; }
 body.dark .remix-apply.heals { border-color: #4fb56b; color: #c9f3d4; }
+/* type chart: neutral (1x) cells show the panel's own background instead of a dark tint */
+.tc-val:not([class*="tc-w"]):not([class*="tc-r"]):not(.tc-immune), body:not(.dark) .tc-val:not([class*="tc-w"]):not([class*="tc-r"]):not(.tc-immune) { background: transparent; }

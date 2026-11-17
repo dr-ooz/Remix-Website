@@ -53,6 +53,13 @@ export function calculateSMSSSV(
 ) {
   // #region Initial
 
+  // Remix Trifecta: pick the Normal -> Fire / Ice / Electric type now (before stats get changed below)
+  if (gen.num === 7 && remixHasTrifecta(attacker) && move.hasType("Normal") && move.category !== "Status" &&
+      !(move as any).remixTrifectaType) {
+    const locked = move.overrides && (move.overrides as any).remixTrifectaType;
+    (move as any).remixTrifectaType = locked || remixTrifectaPick(gen, attacker, [defender], field);
+  }
+
   checkAirLock(attacker, field);
   checkAirLock(defender, field);
   checkForecast(attacker, field.weather);
@@ -108,6 +115,7 @@ export function calculateSMSSSV(
   }
 
   const defenderIgnoresAbility = defender.hasAbility(
+    "Power Construct", // Remix: unbypassable (its Multiscale too)
     "Full Metal Body",
     "Neutralizing Gas",
     "Prism Armor",
@@ -277,6 +285,9 @@ export function calculateSMSSSV(
       type = "Fairy";
     } else if ((isRefrigerate = attacker.hasAbility("Refrigerate") && normal)) {
       type = "Ice";
+    } else if ((isRemixAte = gen.num === 7 && normal && !!(move as any).remixTrifectaType && remixHasTrifecta(attacker))) {
+      type = (move as any).remixTrifectaType; // Remix Trifecta: best of Fire / Ice / Electric, 1.2x
+      if (!attacker.hasAbility("Trifecta")) desc.attackerItem = attacker.item;
     } else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("Incinerate") && normal)) {
       type = "Fire"; // Remix: Incinerate = Normal -> Fire, 1.2x
     } else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("RKS System") && normal)) {
@@ -461,9 +472,17 @@ export function calculateSMSSSV(
       (move.hasType("Dark") && defender.hasAbility("Ethereal")) ||
       (move.hasType("Fire") && defender.hasAbility("Unmeltable")) ||
       (move.hasType("Water") && defender.hasAbility("Hydration")) ||
+      (move.hasType("Fire", "Ice", "Electric") && defender.hasAbility("Trifecta")) ||
       (move.priority > 0 && defender.hasAbility("Swiftness", "Elegance"))))
   ) {
     desc.defenderAbility = defender.ability;
+    return result;
+  }
+
+  // Remix items that make the holder immune to a type (Poison Ivy, Fairy Flower, Cell Battery's Trifecta)
+  if (gen.num === 7 && (defender.remixItemFx().immune.includes(move.type) ||
+      (defender.remixItemFx().trifecta && move.hasType("Fire", "Ice", "Electric")))) {
+    desc.defenderItem = defender.item;
     return result;
   }
 
@@ -657,6 +676,12 @@ export function calculateSMSSSV(
     ) {
       baseDamage = pokeRound(OF32(baseDamage * 6144) / 4096);
       desc.weather = field.weather;
+    } else if (
+      ((field.hasWeather("Sun") && move.hasType("Water")) ||
+      (field.hasWeather("Rain") && move.hasType("Fire"))) &&
+      gen.num === 7 && attacker.remixItemFx().weatherNeutral && !move.named("Scald", "Steam Eruption")
+    ) {
+      desc.attackerItem = attacker.item; // Remix Geothermal Rock: not weakened by the weather
     } else if (
       (field.hasWeather("Sun") && move.hasType("Water")) ||
       (field.hasWeather("Rain") && move.hasType("Fire"))
@@ -2185,6 +2210,12 @@ export function calculateFinalModsSMSSSV(
     finalMods.push(1024);
     desc.defenderAbility = defender.ability;
   }
+  // Remix: Power Construct Complete form takes 1/4 from Fairy, 1/2 from Flying
+  if (gen.num === 7 && defender.named("Zygarde-Complete") && defender.hasAbility("Power Construct") &&
+      move.hasType("Fairy", "Flying")) {
+    finalMods.push(move.hasType("Fairy") ? 1024 : 2048);
+    desc.defenderAbility = defender.ability;
+  }
   if (gen.num === 7 && defender.hasAbility("Amplifier") && move.flags.sound) {
     finalMods.push(2048);
     desc.defenderAbility = defender.ability;
@@ -2266,4 +2297,37 @@ function hasTerrainSeed(pokemon: Pokemon) {
     "Grassy Seed",
     "Psychic Seed"
   );
+}
+
+// ---- Remix Trifecta (ability 12, and Cell Battery on the Typhlosion line) ----
+export function remixHasTrifecta(p: Pokemon) {
+  return p.gen.num === 7 && (p.hasAbility("Trifecta") || p.remixItemFx().trifecta);
+}
+
+// The game picks the type at the start of the turn with the AI's own damage estimate: Flamethrower / Ice Beam /
+// Thunderbolt (all special, 90 BP) against every foe, summed; the biggest wins, ties go to Fire (holder's STAB left out). The type is then
+// kept for the whole turn, even if a foe switches. Doubles: pass both foes.
+const REMIX_TRIFECTA_PROBES: Array<[TypeName, string]> = [["Fire", "Flamethrower"], ["Ice", "Ice Beam"], ["Electric", "Thunderbolt"]];
+export function remixTrifectaPick(gen: Generation, attacker: Pokemon, foes: Pokemon[], field: Field): TypeName {
+  let best: TypeName = "Fire", bestSum = -1;
+  // No STAB in the comparison (Typhlosion is Ice/Steel): equal matchups stay Fire.
+  const typeless = (p: Pokemon) => {
+    const c = p.clone();
+    (c as any).species = Object.assign({}, c.species, {types: ["???", "???"]});
+    c.types = ["???", "???"] as any;
+    return c;
+  };
+  for (const [type, probe] of REMIX_TRIFECTA_PROBES) {
+    let sum = 0;
+    for (const foe of foes) {
+      if (!foe) continue;
+      try {
+        const r = calculateSMSSSV(gen, typeless(attacker), foe.clone(), new Move(gen, probe), field.clone());
+        const range = r.range();
+        sum += (range[0] + range[1]) / 2;
+      } catch (e) { /* skip */ }
+    }
+    if (sum > bestSum) { best = type; bestSum = sum; }
+  }
+  return best;
 }

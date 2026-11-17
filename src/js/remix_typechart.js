@@ -35,8 +35,7 @@ $(function () {
 	remixShowTCState();
 });
 
-// Fit the chart (title to Hide button) between the Type row and the Health bar, centred:
-// it fills that space, with the rows spread evenly.
+// Centre the chart (fixed size) between the Type row and the Health bar.
 function remixLayoutTypeChart(info) {
 	var chart = info.find(".type-chart"), grid = chart.find(".tc-grid");
 	var typeRow = info.find(".type1").first(), health = info.find(".health-label").first();
@@ -47,11 +46,7 @@ function remixLayoutTypeChart(info) {
 		var cur = parseFloat(chart.css("top")) || 0;
 		chart.css("top", Math.round(cur + y - chart.offset().top) + "px");
 	};
-	var cells = grid.children(".tc-cell");
-	var rows = Math.ceil(cells.length / 2), cellH = cells.first().outerHeight();
-	var other = chart.outerHeight() - grid.outerHeight(); // title + Hide button
-	var gap = Math.floor((bottom - top - other - rows * cellH) / (rows - 1));
-	grid.css("row-gap", Math.max(2, gap) + "px");
+	grid.css("row-gap", "4px"); // fixed size: the chart never stretches with the layout
 	// centred in the space (any rounding leftover split above and below)
 	moveTo(top + Math.max(0, (bottom - top) - chart.outerHeight()) / 2);
 }
@@ -106,7 +101,7 @@ function remixTCSnap(x) {
 }
 
 function remixTCText(x) {
-	if (x === 1) return "–";
+	if (x === 1) return "1x";
 	return x + "x"; // 0x, 0.25x, 0.5x, 1.5x, 2x, 4x ...
 }
 

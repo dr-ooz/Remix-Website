@@ -128,6 +128,12 @@ export function getFinalSpeed(gen: Generation, pokemon: Pokemon, field: Field, s
   } else if (pokemon.hasItem('Quick Powder') && pokemon.named('Ditto')) {
     speedMods.push(8192);
   }
+  // Remix item speed rules (Geothermal Rock: x2 in rain / sun)
+  if (gen.num === 7) {
+    for (const st of pokemon.remixItemFx().stats) {
+      if (st.stat === 'sp' && (!st.weather || st.weather.includes(weather))) speedMods.push(Math.round(4096 * st.mult));
+    }
+  }
 
   speed = OF32(pokeRound((speed * chainMods(speedMods, 410, 131172)) / 4096));
   if (pokemon.hasStatus('par') && !pokemon.hasAbility('Quick Feet')) {
@@ -175,6 +181,14 @@ export function checkAirLock(pokemon: Pokemon, field: Field) {
 }
 
 export function checkForecast(pokemon: Pokemon, weather?: Weather) {
+  // Remix (gen 7): every form keeps Flying; sun Fire, rain Water, hail/snow Ice, sand Rock (Sandy Castform)
+  if (pokemon.gen.num === 7 && pokemon.hasAbility('Forecast') && pokemon.name.startsWith('Castform')) {
+    const t = weather === 'Sun' || weather === 'Harsh Sunshine' ? 'Fire'
+      : weather === 'Rain' || weather === 'Heavy Rain' ? 'Water'
+        : weather === 'Hail' || weather === 'Snow' ? 'Ice' : weather === 'Sand' ? 'Rock' : '';
+    pokemon.types = (t ? ['Flying', t] : ['Flying']) as any;
+    return;
+  }
   if (pokemon.hasAbility('Forecast') && pokemon.named('Castform')) {
     switch (weather) {
     case 'Sun':
@@ -205,7 +219,10 @@ export function checkItem(pokemon: Pokemon, magicRoomActive?: boolean) {
 }
 
 export function checkWonderRoom(pokemon: Pokemon, wonderRoomActive?: boolean) {
-  if (wonderRoomActive) {
+  if (wonderRoomActive && pokemon.gen.num === 7) {
+    // Remix: Wonder Room swaps Attack and Sp. Atk instead of the defenses
+    [pokemon.rawStats.atk, pokemon.rawStats.spa] = [pokemon.rawStats.spa, pokemon.rawStats.atk];
+  } else if (wonderRoomActive) {
     [pokemon.rawStats.def, pokemon.rawStats.spd] = [pokemon.rawStats.spd, pokemon.rawStats.def];
   }
 }
@@ -235,7 +252,7 @@ export function checkDownload(source: Pokemon, target: Pokemon, wonderRoomActive
     let def = target.stats.def;
     let spd = target.stats.spd;
     // We swap the defense stats again here since Download ignores Wonder Room
-    if (wonderRoomActive) [def, spd] = [spd, def];
+    if (wonderRoomActive && source.gen.num !== 7) [def, spd] = [spd, def]; // Remix: defenses not swapped
     if (spd <= def) {
       source.boosts.spa = Math.min(6, source.boosts.spa + 1);
     } else {

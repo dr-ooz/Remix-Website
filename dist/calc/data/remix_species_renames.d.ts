@@ -3,4 +3,5 @@ export declare const REMIX_SPECIES_RENAMES: {
     rename: {
         [old: string]: string;
     };
+    noOldNameSearch: string[];
 };

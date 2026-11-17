@@ -129,6 +129,7 @@ function computeFinalStats(gen, attacker, defender, field) {
 }
 exports.computeFinalStats = computeFinalStats;
 function getFinalSpeed(gen, pokemon, field, side) {
+    var e_3, _a;
     var weather = field.weather || '';
     var terrain = field.terrain;
     var speed = getModifiedStat(pokemon.rawStats.spe, pokemon.boosts.spe, gen);
@@ -164,6 +165,22 @@ function getFinalSpeed(gen, pokemon, field, side) {
     }
     else if (pokemon.hasItem('Quick Powder') && pokemon.named('Ditto')) {
         speedMods.push(8192);
+    }
+    if (gen.num === 7) {
+        try {
+            for (var _b = __values(pokemon.remixItemFx().stats), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var st = _c.value;
+                if (st.stat === 'sp' && (!st.weather || st.weather.includes(weather)))
+                    speedMods.push(Math.round(4096 * st.mult));
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b["return"])) _a.call(_b);
+            }
+            finally { if (e_3) throw e_3.error; }
+        }
     }
     speed = OF32(pokeRound((speed * chainMods(speedMods, 410, 131172)) / 4096));
     if (pokemon.hasStatus('par') && !pokemon.hasAbility('Quick Feet')) {
@@ -205,6 +222,13 @@ function checkAirLock(pokemon, field) {
 }
 exports.checkAirLock = checkAirLock;
 function checkForecast(pokemon, weather) {
+    if (pokemon.gen.num === 7 && pokemon.hasAbility('Forecast') && pokemon.name.startsWith('Castform')) {
+        var t = weather === 'Sun' || weather === 'Harsh Sunshine' ? 'Fire'
+            : weather === 'Rain' || weather === 'Heavy Rain' ? 'Water'
+                : weather === 'Hail' || weather === 'Snow' ? 'Ice' : weather === 'Sand' ? 'Rock' : '';
+        pokemon.types = (t ? ['Flying', t] : ['Flying']);
+        return;
+    }
     if (pokemon.hasAbility('Forecast') && pokemon.named('Castform')) {
         switch (weather) {
             case 'Sun':
@@ -233,9 +257,12 @@ function checkItem(pokemon, magicRoomActive) {
 }
 exports.checkItem = checkItem;
 function checkWonderRoom(pokemon, wonderRoomActive) {
-    var _a;
-    if (wonderRoomActive) {
-        _a = __read([pokemon.rawStats.spd, pokemon.rawStats.def], 2), pokemon.rawStats.def = _a[0], pokemon.rawStats.spd = _a[1];
+    var _a, _b;
+    if (wonderRoomActive && pokemon.gen.num === 7) {
+        _a = __read([pokemon.rawStats.spa, pokemon.rawStats.atk], 2), pokemon.rawStats.atk = _a[0], pokemon.rawStats.spa = _a[1];
+    }
+    else if (wonderRoomActive) {
+        _b = __read([pokemon.rawStats.spd, pokemon.rawStats.def], 2), pokemon.rawStats.def = _b[0], pokemon.rawStats.spd = _b[1];
     }
 }
 exports.checkWonderRoom = checkWonderRoom;
@@ -264,7 +291,7 @@ function checkDownload(source, target, wonderRoomActive) {
     if (source.hasAbility('Instinct')) {
         var def = target.stats.def;
         var spd = target.stats.spd;
-        if (wonderRoomActive)
+        if (wonderRoomActive && source.gen.num !== 7)
             _a = __read([spd, def], 2), def = _a[0], spd = _a[1];
         if (spd <= def) {
             source.boosts.spa = Math.min(6, source.boosts.spa + 1);
@@ -390,7 +417,7 @@ function checkMultihitBoost(gen, attacker, defender, move, field, desc, usedWhit
 }
 exports.checkMultihitBoost = checkMultihitBoost;
 function chainMods(mods, lowerBound, upperBound) {
-    var e_3, _a;
+    var e_4, _a;
     var M = 4096;
     try {
         for (var mods_1 = __values(mods), mods_1_1 = mods_1.next(); !mods_1_1.done; mods_1_1 = mods_1.next()) {
@@ -400,12 +427,12 @@ function chainMods(mods, lowerBound, upperBound) {
             }
         }
     }
-    catch (e_3_1) { e_3 = { error: e_3_1 }; }
+    catch (e_4_1) { e_4 = { error: e_4_1 }; }
     finally {
         try {
             if (mods_1_1 && !mods_1_1.done && (_a = mods_1["return"])) _a.call(mods_1);
         }
-        finally { if (e_3) throw e_3.error; }
+        finally { if (e_4) throw e_4.error; }
     }
     return Math.max(Math.min(M, upperBound), lowerBound);
 }
@@ -415,7 +442,7 @@ function getBaseDamage(level, basePower, attack, defense) {
 }
 exports.getBaseDamage = getBaseDamage;
 function getMostProficientStat(pokemon, gen) {
-    var e_4, _a;
+    var e_5, _a;
     var bestStat = 'atk';
     try {
         for (var _b = __values(['def', 'spa', 'spd', 'spe']), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -426,12 +453,12 @@ function getMostProficientStat(pokemon, gen) {
             }
         }
     }
-    catch (e_4_1) { e_4 = { error: e_4_1 }; }
+    catch (e_5_1) { e_5 = { error: e_5_1 }; }
     finally {
         try {
             if (_c && !_c.done && (_a = _b["return"])) _a.call(_b);
         }
-        finally { if (e_4) throw e_4.error; }
+        finally { if (e_5) throw e_5.error; }
     }
     return bestStat;
 }
@@ -460,7 +487,7 @@ function getWeightFactor(pokemon) {
 }
 exports.getWeightFactor = getWeightFactor;
 function countBoosts(gen, boosts) {
-    var e_5, _a;
+    var e_6, _a;
     var sum = 0;
     var STATS = gen.num === 1
         ? ['atk', 'def', 'spa', 'spe']
@@ -473,12 +500,12 @@ function countBoosts(gen, boosts) {
                 sum += boost;
         }
     }
-    catch (e_5_1) { e_5 = { error: e_5_1 }; }
+    catch (e_6_1) { e_6 = { error: e_6_1 }; }
     finally {
         try {
             if (STATS_1_1 && !STATS_1_1.done && (_a = STATS_1["return"])) _a.call(STATS_1);
         }
-        finally { if (e_5) throw e_5.error; }
+        finally { if (e_6) throw e_6.error; }
     }
     return sum;
 }

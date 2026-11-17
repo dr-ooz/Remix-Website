@@ -1,0 +1,247 @@
+<title>Remix Dex Order</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky toolbar over a wrapping wall of family cards, read left-to-right like a dex page. */
+:root {
+  --bg: #f3f1f6; --panel: #ffffff; --card: #ffffff; --line: #d9d3e2; --fg: #221d2b; --muted: #6c6479;
+  --accent: #6a4fd8; --accent-soft: #e7e0fb; --cp: #2f8f83; --cp-soft: #dcf1ee; --hit: #f2b632; --sprite-bg: #ece8f2;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --z: 1;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
+  --accent: #9d86ff; --accent-soft: #2f2747; --cp: #5cc4b6; --cp-soft: #1d3633; --hit: #f2b632; --sprite-bg: #2c2636; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
+  --accent: #9d86ff; --accent-soft: #2f2747; --cp: #5cc4b6; --cp-soft: #1d3633; --hit: #f2b632; --sprite-bg: #2c2636; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+h1 { font-family: var(--display); font-size: 1.25rem; margin: 0; letter-spacing: 0.01em; }
+.count { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
+input[type=search] { font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); width: 13rem; max-width: 100%; }
+button { font: inherit; font-weight: 600; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--card); color: var(--fg); cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.warn { border-color: #d9534f; color: #d9534f; }
+.zoom { display: flex; gap: 2px; }
+.zoom button { padding: 6px 9px; font-family: var(--mono); font-weight: 500; }
+.zoom button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
+.status { font-size: 0.8rem; color: var(--muted); min-width: 10rem; }
+.status.dirty { color: var(--hit); }
+.help { padding-block: 8px 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  font-size: 0.82rem; color: var(--muted); max-width: 70rem; }
+.help b { color: var(--fg); font-weight: 600; }
+.wall { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start;
+  padding-block: 12px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 4px 6px 5px; cursor: grab; user-select: none;
+  display: flex; flex-direction: column; gap: 3px; max-width: 100%; touch-action: manipulation; }
+.card.hit { outline: 3px solid var(--hit); outline-offset: 1px; }
+.card.moved { box-shadow: inset 0 -2px 0 var(--accent); }
+.head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; min-width: 0; }
+.pos { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); background: none; border: 0; padding: 0; cursor: text; }
+.pos:hover { color: var(--accent); }
+.pos-in { font-family: var(--mono); font-size: 0.72rem; width: 3.6rem; padding: 0 3px; border: 1px solid var(--accent); border-radius: 4px; background: var(--bg); color: var(--fg); }
+/* the card is as wide as its sprites; a longer name wraps onto more lines instead of widening it */
+.card { width: min-content; }
+.name { font-family: var(--display); font-weight: 700; font-size: 0.8rem; line-height: 1.15; text-wrap: balance; }
+.sprites { display: flex; flex-wrap: wrap; gap: 1px; }
+.sprites.cols3 { max-width: calc(var(--z) * 40px * 3 + 2px); }
+.sp { width: calc(var(--z) * 40px); height: calc(var(--z) * 30px); background-image: url(sprites.png); background-repeat: no-repeat;
+  background-size: calc(var(--z) * 1280px) calc(var(--z) * 870px); image-rendering: pixelated; border-radius: 3px; background-color: var(--sprite-bg); }
+.ghost { opacity: 0.35; }
+.chosen { cursor: grabbing; }
+@media (max-width: 600px) { .tools { margin-left: 0; } input[type=search] { width: 100%; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="bar">
+  <h1>Remix Dex Order</h1>
+  <span class="count" id="count"></span>
+  <div class="tools">
+    <input type="search" id="find" placeholder="Find a Pokémon…" aria-label="Find a Pokémon">
+    <div class="zoom" role="group" aria-label="Sprite size">
+      <button type="button" id="z1" data-z="1" aria-pressed="false">1x</button>
+      <button type="button" id="z15" data-z="1.5" aria-pressed="false">1.5x</button>
+      <button type="button" id="z2" data-z="2" aria-pressed="false">2x</button>
+    </div>
+    <button type="button" id="reset" class="warn">Reset to list order</button>
+    <button type="button" id="submit" class="primary">Submit order</button>
+    <span class="status" id="status" role="status">Loading saved order…</span>
+  </div>
+</div>
+<p class="help"><b>Drag a card</b> to move the whole family. <b>Click its # number</b> to type a new position. <b>Submit order</b> saves it for Claude to read; until then your changes are kept only in this browser.</p>
+<div class="wall" id="wall" aria-label="Families in dex order"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
+<script>
+const FAMILIES = __FAMILIES__;
+const BY_ID = new Map(FAMILIES.map(f => [f.id, f]));
+const LIST_ORDER = FAMILIES.map(f => f.id);
+const DRAFT_KEY = "remixDexOrderDraft";
+const ZOOM_KEY = "remixDexOrderZoom";
+const wall = document.getElementById("wall"), statusEl = document.getElementById("status");
+let submitted = null; // ids last submitted
+let db = null;
+
+function store(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+
+function famName(f) {
+  if (f.label) return f.label;
+  const n = f.m[0][0];
+  // one Pokemon and its forms (Castform, Rotom, Deoxys...): just its name
+  if (f.m.every(x => x[0] === n || x[0].startsWith(n + "-"))) return n;
+  return f.m.length > 1 ? n + " line" : n;
+}
+function cardFor(f) {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.dataset.id = f.id;
+  el.title = f.m.map(x => x[0]).join(", ");
+  const head = document.createElement("div"); head.className = "head";
+  const pos = document.createElement("button"); pos.type = "button"; pos.className = "pos"; pos.title = "Type a new position";
+  const name = document.createElement("span"); name.className = "name"; name.textContent = famName(f);
+  head.append(pos, name);
+  const sp = document.createElement("div"); sp.className = "sprites";
+  const per = Math.min(f.m.length, f.cols || 8); // sprites per row: 8 at most, or the card's own (Eevee 3x3, Pikaclones 2x5)
+  sp.style.width = `calc(var(--z) * 40px * ${per} + ${per - 1}px)`;
+  for (const [n, i] of f.m) {
+    const s = document.createElement("div"); s.className = "sp";
+    s.style.backgroundPosition = `calc(var(--z) * ${-(i % 32) * 40}px) calc(var(--z) * ${-Math.floor(i / 32) * 30}px)`;
+    s.setAttribute("aria-label", n); s.title = n;
+    sp.append(s);
+  }
+  el.append(head, sp);
+  return el;
+}
+function currentOrder() { return [...wall.children].map(c => c.dataset.id); }
+function sanitize(ids) {
+  const seen = new Set(), out = [];
+  for (const id of ids || []) if (BY_ID.has(id) && !seen.has(id)) { seen.add(id); out.push(id); }
+  for (const id of LIST_ORDER) if (!seen.has(id)) out.push(id); // families added since: at the end
+  return out;
+}
+function render(ids) {
+  wall.replaceChildren(...ids.map(id => cardFor(BY_ID.get(id))));
+  renumber();
+}
+function renumber() {
+  const base = submitted || LIST_ORDER;
+  [...wall.children].forEach((c, i) => {
+    c.querySelector(".pos").textContent = "#" + (i + 1);
+    c.classList.toggle("moved", base[i] !== c.dataset.id);
+  });
+  document.getElementById("count").textContent = FAMILIES.length + " families · " +
+    FAMILIES.reduce((a, f) => a + f.m.length, 0) + " entries";
+}
+function same(a, b) { return a && b && a.length === b.length && a.every((x, i) => x === b[i]); }
+function setStatus(text, dirty) { statusEl.textContent = text; statusEl.classList.toggle("dirty", !!dirty); }
+function changed() {
+  renumber();
+  const ids = currentOrder();
+  if (same(ids, submitted || LIST_ORDER)) { store(DRAFT_KEY, null); setStatus(submitted ? "Matches your submitted order" : "List order (nothing submitted yet)"); }
+  else { store(DRAFT_KEY, JSON.stringify(ids)); setStatus("Unsubmitted changes (kept in this browser)", true); }
+}
+
+Sortable.create(wall, { animation: 120, ghostClass: "ghost", chosenClass: "chosen", filter: ".pos, .pos-in", preventOnFilter: false, onEnd: changed });
+
+// click the #number to move a card to a typed position
+wall.addEventListener("click", e => {
+  const pos = e.target.closest(".pos"); if (!pos) return;
+  const card = pos.closest(".card");
+  const inp = document.createElement("input"); inp.className = "pos-in"; inp.type = "number"; inp.min = 1; inp.max = wall.children.length;
+  inp.id = "pos-" + card.dataset.id; inp.value = [...wall.children].indexOf(card) + 1; inp.setAttribute("aria-label", "New position");
+  pos.replaceWith(inp); inp.focus(); inp.select();
+  let done = false;
+  const finish = apply => {
+    if (done) return; done = true;
+    const n = parseInt(inp.value, 10);
+    inp.replaceWith(pos);
+    if (apply && n >= 1) {
+      const kids = [...wall.children].filter(c => c !== card);
+      const at = Math.min(n - 1, kids.length);
+      at >= kids.length ? wall.append(card) : wall.insertBefore(card, kids[at]);
+      card.scrollIntoView({ block: "center" });
+    }
+    changed();
+  };
+  inp.addEventListener("keydown", ev => { if (ev.key === "Enter") finish(true); if (ev.key === "Escape") finish(false); });
+  inp.addEventListener("blur", () => finish(true));
+});
+
+// find
+document.getElementById("find").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase().replace(/[^a-z0-9%]/g, "");
+  let first = null;
+  for (const c of wall.children) {
+    const f = BY_ID.get(c.dataset.id);
+    const hit = q && f.m.some(x => x[0].toLowerCase().replace(/[^a-z0-9%]/g, "").includes(q));
+    c.classList.toggle("hit", !!hit);
+    if (hit && !first) first = c;
+  }
+  if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
+});
+
+// zoom
+function setZoom(z) {
+  document.documentElement.style.setProperty("--z", z);
+  document.querySelectorAll(".zoom button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.z === String(z))));
+  store(ZOOM_KEY, String(z));
+}
+document.querySelectorAll(".zoom button").forEach(b => b.addEventListener("click", () => setZoom(b.dataset.z)));
+setZoom(load(ZOOM_KEY) || "1.5");
+
+// reset (two clicks, since confirm() is unavailable)
+const resetBtn = document.getElementById("reset"); let resetArmed = null;
+resetBtn.addEventListener("click", () => {
+  if (!resetArmed) { resetBtn.textContent = "Click again to reset"; resetArmed = setTimeout(() => { resetArmed = null; resetBtn.textContent = "Reset to list order"; }, 3000); return; }
+  clearTimeout(resetArmed); resetArmed = null; resetBtn.textContent = "Reset to list order";
+  render(LIST_ORDER); changed();
+});
+
+// submit
+const submitBtn = document.getElementById("submit");
+submitBtn.addEventListener("click", async () => {
+  if (!db) { setStatus("Can't save here: open this page signed in to claude.ai", true); return; }
+  const ids = currentOrder();
+  submitBtn.disabled = true; setStatus("Saving…");
+  try {
+    await db.doc("orders/canon").set({ families: ids, count: ids.length, submittedAt: new Date().toISOString() });
+    submitted = ids; store(DRAFT_KEY, null);
+    setStatus("Submitted " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
+    renumber();
+  } catch (e) {
+    setStatus("Save failed (" + (e && (e.code || e.message) || "error") + "). Your order is still kept in this browser.", true);
+  } finally { submitBtn.disabled = false; }
+});
+
+// start: the list order, then the submitted order, then this browser's unsubmitted draft
+let draft = null; try { draft = JSON.parse(load(DRAFT_KEY) || "null"); } catch (e) {}
+render(sanitize(draft || LIST_ORDER));
+if (draft) setStatus("Unsubmitted changes (kept in this browser)", true);
+(async () => {
+  const timer = setTimeout(() => { if (!db) setStatus(draft ? "Unsubmitted changes (offline: Submit unavailable)" : "Offline: Submit unavailable", true); }, 10000);
+  try { db = window.claude ? await window.claude.use("db") : null; } catch (e) { db = null; }
+  if (!db) { clearTimeout(timer); setStatus("Saving needs claude.ai sign-in; changes stay in this browser", true); return; }
+  try {
+    const snap = await db.doc("orders/canon").get();
+    clearTimeout(timer);
+    const data = snap && (snap.data ? snap.data() : snap);
+    if (data && data.families) {
+      submitted = sanitize(data.families);
+      if (!draft) render(submitted);
+      renumber();
+      if (!draft) setStatus("Showing your submitted order");
+    } else if (!draft) setStatus("List order (nothing submitted yet)");
+  } catch (e) { clearTimeout(timer); if (!draft) setStatus("List order (couldn't load the submitted order)"); }
+})();
+</script>

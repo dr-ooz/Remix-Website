@@ -11,6 +11,7 @@ export const REMIX_ABILITIES: string[] = [
  "Static",
  "Sinister",
  "Ethereal",
+ "Trifecta",
  "Cloud Nine",
  "Sixth Sense",
  "Insomnia",

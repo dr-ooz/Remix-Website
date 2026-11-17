@@ -5,6 +5,11 @@ var REMIX_OLD_NAME = {};
 if (typeof REMIX_SPECIES_RENAMES !== "undefined") {
 	for (var remixOld in REMIX_SPECIES_RENAMES.rename) REMIX_OLD_NAME[REMIX_SPECIES_RENAMES.rename[remixOld]] = remixOld;
 }
+// Old names the Pokemon search also matches; species_renames.json "noOldNameSearch" opts some out (Audino -> Kangakid)
+var REMIX_OLD_NAME_SEARCH = {};
+for (var remixNew in REMIX_OLD_NAME) {
+	if (!(typeof REMIX_SPECIES_RENAMES !== "undefined" && (REMIX_SPECIES_RENAMES.noOldNameSearch || []).indexOf(remixNew) !== -1)) REMIX_OLD_NAME_SEARCH[remixNew] = REMIX_OLD_NAME[remixNew];
+}
 // Sprite fixes on top of the renames (name -> calc name whose sprite file to use)
 var REMIX_SPRITE_SWAP = {}; // e.g. { "Name": "Old Calc Name" }
 function remixSpriteFile(name) {
@@ -154,10 +159,14 @@ $(function () {
 });
 
 // Item icons from the game files (tools/export_item_icons.py).
+// Stand-ins until the game has its own icon (remove the line once it does and the icons are re-exported).
+var REMIX_ITEM_ICON_OVERRIDES = {
+	geothermalrock: 458 // Magma Stone's icon (item 154 still shows the Leppa Berry icon in game)
+};
 function remixItemIcon(name) {
 	if (!name || typeof REMIX_ITEM_ICON_IDS === "undefined") return "";
 	var key = name.normalize("NFD").toLowerCase().replace(/[^a-z0-9]/g, "");
-	var id = REMIX_ITEM_ICON_IDS[key];
+	var id = REMIX_ITEM_ICON_OVERRIDES[key] || REMIX_ITEM_ICON_IDS[key];
 	return id ? "./img/items/bitem_" + id + ".png" : "";
 }
 

@@ -13,6 +13,7 @@ exports.REMIX_ABILITIES = [
     "Static",
     "Sinister",
     "Ethereal",
+    "Trifecta",
     "Cloud Nine",
     "Sixth Sense",
     "Insomnia",

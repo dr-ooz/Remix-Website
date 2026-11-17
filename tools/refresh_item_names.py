@@ -1,4 +1,5 @@
-"""Refresh remix-data/item_names.json from the game's item name text (a/0/3/2 file 40).
+"""Refresh remix-data/item_names.json from the game's item name text (a/0/3/2 file 40)
+and remix-data/item_descs.json from the item descriptions (file 39).
 
 The calc's Gen 7 item list keeps only items that exist in the game under that name
 (plus every item in remix-data/item_effects.json).
@@ -21,3 +22,10 @@ if __name__ == "__main__":
             names.append(n)
     json.dump(names, open(OUT, "w", encoding="utf-8"), ensure_ascii=False, indent=0)
     print("wrote %d item names" % len(names))
+    # Item descriptions (file 39) for the Boss Guide hover text
+    descs = {}
+    for n, d in zip(text_lines(files[40]), text_lines(files[39])):
+        n, d = clean(n).strip(), " ".join(clean(d).split())
+        if n and d and n not in descs and not n.startswith("OLD "): descs[n] = d
+    json.dump(descs, open(OUT.replace("item_names", "item_descs"), "w", encoding="utf-8"), ensure_ascii=False, indent=0)
+    print("wrote %d item descriptions" % len(descs))

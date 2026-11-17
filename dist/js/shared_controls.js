@@ -1425,7 +1425,7 @@ function loadDefaultLists() {
 				var option = options[i];
 				var pokeName = option.pokemon.toUpperCase();
 				// Remix: old (pre-rename) names also find the Pokemon, e.g. "bellsprout" -> Spellsprout
-				var oldName = (typeof REMIX_OLD_NAME !== "undefined" && REMIX_OLD_NAME[option.pokemon] || "").toUpperCase();
+				var oldName = (typeof REMIX_OLD_NAME_SEARCH !== "undefined" && REMIX_OLD_NAME_SEARCH[option.pokemon] || "").toUpperCase();
 				var nameMatches = function (name) {
 					return query.term.toUpperCase().split(" ").every(function (term) {
 						return name.indexOf(term) === 0 || name.indexOf("-" + term) >= 0 || name.indexOf(" " + term) >= 0;

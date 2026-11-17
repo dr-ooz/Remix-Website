@@ -13,6 +13,7 @@ export interface RemixItemFx {
   weatherItems: Array<{weather: string[]; items: string[]}>;
   drainPct: number; drainIfAsleep: boolean; selfDamagePct: number;
   drainType: string; healPct: number; appetiteDoubles: boolean;
+  immune: string[]; trifecta: boolean; statusImmune: string[]; weatherNeutral: boolean;
 }
 const REMIX_FX_CACHE = new Map<string, RemixItemFx>();
 
@@ -162,6 +163,7 @@ export class Pokemon implements State.Pokemon {
       moveBoost: {}, stats: [], critImmune: false, alwaysCrit: false, weatherHeal: {}, metronomeStep: 0,
       weatherItems: [], drainPct: 0, drainIfAsleep: false, selfDamagePct: 0,
       drainType: '', healPct: 0, appetiteDoubles: false,
+      immune: [], trifecta: false, statusImmune: [], weatherNeutral: false,
     };
     const rules = this.gen.num === 7 && this.item && !['Klutz', 'Disgusted'].includes(this.ability as string)
       ? REMIX_ITEM_EFFECTS[this.item] : undefined;
@@ -187,6 +189,10 @@ export class Pokemon implements State.Pokemon {
       if (r.healPct) fx.healPct = r.healPct;
       if (r.appetiteDoubles) fx.appetiteDoubles = true;
       if (r.selfDamagePct) fx.selfDamagePct = r.selfDamagePct;
+      fx.immune.push(...(r.immune || []));
+      fx.statusImmune.push(...(r.statusImmune || []));
+      if (r.trifecta) fx.trifecta = true;
+      if (r.weatherNeutral) fx.weatherNeutral = true;
     }
     REMIX_FX_CACHE.set(key, fx);
     return fx;
@@ -208,6 +214,10 @@ export class Pokemon implements State.Pokemon {
       // Shell (Meteor) form floats; core forms also get Dazzling
       return form === 'Meteor' || !form ? ['Levitate'] : ['Levitate', 'Dazzling'];
     case 'Zen Mode': return this.name === 'Darmanitan-Zen' ? ['Unaware'] : [];
+    case 'Power Construct':
+      if (this.name === 'Zygarde-10%') return ['Multiscale', 'Hustle'];
+      if (this.name === 'Zygarde-Core') return ['Multiscale', 'Regenerator'];
+      return ['Multiscale', 'Mold Breaker']; // 50% and Complete
     case 'Seasonal Spirit':
       if (form === 'Summer') return ['Solar Rush', 'Sap Sipper'];
       if (form === 'Autumn') return ['Moxie', 'Reckless'];

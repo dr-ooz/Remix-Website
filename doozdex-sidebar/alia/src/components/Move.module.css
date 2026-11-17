@@ -1,0 +1,17 @@
+/* Row colors from the move's type, mixed toward the theme background
+   (replaces the border-image trick, which drew seams in Chromium). */
+.info::before {
+  position: absolute;
+  content: "";
+  inset: 0;
+  background: color-mix(in srgb, var(--tc) var(--dz-info-mix), var(--dz-mix-base));
+  z-index: -10;
+}
+
+.desc::before {
+  position: absolute;
+  content: "";
+  inset: 0;
+  background: color-mix(in srgb, var(--tc) var(--dz-desc-mix), var(--dz-mix-base));
+  z-index: -10;
+}

@@ -157,7 +157,7 @@ var Pokemon = (function () {
         return this.remixItemFx().abilities.some(function (a) { return abilities.includes(a); });
     };
     Pokemon.prototype.remixItemFx = function () {
-        var e_3, _a, _b, _c, _d, _e;
+        var e_3, _a, _b, _c, _d, _e, _f, _g;
         var _this = this;
         var key = this.gen.num + '|' + this.name + '|' + (this.item || '') + '|' + (this.ability || '');
         var cached = REMIX_FX_CACHE.get(key);
@@ -167,13 +167,14 @@ var Pokemon = (function () {
             abilities: [], items: [], boost: {}, resist: {}, stab: [], ate: '', addType: '', vsSteel: {},
             moveBoost: {}, stats: [], critImmune: false, alwaysCrit: false, weatherHeal: {}, metronomeStep: 0,
             weatherItems: [], drainPct: 0, drainIfAsleep: false, selfDamagePct: 0,
-            drainType: '', healPct: 0, appetiteDoubles: false
+            drainType: '', healPct: 0, appetiteDoubles: false,
+            immune: [], trifecta: false, statusImmune: [], weatherNeutral: false
         };
         var rules = this.gen.num === 7 && this.item && !['Klutz', 'Disgusted'].includes(this.ability)
             ? remix_items_1.REMIX_ITEM_EFFECTS[this.item] : undefined;
         try {
-            for (var _f = __values(rules || []), _g = _f.next(); !_g.done; _g = _f.next()) {
-                var r = _g.value;
+            for (var _h = __values(rules || []), _j = _h.next(); !_j.done; _j = _h.next()) {
+                var r = _j.value;
                 if (r.species && !r.species.some(function (sp) { return sp.endsWith('*')
                     ? _this.name.startsWith(sp.slice(0, -1)) : sp === _this.name; }))
                     continue;
@@ -211,12 +212,18 @@ var Pokemon = (function () {
                     fx.appetiteDoubles = true;
                 if (r.selfDamagePct)
                     fx.selfDamagePct = r.selfDamagePct;
+                (_f = fx.immune).push.apply(_f, __spreadArray([], __read((r.immune || [])), false));
+                (_g = fx.statusImmune).push.apply(_g, __spreadArray([], __read((r.statusImmune || [])), false));
+                if (r.trifecta)
+                    fx.trifecta = true;
+                if (r.weatherNeutral)
+                    fx.weatherNeutral = true;
             }
         }
         catch (e_3_1) { e_3 = { error: e_3_1 }; }
         finally {
             try {
-                if (_g && !_g.done && (_a = _f["return"])) _a.call(_f);
+                if (_j && !_j.done && (_a = _h["return"])) _a.call(_h);
             }
             finally { if (e_3) throw e_3.error; }
         }
@@ -238,6 +245,12 @@ var Pokemon = (function () {
             case 'Star Power':
                 return form === 'Meteor' || !form ? ['Levitate'] : ['Levitate', 'Dazzling'];
             case 'Zen Mode': return this.name === 'Darmanitan-Zen' ? ['Unaware'] : [];
+            case 'Power Construct':
+                if (this.name === 'Zygarde-10%')
+                    return ['Multiscale', 'Hustle'];
+                if (this.name === 'Zygarde-Core')
+                    return ['Multiscale', 'Regenerator'];
+                return ['Multiscale', 'Mold Breaker'];
             case 'Seasonal Spirit':
                 if (form === 'Summer')
                     return ['Solar Rush', 'Sap Sipper'];

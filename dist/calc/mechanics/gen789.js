@@ -50,9 +50,15 @@ exports.__esModule = true;
 
 var util_1 = require("../util");
 var items_1 = require("../items");
+var move_1 = require("../move");
 var result_1 = require("../result");
 var util_2 = require("./util");
 function calculateSMSSSV(gen, attacker, defender, move, field) {
+    if (gen.num === 7 && remixHasTrifecta(attacker) && move.hasType("Normal") && move.category !== "Status" &&
+        !move.remixTrifectaType) {
+        var locked = move.overrides && move.overrides.remixTrifectaType;
+        move.remixTrifectaType = locked || remixTrifectaPick(gen, attacker, [defender], field);
+    }
     (0, util_2.checkAirLock)(attacker, field);
     (0, util_2.checkAirLock)(defender, field);
     (0, util_2.checkForecast)(attacker, field.weather);
@@ -96,7 +102,7 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
         desc.isProtected = true;
         return result;
     }
-    var defenderIgnoresAbility = defender.hasAbility("Full Metal Body", "Neutralizing Gas", "Prism Armor", "Shadow Shield", "Energy Shield", "Resilient", "Birds' Eye View");
+    var defenderIgnoresAbility = defender.hasAbility("Power Construct", "Full Metal Body", "Neutralizing Gas", "Prism Armor", "Shadow Shield", "Energy Shield", "Resilient", "Birds' Eye View");
     var attackerIgnoresAbility = attacker.hasAbility("Mold Breaker", "Teravolt", "Turboblaze");
     var moveIgnoresAbility = move.named("G-Max Drum Solo", "G-Max Fire Ball", "G-Max Hydrosnipe", "Light That Burns the Sky", "Menacing Moonraze Maelstrom", "Moongeist Beam", "Searing Sunraze Smash", "Sunsteel Strike") || !!(move.remix && move.remix.ignoresAbilities);
     if (!defenderIgnoresAbility &&
@@ -226,6 +232,11 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
         }
         else if ((isRefrigerate = attacker.hasAbility("Refrigerate") && normal)) {
             type = "Ice";
+        }
+        else if ((isRemixAte = gen.num === 7 && normal && !!move.remixTrifectaType && remixHasTrifecta(attacker))) {
+            type = move.remixTrifectaType;
+            if (!attacker.hasAbility("Trifecta"))
+                desc.attackerItem = attacker.item;
         }
         else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("Incinerate") && normal)) {
             type = "Fire";
@@ -358,8 +369,14 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
         (gen.num === 7 && ((move.hasType("Dark") && defender.hasAbility("Ethereal")) ||
             (move.hasType("Fire") && defender.hasAbility("Unmeltable")) ||
             (move.hasType("Water") && defender.hasAbility("Hydration")) ||
+            (move.hasType("Fire", "Ice", "Electric") && defender.hasAbility("Trifecta")) ||
             (move.priority > 0 && defender.hasAbility("Swiftness", "Elegance"))))) {
         desc.defenderAbility = defender.ability;
+        return result;
+    }
+    if (gen.num === 7 && (defender.remixItemFx().immune.includes(move.type) ||
+        (defender.remixItemFx().trifecta && move.hasType("Fire", "Ice", "Electric")))) {
+        desc.defenderItem = defender.item;
         return result;
     }
     if (move.hasType("Ground") &&
@@ -478,6 +495,11 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
             (field.hasWeather("Rain", "Heavy Rain") && move.hasType("Water"))) {
             baseDamage = (0, util_2.pokeRound)((0, util_2.OF32)(baseDamage * 6144) / 4096);
             desc.weather = field.weather;
+        }
+        else if (((field.hasWeather("Sun") && move.hasType("Water")) ||
+            (field.hasWeather("Rain") && move.hasType("Fire"))) &&
+            gen.num === 7 && attacker.remixItemFx().weatherNeutral && !move.named("Scald", "Steam Eruption")) {
+            desc.attackerItem = attacker.item;
         }
         else if ((field.hasWeather("Sun") && move.hasType("Water")) ||
             (field.hasWeather("Rain") && move.hasType("Fire"))) {
@@ -1703,6 +1725,11 @@ function calculateFinalModsSMSSSV(gen, attacker, defender, move, field, desc, is
         finalMods.push(1024);
         desc.defenderAbility = defender.ability;
     }
+    if (gen.num === 7 && defender.named("Zygarde-Complete") && defender.hasAbility("Power Construct") &&
+        move.hasType("Fairy", "Flying")) {
+        finalMods.push(move.hasType("Fairy") ? 1024 : 2048);
+        desc.defenderAbility = defender.ability;
+    }
     if (gen.num === 7 && defender.hasAbility("Amplifier") && move.flags.sound) {
         finalMods.push(2048);
         desc.defenderAbility = defender.ability;
@@ -1768,4 +1795,58 @@ exports.calculateFinalModsSMSSSV = calculateFinalModsSMSSSV;
 function hasTerrainSeed(pokemon) {
     return pokemon.hasItem("Electric Seed", "Misty Seed", "Grassy Seed", "Psychic Seed");
 }
+function remixHasTrifecta(p) {
+    return p.gen.num === 7 && (p.hasAbility("Trifecta") || p.remixItemFx().trifecta);
+}
+exports.remixHasTrifecta = remixHasTrifecta;
+var REMIX_TRIFECTA_PROBES = [["Fire", "Flamethrower"], ["Ice", "Ice Beam"], ["Electric", "Thunderbolt"]];
+function remixTrifectaPick(gen, attacker, foes, field) {
+    var e_6, _a, e_7, _b;
+    var best = "Fire", bestSum = -1;
+    var typeless = function (p) {
+        var c = p.clone();
+        c.species = Object.assign({}, c.species, { types: ["???", "???"] });
+        c.types = ["???", "???"];
+        return c;
+    };
+    try {
+        for (var REMIX_TRIFECTA_PROBES_1 = __values(REMIX_TRIFECTA_PROBES), REMIX_TRIFECTA_PROBES_1_1 = REMIX_TRIFECTA_PROBES_1.next(); !REMIX_TRIFECTA_PROBES_1_1.done; REMIX_TRIFECTA_PROBES_1_1 = REMIX_TRIFECTA_PROBES_1.next()) {
+            var _c = __read(REMIX_TRIFECTA_PROBES_1_1.value, 2), type = _c[0], probe = _c[1];
+            var sum = 0;
+            try {
+                for (var foes_1 = (e_7 = void 0, __values(foes)), foes_1_1 = foes_1.next(); !foes_1_1.done; foes_1_1 = foes_1.next()) {
+                    var foe = foes_1_1.value;
+                    if (!foe)
+                        continue;
+                    try {
+                        var r = calculateSMSSSV(gen, typeless(attacker), foe.clone(), new move_1.Move(gen, probe), field.clone());
+                        var range = r.range();
+                        sum += (range[0] + range[1]) / 2;
+                    }
+                    catch (e) { }
+                }
+            }
+            catch (e_7_1) { e_7 = { error: e_7_1 }; }
+            finally {
+                try {
+                    if (foes_1_1 && !foes_1_1.done && (_b = foes_1["return"])) _b.call(foes_1);
+                }
+                finally { if (e_7) throw e_7.error; }
+            }
+            if (sum > bestSum) {
+                best = type;
+                bestSum = sum;
+            }
+        }
+    }
+    catch (e_6_1) { e_6 = { error: e_6_1 }; }
+    finally {
+        try {
+            if (REMIX_TRIFECTA_PROBES_1_1 && !REMIX_TRIFECTA_PROBES_1_1.done && (_a = REMIX_TRIFECTA_PROBES_1["return"])) _a.call(REMIX_TRIFECTA_PROBES_1);
+        }
+        finally { if (e_6) throw e_6.error; }
+    }
+    return best;
+}
+exports.remixTrifectaPick = remixTrifectaPick;
 //# sourceMappingURL=gen789.js.map

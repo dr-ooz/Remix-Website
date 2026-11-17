@@ -1,0 +1,67 @@
+/* Sidebar theme, matched to the calc. Her UI is built from Tailwind's black and
+   white, so swapping those two colors re-themes it. */
+:root,
+:root[data-theme="dark"] {
+  --color-black: #17141c; /* calc dark background */
+  --color-white: #ffffff;
+  --dz-line: #3a3344; /* calc dark borders */
+  --dz-mix-base: #000;
+  --dz-info-mix: 32%;
+  --dz-desc-mix: 52%;
+  --dz-scroll: #5c4f6e;
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --color-black: #ffffff;
+  --color-white: #17141c;
+  --dz-line: #cfc8d8;
+  --dz-mix-base: #fff;
+  --dz-info-mix: 45%;
+  --dz-desc-mix: 25%;
+  --dz-scroll: #b3aabd;
+  color-scheme: light;
+}
+
+/* Lines default to the theme's line color instead of bright white. */
+*,
+::before,
+::after {
+  border-color: var(--dz-line);
+}
+
+/* Thin scrollbars that only show while the mouse is over the list. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+*:hover {
+  scrollbar-color: var(--dz-scroll) transparent;
+}
+
+/* Dropdown lists: dark (or light) like the rest, so the text is readable. */
+select option,
+select optgroup {
+  background-color: var(--color-black);
+  color: var(--color-white);
+}
+
+
+/* Light mode: thin black outline around each colored stat number so the
+   yellows/greens stay readable on white. Dark mode keeps its soft shadow. */
+:root[data-theme="light"] .dz-stat {
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+    0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000, 1px 0 0 #000;
+}
+
+/* Themed name suggestions under the Moves search (components/Input.tsx) */
+.dz-suggest {
+  background: var(--color-black);
+  color: var(--color-white);
+  border-color: var(--dz-line);
+  max-height: 16rem;
+  overflow-y: auto;
+}
+.dz-suggest-on {
+  background: color-mix(in srgb, var(--color-white) 14%, var(--color-black));
+}

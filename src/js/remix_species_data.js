@@ -7,6 +7,7 @@ var REMIX_SINGLE_ABILITY = {
  "Metapod": "Climate Cloak",
  "Herakuna": "Climate Cloak",
  "Beedrill-Mega": "Adaptability",
+ "Avicero": "Trifecta",
  "Pidgeot-Mega": "No Guard",
  "Raichu-Alola": "Volt Rush",
  "Alakazam-Mega": "Trace",
@@ -166,7 +167,7 @@ var REMIX_SINGLE_ABILITY = {
  "Oricorio-Pa'u": "Dancer",
  "Oricorio-Sensu": "Dancer",
  "Lycanroc-Dusk": "Tough Claws",
- "Wishiwashi": "Schooling",
+ "Wishiwashi-Solo": "Schooling",
  "Wishiwashi-School": "Schooling",
  "Wimpod": "Wimp Out",
  "Golisopod": "Tactical Retreat",
@@ -208,7 +209,11 @@ var REMIX_SINGLE_ABILITY = {
  "Naganadel": "Proficiency",
  "Stakataka": "Proficiency",
  "Blacephalon": "Proficiency",
- "Zeraora": "Sinister"
+ "Zeraora": "Sinister",
+ "Zygarde-Core": "Power Construct",
+ "Zygarde-Complete": "Power Construct",
+ "Mewtwo-Mega": "Insomnia",
+ "Castform-Sandy": "Forecast"
 };
 // Ability a blank set should start with: the only ability if there's just one, otherwise blank.
 function remixBlankAbility(name) { return REMIX_SINGLE_ABILITY[name] || ""; }

@@ -1,4 +1,4 @@
-import { Generation } from "../data/interface";
+import { Generation, TypeName } from "../data/interface";
 import { RawDesc } from "../desc";
 import { Field } from "../field";
 import { Move } from "../move";
@@ -12,3 +12,5 @@ export declare function calculateAtModsSMSSSV(gen: Generation, attacker: Pokemon
 export declare function calculateDefenseSMSSSV(gen: Generation, attacker: Pokemon, defender: Pokemon, move: Move, field: Field, desc: RawDesc, isCritical?: boolean): number;
 export declare function calculateDfModsSMSSSV(gen: Generation, attacker: Pokemon, defender: Pokemon, move: Move, field: Field, desc: RawDesc, isCritical?: boolean, hitsPhysical?: boolean): number[];
 export declare function calculateFinalModsSMSSSV(gen: Generation, attacker: Pokemon, defender: Pokemon, move: Move, field: Field, desc: RawDesc, isCritical: boolean | undefined, typeEffectiveness: number): number[];
+export declare function remixHasTrifecta(p: Pokemon): boolean;
+export declare function remixTrifectaPick(gen: Generation, attacker: Pokemon, foes: Pokemon[], field: Field): TypeName;

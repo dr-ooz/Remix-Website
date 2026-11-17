@@ -26,6 +26,11 @@ function remixUpdateMoveRow(row, result) {
 	// power
 	var bpBox = row.children(".move-bp");
 	var finalBP = result && result.rawDesc && result.rawDesc.remixFinalBP;
+	// Multi-hit moves: total BP over every hit (Tri Attack 35 x 3 = 105); 2-5 hit moves use the hit count set
+	if (damaging && move.hits > 1) {
+		var per = Number(finalBP || move.bp) || 0, n = move.hits;
+		finalBP = /^(Triple Kick|Triple Axel)$/.test(move.name) ? per * n * (n + 1) / 2 : per * n; // 10/20/30 style
+	}
 	var bpOn = damaging && finalBP && Number(finalBP) !== Number(bpBox.val()) && !move.isZ;
 	if (bpOn) remixOverlay(row, bpBox, "remix-eff-bp", function () { return $("<input readonly />"); }).val(finalBP).show();
 	else row.children(".remix-eff-bp").hide();

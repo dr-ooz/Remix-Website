@@ -1,16 +1,18 @@
 {
  "_readme": "Remix species names. 'remove' runs first, then 'rename' (calc name -> Remix name). A renamed form whose name no longer starts with its base's name becomes its own species (no form toggle). Old names still work in the Pokemon search.",
+ "noOldNameSearch": ["Kangakid"],
  "remove": [
   "Meowth",
   "Rattata-Alola",
-  "Audino",
   "Raticate-Alola",
   "Mewtwo-Mega-X",
   "Vivillon-Fancy",
-  "Vivillon-Pokeball"
+  "Vivillon-Pokeball",
+  "Latios-Mega",
+  "Latias-Mega"
  ],
  "rename": {
-  "Geodude": "Georupt",
+  "Geodude": "Georupt-Magma",
   "Geodude-Alola": "Geodude",
   "Meowth-Alola": "Meowth",
   "Pidgeotto": "Avicero",
@@ -33,8 +35,8 @@
   "Pansage": "Chimpower",
   "Clamperl": "Tapu Bibi",
   "Klang": "Achroma",
-  "Shellos": "Neurego",
-  "Shellos-East": "Shellos",
+  "Shellos-East": "Neurego",
+  "Gastrodon": "Gastrodon-West",
   "Silcoon": "Chrysalyx",
   "Kecleon": "Guzzleon",
   "Meloetta": "Meloetta-Techno",
@@ -52,6 +54,14 @@
   "Minior-Indigo": "Minior-Water",
   "Minior-Orange": "Minior-Fire",
   "Minior-Violet": "Minior-Dragon",
-  "Minior-Yellow": "Minior-Electric"
+  "Minior-Yellow": "Minior-Electric",
+  "Audino": "Kangakid",
+  "Geodude-Steam": "Georupt-Steam",
+  "Nidoran-M": "Nidoran",
+  "Dugtrio": "Drugtrio",
+  "Dugtrio-Alola": "Drumtrio",
+  "Burmy-Sandy": "Burmy-Sand",
+  "Wormadam-Sandy": "Wormadam-Sand",
+  "Wishiwashi": "Wishiwashi-Solo"
  }
 }

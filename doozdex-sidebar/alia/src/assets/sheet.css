@@ -1,0 +1,42 @@
+:root {
+  --gm3-sys-color-surface-container-low: hsl(0 0% 0%);
+  --gm3-sys-color-surface-container: hsl(0 0% 10%);
+  --gm3-sys-color-surface-container-highest: hsl(0 0% 20%);
+
+  --gm3-sys-color-surface: hsl(0 0% 15%);
+  --gm3-sys-color-on-surface: hsl(0 0% 100%);
+  --gm3-sys-color-on-surface-variant: hsl(0 0% 80%);
+
+  --gm3-sys-color-primary-container: hsl(280 100% 15%);
+  --gm3-sys-color-on-primary-container: hsl(0 0% 100%);
+
+  --gm3-sys-color-secondary-container: hsl(280 100% 30%);
+  --gm3-sys-color-on-secondary-container: hsl(0 0% 100%);
+
+  --gm3-sys-color-primary: hsl(0 0% 20%);
+}
+
+#formula-bar {
+  background-color: hsl(0 0% 20%);
+}
+
+.docs-grille-gm3 .formula-bar-separator-container .formula-bar-separator {
+  background-color: hsl(0 0% 40%);
+}
+
+#t-name-box {
+  color: hsl(0 0% 100%);
+}
+
+.docs-grille-gm3 .waffle-name-box {
+  background-color: hsl(0 0% 10%);
+}
+
+.docs-grille-gm3 .formula-bar-with-name-box-wrapper {
+  background-color: var(--gm3-sys-color-primary);
+}
+
+.grid-shim-end-ltr,
+.grid-shim-bottom {
+  background: hsl(0 0% 10%);
+}
