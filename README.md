@@ -1,30 +1,18 @@
-# Pokémon Damage Calculator
+# Pokémon Sweltering Sun Remix
 
-[![npm version](https://img.shields.io/npm/v/@smogon/calc.svg)](https://www.npmjs.com/package/@smogon/calc)&nbsp;
+The website for **Pokémon Sweltering Sun Remix**, a ROM hack by [Dooz](https://www.youtube.com/@doozromhacks).
 
-Damage calculator for Pokemon Sweltering Sun Remix, a ROM Hack by [Dooz](https://www.youtube.com/@doozromhacks)
+**Open the site: https://dr-ooz.github.io/Remix-Website/dist/**
 
-Based on DSG's original Sweltering Sun calc.
+It has the Remix damage calc, the boss fight guide, and the DoozDex sidebar, with more on the way.
 
-To use this calculator:
-* Online: go to [this link](https://dr-ooz.github.io/Remix-Calc/dist/index.html?gen=7)
-* Offline: download the repository as a zip (or clone it), and open the `index.html` file in the `dist` directory.
-    * **NOTE: To ensure everything is properly set up, make sure to click the S/M button before doing any calculations.**
+---
 
-
-## Crediting the Original Creators
-The original Showdown damage calc project was created by Honko and is primarily maintained by Austin.
-
-- Gens 1-6 were originally implemented by Honko.
-- The Omega Ruby / Alpha Sapphire update was done by gamut-was-taken and Austin.
-- The Gen 7 update was done by Austin.
-- The Gen 8 update was done by Austin and Kris.
-- The Gen 9 update was done by Austin and Kris.
-- Some CSS styling was contributed by Zarel to match the Pokémon Showdown! theme.
-
-Many other contributors have added features or contributed bug fixes, please see the
-[full list of contributors](https://github.com/DarkShinyGiratina/Sweltering-Sun-Damage-Calc/graphs/contributors).
-
-## License
-
-This package is distributed under the terms of the [MIT License](https://github.com/DarkShinyGiratina/Sweltering-Sun-Damage-Calc/blob/master/LICENSE)
+<sub>
+Credits: the damage calc part is based on DSG's
+<a href="https://github.com/DarkShinyGiratina/Sweltering-Sun-Damage-Calc">Sweltering Sun calc</a>, built on the
+Pokémon Showdown damage calc by Honko, Austin, Kris and
+<a href="https://github.com/DarkShinyGiratina/Sweltering-Sun-Damage-Calc/graphs/contributors">contributors</a>.
+The DoozDex sidebar is adapted from Alia's <a href="https://github.com/alicedcodes/web-ext">DoozDex extension</a>.
+The calc code is used under the <a href="LICENSE">MIT License</a>.
+</sub>
