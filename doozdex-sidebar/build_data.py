@@ -116,9 +116,10 @@ def save_sprite(pid, p, file_name):
         box = img.getbbox()
     if box:
         img = img.crop((box[0], 0, box[2], img.height))
-        # Imported sprites (season forms) outline in pure black; the game's own
-        # icons use dark grey 33,33,33, so match that.
-        img.putdata([(33, 33, 33, a) if (r, g, b) == (0, 0, 0) and a else (r, g, b, a) for r, g, b, a in img.getdata()])
+        # Outlines: most icons use dark grey 33,33,33, but imported sprites (season forms) and some
+        # of the game's own icons (Pachirisu 0,0,8; Arbok 8,8,8; Beedrill 0,8,16...) use near-black.
+        # Any near-black pixel becomes the standard grey so every outline matches.
+        img.putdata([(33, 33, 33, a) if a and max(r, g, b) <= 20 else (r, g, b, a) for r, g, b, a in img.getdata()])
         img.save(os.path.join(SPRITES_OUT, pid + ".png"), optimize=True)
         p["spriteW"] = box[2] - box[0]
         p["spriteY"] = [box[1], box[3]]  # visible rows (top, bottom) of the 30px-tall sprite

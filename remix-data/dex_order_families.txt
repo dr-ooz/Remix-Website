@@ -2,8 +2,8 @@ Bulbasaur, Ivysaur, Venusaur, Venusaur-Mega
 Charmander, Charmeleon, Charizard, Charizard-Mega-X, Charizard-Mega-Y
 Squirtle, Wartortle, Blastoise, Blastoise-Mega
 Caterpie, Metapod, Venomoth
-Combee, Vespiquen, Beedrill, Beedrill-Mega
 Venonat, Butterfree
+Combee, Vespiquen, Beedrill, Beedrill-Mega
 Rattata, Raticate, Raticate-Mega
 Pidgey, Pidgeot, Pidgeot-Mega
 Spearow, Fearow, Skarmory

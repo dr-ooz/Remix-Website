@@ -15,7 +15,6 @@ STATUS = {1: "Para", 2: "Sleep", 3: "Freeze", 4: "Burn", 5: "Poison", 6: "Confus
 # Desc phrases -> short note (only effects the raw data doesn't already show)
 KEYWORDS = [(r"switch(es)? places|switches out|switch out|before switching", "Switches Out"),
             (r"forces the (target|foe)s? out|forced out", "Forces Switch"),
-            (r"on the next turn|charges|first turn,? then|two turns|2 turns to", "2-Turn"),
             (r"must recharge|can't move next turn|recharge", "Must Recharge"),
             (r"only works (on )?(the )?(first|1st) turn|first turn out|only works( on)? turn 1|(can )?only (be used|works) (on )?(the )?(turn 1|1st turn|first turn)|only works the 1st turn", "Turn 1 Only"),
             (r"removes? (the target's|its|the foe's) (held )?item|hits the target's held item off|knocks? (off|away)", "Removes Item"),
@@ -99,6 +98,8 @@ def blurb(m, e):
     for pat, note in KEYWORDS:
         if not dmg and note in ("2-Turn", "Must Recharge"): continue  # status moves (Recharge heals) don't charge/recharge
         if re.search(pat, d) and note not in fx: fx.append(note)
+    # two-turn moves: Dooz's exact list (descriptions word it too many ways to guess)
+    if m["name"] in TWO_TURN and "2-Turn" not in fx: fx.append("2-Turn")
     for note in extra_notes(re.sub(r"\s+", " ", m["desc"]).split("Z-Effect")[0], dmg):
         if note not in fx: fx.append(note)
     # what the power condition actually is (wording approved by Dooz 2026-11-17)
@@ -150,6 +151,9 @@ def extra_notes(d, dmg):
     return out
 
 
+TWO_TURN = {"Dive", "Bounce", "Dig", "Fly", "Phantom Force", "Skull Bash", "Meteor Beam", "Electro Shot",
+            "Chloroblast", "Sky Attack", "Focus Punch", "Solar Beam", "Solar Blade"}
+
 POWER_NOTES = {
     "Pursuit": "2x if foe switches out", "Assurance": "2x if foe was already hit this turn",
     "Decompose": "2x vs foe below 50% HP", "Brainwave": "1.5x vs sleeping foe", "Thief": "1.5x if it steals",
@@ -184,7 +188,7 @@ POWER_NOTES = {
     "Malicious Moonsault": "+1 Atk before hitting", "Soul-Stealing 7-Star Strike": "=Pivots",
     "Splintered Stormshards": "Sets Stealth Rock",
     "Pulverizing Pancake": "=+3 Spe, Paralyzes, 50% Recoil", "Genesis Supernova": "=+1 All Stats, Psychic Terrain",
-    "Teleport": "Switches Out", "Smoke Out": "Switches Out",
+    "Short Circuit": "=50% Recoil, SE vs Elec, Ignores LRod/MDrive", "Teleport": "Switches Out", "Smoke Out": "Switches Out",
     # set by the 2026-11-16 move batch (in game, confirmed); their game descriptions are still placeholders
     "Fusion Flare": "Sets Sun (5 turns)", "Fusion Bolt": "Sets Electric Terrain (5 turns)",
 }
