@@ -4,12 +4,12 @@
 // or item (same stats, same attacker, same field, so everything else cancels out).
 // Entries changed by the ability or item are shown in italics with a small mark.
 var REMIX_TC_TYPES = [
-	["Normal", "NOR", "#afaf9f"], ["Fire", "FIR", "#f56a00"], ["Water", "WAT", "#2480da"],
-	["Electric", "ELE", "#f4cf2c"], ["Grass", "GRA", "#65b12f"], ["Ice", "ICE", "#80d9f2"],
-	["Fighting", "FIG", "#b93401"], ["Poison", "POI", "#9a2b6c"], ["Ground", "GRO", "#df981c"],
-	["Flying", "FLY", "#758be3"], ["Psychic", "PSY", "#e8649c"], ["Bug", "BUG", "#afbb47"],
-	["Rock", "ROC", "#cfbb81"], ["Ghost", "GHO", "#605cb6"], ["Dragon", "DRA", "#4b4dca"],
-	["Dark", "DAR", "#67493c"], ["Steel", "STE", "#9190a3"], ["Fairy", "FAI", "#e79be7"]
+	["Normal", "NOR", "#c7c9be"], ["Fire", "FIR", "#f59100"], ["Water", "WAT", "#6dbdf2"],
+	["Electric", "ELE", "#ffcc16"], ["Grass", "GRA", "#7dc45d"], ["Ice", "ICE", "#b1f7ff"],
+	["Fighting", "FIG", "#d16248"], ["Poison", "POI", "#c25290"], ["Ground", "GRO", "#df981c"],
+	["Flying", "FLY", "#96b5ff"], ["Psychic", "PSY", "#f07cd6"], ["Bug", "BUG", "#b7c955"],
+	["Rock", "ROC", "#cfbb81"], ["Ghost", "GHO", "#b893e6"], ["Dragon", "DRA", "#6062ff"],
+	["Dark", "DAR", "#a39090"], ["Steel", "STE", "#798b94"], ["Fairy", "FAI", "#fbbeec"]
 ];
 
 var remixTCHidden = false;

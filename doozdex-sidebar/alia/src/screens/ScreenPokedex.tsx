@@ -16,7 +16,7 @@ const ORDERS: Option<Order>[] = [
   { label: "BST", value: "bst" },
 ];
 
-type PokemonRowItem = { type: "item"; data: PokemonData } | { type: "header"; label: string };
+type PokemonRowItem = { type: "item"; data: PokemonData; famStart?: boolean } | { type: "header"; label: string };
 
 export const ScreenPokedex = (props: { datasetId: string }) => {
   onMount(() => useOPT()![1](null));
@@ -181,7 +181,8 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
           i = a.name.localeCompare(b.name);
           break;
         case "num":
-          i = a.num - b.num;
+          // Remix dex order (from the dex order board), not the game's numbers
+          i = (a.dexOrder ?? 10000 + a.num) - (b.dexOrder ?? 10000 + b.num);
           break;
         case "hp":
           i = b.baseStats[0] - a.baseStats[0];
@@ -213,7 +214,19 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     standardMons.sort(sortFn);
     signatureItemMons.sort(sortFn);
 
-    const result: PokemonRowItem[] = standardMons.map((p) => ({ type: "item", data: p }));
+    const result: PokemonRowItem[] = standardMons.map((p, i) => ({
+      type: "item",
+      data: p,
+      famStart: or === "num" && i > 0 && p.family !== standardMons[i - 1].family,
+    }));
+    // Ditto closes the dex; in dex order it also opens the list
+    if (or === "num" && !reversed()) {
+      const ditto = standardMons.find((p) => nameToId(p.name) === "ditto");
+      if (ditto && standardMons.length > 1) {
+        if (result[0]) (result[0] as any).famStart = true;
+        result.unshift({ type: "item", data: ditto });
+      }
+    }
 
     if (signatureItemMons.length > 0) {
       result.push({
@@ -356,7 +369,12 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         <RowVirtualizer class="border-x" virtualizer={virtualizer} items={groupedAndSorted()}>
           {(d) =>
             d.type === "item" ? (
-              <Pokemon data={d.data} datasetId={props.datasetId} sheetId={sheetId()!} />
+              <div class="relative h-full">
+                <Show when={(d as any).famStart}>
+                  <div class="dz-family-line pointer-events-none absolute right-0 left-0" style={{ "z-index": 50 }} />
+                </Show>
+                <Pokemon data={d.data} datasetId={props.datasetId} sheetId={sheetId()!} />
+              </div>
             ) : (
               <div class="flex h-full flex-col items-center justify-center border-b text-center">
                 <div class="text-xs font-bold">{d.label}</div>

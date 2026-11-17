@@ -27,9 +27,11 @@ const CONTENT_H = ROW_H - ROW_LINE;
 export const Pokemon = (props: { data: PokemonData; datasetId: string; sheetId: string }) => {
   return (
     <div
-      class={cn("flex h-full border-b-2 border-white", props.data.range && "cursor-pointer")}
+      class={cn("relative flex h-full border-b border-transparent", props.data.range && "cursor-pointer")}
       onclick={() => props.data.range && openRange(props.data.range, props.sheetId)}
     >
+      {/* the line under each Pokemon, drawn on top so it runs the full width (over the type column too) */}
+      <div class="dz-row-line pointer-events-none absolute right-0 left-0" style={{ "z-index": 40 }} />
       <Types data={props.data} />
 
       <Sprite data={props.data} datasetId={props.datasetId} />

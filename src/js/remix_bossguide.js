@@ -24,12 +24,12 @@ var BG_DESIGN_W = 1620; // px width the layout is designed at (3 cards across, l
 
 // The calc's own type colors (main.css select.type-pill): [top, bottom]
 var BG_TYPE_COLORS = {
-	Bug: ["#c7cf7e", "#afbb47"], Dark: ["#958076", "#67493c"], Dragon: ["#8182da", "#4b4dca"],
-	Electric: ["#f7dd6b", "#f4cf2c"], Fairy: ["#eeb9ee", "#e79be7"], Fighting: ["#ce714d", "#b93401"],
-	Fire: ["#f8974c", "#f56a00"], Flying: ["#9eaeeb", "#758be3"], Ghost: ["#908dcc", "#605cb6"],
-	Grass: ["#93c86d", "#65b12f"], Ground: ["#e9b760", "#df981c"], Ice: ["#a6e4f6", "#80d9f2"],
-	Normal: ["#c7c7bc", "#afaf9f"], Poison: ["#b86b98", "#9a2b6c"], Psychic: ["#ef92ba", "#e8649c"],
-	Rock: ["#ddcfa7", "#cfbb81"], Steel: ["#b2b1bf", "#9190a3"], Water: ["#66a6e5", "#2480da"]
+	Bug: ["#cdd988", "#b7c955"], Dark: ["#bfb1b1", "#a39090"], Dragon: ["#9091ff", "#6062ff"],
+	Electric: ["#ffdb5c", "#ffcc16"], Fairy: ["#fcd2f2", "#fbbeec"], Fighting: ["#df917f", "#d16248"],
+	Fire: ["#f8b24c", "#f59100"], Flying: ["#b6cbff", "#96b5ff"], Ghost: ["#cdb3ee", "#b893e6"],
+	Grass: ["#a4d68e", "#7dc45d"], Ground: ["#e9b760", "#df981c"], Ice: ["#c8f9ff", "#b1f7ff"],
+	Normal: ["#d8d9d2", "#c7c9be"], Poison: ["#d486b1", "#c25290"], Psychic: ["#f4a3e2", "#f07cd6"],
+	Rock: ["#ddcfa7", "#cfbb81"], Steel: ["#a1aeb4", "#798b94"], Water: ["#99d1f6", "#6dbdf2"]
 };
 function bgDarken(hex, f) {
 	var n = parseInt(hex.slice(1), 16);

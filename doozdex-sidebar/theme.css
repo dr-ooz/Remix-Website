@@ -65,3 +65,19 @@ select optgroup {
 .dz-suggest-on {
   background: color-mix(in srgb, var(--color-white) 14%, var(--color-black));
 }
+
+/* the thin line between Pokemon (inside a family) */
+.dz-row-line {
+  bottom: -1px;
+  height: 1px;
+  background: color-mix(in srgb, var(--color-white) 30%, var(--color-black));
+}
+
+/* Remix dex order: a solid white line where one family ends and the next starts; it covers the
+   thin gray line between Pokemon in the same family */
+.dz-family-line {
+  top: -1px;
+  height: 2px;
+  z-index: 50;
+  background: var(--color-white);
+}

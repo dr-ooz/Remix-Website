@@ -1257,6 +1257,20 @@ function getSetOptions(sets) {
 	}
 	var pokeNames = Object.keys(setsHolder);
 	pokeNames.sort();
+	// Remix dex order (remix_dex_order.js); names not on the board keep A-Z order at the end
+	if (typeof REMIX_DEX_ORDER !== "undefined") {
+		// a form not on the board (Arceus-Bug, Deerling-Summer, totems) goes right after its base
+		var dexPos = function (n) {
+			if (n in REMIX_DEX_ORDER) return REMIX_DEX_ORDER[n];
+			for (var b = n; b.lastIndexOf("-") > 0;) {
+				b = b.slice(0, b.lastIndexOf("-"));
+				if (b in REMIX_DEX_ORDER) return REMIX_DEX_ORDER[b] + 0.5;
+			}
+			// not on the board at all (boss-only legends): just before Ditto, which ends the dex
+			return "Ditto" in REMIX_DEX_ORDER ? REMIX_DEX_ORDER["Ditto"] - 0.5 : 100000;
+		};
+		pokeNames.sort(function (a, b) { return dexPos(a) - dexPos(b) || (a < b ? -1 : a > b ? 1 : 0); });
+	}
 	var setOptions = [];
 	for (var i = 0; i < pokeNames.length; i++) {
 		var pokeName = pokeNames[i];

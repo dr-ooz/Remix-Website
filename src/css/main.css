@@ -764,42 +764,42 @@ body.dark .nav .button:hover { background: #3a3246; }
 
 /* Type pills (colors from the Remix type reference) */
 select.type-pill { border-radius: 10px; color: #fff; font-weight: bold; text-shadow: 0 1px 1px rgba(0,0,0,0.7); text-align-last: center; border: 1px solid rgba(0,0,0,0.6); }
-select.type-pill.type-Bug { background: linear-gradient(to bottom, #c7cf7e, #afbb47); }
-select.type-pill option[value="Bug"] { background: #afbb47; color: #fff; }
-select.type-pill.type-Dark { background: linear-gradient(to bottom, #958076, #67493c); }
-select.type-pill option[value="Dark"] { background: #67493c; color: #fff; }
-select.type-pill.type-Dragon { background: linear-gradient(to bottom, #8182da, #4b4dca); }
-select.type-pill option[value="Dragon"] { background: #4b4dca; color: #fff; }
-select.type-pill.type-Electric { background: linear-gradient(to bottom, #f7dd6b, #f4cf2c); }
-select.type-pill option[value="Electric"] { background: #f4cf2c; color: #fff; }
-select.type-pill.type-Fairy { background: linear-gradient(to bottom, #eeb9ee, #e79be7); }
-select.type-pill option[value="Fairy"] { background: #e79be7; color: #fff; }
-select.type-pill.type-Fighting { background: linear-gradient(to bottom, #ce714d, #b93401); }
-select.type-pill option[value="Fighting"] { background: #b93401; color: #fff; }
-select.type-pill.type-Fire { background: linear-gradient(to bottom, #f8974c, #f56a00); }
-select.type-pill option[value="Fire"] { background: #f56a00; color: #fff; }
-select.type-pill.type-Flying { background: linear-gradient(to bottom, #9eaeeb, #758be3); }
-select.type-pill option[value="Flying"] { background: #758be3; color: #fff; }
-select.type-pill.type-Ghost { background: linear-gradient(to bottom, #908dcc, #605cb6); }
-select.type-pill option[value="Ghost"] { background: #605cb6; color: #fff; }
-select.type-pill.type-Grass { background: linear-gradient(to bottom, #93c86d, #65b12f); }
-select.type-pill option[value="Grass"] { background: #65b12f; color: #fff; }
+select.type-pill.type-Bug { background: linear-gradient(to bottom, #cdd988, #b7c955); }
+select.type-pill option[value="Bug"] { background: #b7c955; color: #fff; }
+select.type-pill.type-Dark { background: linear-gradient(to bottom, #bfb1b1, #a39090); }
+select.type-pill option[value="Dark"] { background: #a39090; color: #fff; }
+select.type-pill.type-Dragon { background: linear-gradient(to bottom, #9091ff, #6062ff); }
+select.type-pill option[value="Dragon"] { background: #6062ff; color: #fff; }
+select.type-pill.type-Electric { background: linear-gradient(to bottom, #ffdb5c, #ffcc16); }
+select.type-pill option[value="Electric"] { background: #ffcc16; color: #fff; }
+select.type-pill.type-Fairy { background: linear-gradient(to bottom, #fcd2f2, #fbbeec); }
+select.type-pill option[value="Fairy"] { background: #fbbeec; color: #fff; }
+select.type-pill.type-Fighting { background: linear-gradient(to bottom, #df917f, #d16248); }
+select.type-pill option[value="Fighting"] { background: #d16248; color: #fff; }
+select.type-pill.type-Fire { background: linear-gradient(to bottom, #f8b24c, #f59100); }
+select.type-pill option[value="Fire"] { background: #f59100; color: #fff; }
+select.type-pill.type-Flying { background: linear-gradient(to bottom, #b6cbff, #96b5ff); }
+select.type-pill option[value="Flying"] { background: #96b5ff; color: #fff; }
+select.type-pill.type-Ghost { background: linear-gradient(to bottom, #cdb3ee, #b893e6); }
+select.type-pill option[value="Ghost"] { background: #b893e6; color: #fff; }
+select.type-pill.type-Grass { background: linear-gradient(to bottom, #a4d68e, #7dc45d); }
+select.type-pill option[value="Grass"] { background: #7dc45d; color: #fff; }
 select.type-pill.type-Ground { background: linear-gradient(to bottom, #e9b760, #df981c); }
 select.type-pill option[value="Ground"] { background: #df981c; color: #fff; }
-select.type-pill.type-Ice { background: linear-gradient(to bottom, #a6e4f6, #80d9f2); }
-select.type-pill option[value="Ice"] { background: #80d9f2; color: #fff; }
-select.type-pill.type-Normal { background: linear-gradient(to bottom, #c7c7bc, #afaf9f); }
-select.type-pill option[value="Normal"] { background: #afaf9f; color: #fff; }
-select.type-pill.type-Poison { background: linear-gradient(to bottom, #b86b98, #9a2b6c); }
-select.type-pill option[value="Poison"] { background: #9a2b6c; color: #fff; }
-select.type-pill.type-Psychic { background: linear-gradient(to bottom, #ef92ba, #e8649c); }
-select.type-pill option[value="Psychic"] { background: #e8649c; color: #fff; }
+select.type-pill.type-Ice { background: linear-gradient(to bottom, #c8f9ff, #b1f7ff); }
+select.type-pill option[value="Ice"] { background: #b1f7ff; color: #fff; }
+select.type-pill.type-Normal { background: linear-gradient(to bottom, #d8d9d2, #c7c9be); }
+select.type-pill option[value="Normal"] { background: #c7c9be; color: #fff; }
+select.type-pill.type-Poison { background: linear-gradient(to bottom, #d486b1, #c25290); }
+select.type-pill option[value="Poison"] { background: #c25290; color: #fff; }
+select.type-pill.type-Psychic { background: linear-gradient(to bottom, #f4a3e2, #f07cd6); }
+select.type-pill option[value="Psychic"] { background: #f07cd6; color: #fff; }
 select.type-pill.type-Rock { background: linear-gradient(to bottom, #ddcfa7, #cfbb81); }
 select.type-pill option[value="Rock"] { background: #cfbb81; color: #fff; }
-select.type-pill.type-Steel { background: linear-gradient(to bottom, #b2b1bf, #9190a3); }
-select.type-pill option[value="Steel"] { background: #9190a3; color: #fff; }
-select.type-pill.type-Water { background: linear-gradient(to bottom, #66a6e5, #2480da); }
-select.type-pill option[value="Water"] { background: #2480da; color: #fff; }
+select.type-pill.type-Steel { background: linear-gradient(to bottom, #a1aeb4, #798b94); }
+select.type-pill option[value="Steel"] { background: #798b94; color: #fff; }
+select.type-pill.type-Water { background: linear-gradient(to bottom, #99d1f6, #6dbdf2); }
+select.type-pill option[value="Water"] { background: #6dbdf2; color: #fff; }
 select.type-pill option { font-weight: bold; }
 .poke-info .team-zoom span { display: inline; width: auto; float: none; }
 .player-poks { overflow: auto; }
@@ -838,24 +838,24 @@ body.dark #p2 .trainer-poks { scrollbar-color: #4a4256 #221d2a; }
 .btn.result-typed, body.dark .btn.result-typed { color: #fff; text-shadow: 0 0 2px rgba(0,0,0,0.9), 0 1px 1px rgba(0,0,0,0.9); border-color: rgba(0,0,0,0.55); }
 .btn.result-typed:hover, body.dark .btn.result-typed:hover { color: #fff; filter: brightness(1.12); }
 .visually-hidden:checked + .btn.result-typed, body.dark .visually-hidden:checked + .btn.result-typed { font-weight: bold; box-shadow: inset 0 0 0 2px #fff; }
-.btn.result-typed.type-Bug, body.dark .btn.result-typed.type-Bug { background: linear-gradient(to bottom, #c7cf7e, #afbb47); }
-.btn.result-typed.type-Dark, body.dark .btn.result-typed.type-Dark { background: linear-gradient(to bottom, #958076, #67493c); }
-.btn.result-typed.type-Dragon, body.dark .btn.result-typed.type-Dragon { background: linear-gradient(to bottom, #8182da, #4b4dca); }
-.btn.result-typed.type-Electric, body.dark .btn.result-typed.type-Electric { background: linear-gradient(to bottom, #f7dd6b, #f4cf2c); }
-.btn.result-typed.type-Fairy, body.dark .btn.result-typed.type-Fairy { background: linear-gradient(to bottom, #eeb9ee, #e79be7); }
-.btn.result-typed.type-Fighting, body.dark .btn.result-typed.type-Fighting { background: linear-gradient(to bottom, #ce714d, #b93401); }
-.btn.result-typed.type-Fire, body.dark .btn.result-typed.type-Fire { background: linear-gradient(to bottom, #f8974c, #f56a00); }
-.btn.result-typed.type-Flying, body.dark .btn.result-typed.type-Flying { background: linear-gradient(to bottom, #9eaeeb, #758be3); }
-.btn.result-typed.type-Ghost, body.dark .btn.result-typed.type-Ghost { background: linear-gradient(to bottom, #908dcc, #605cb6); }
-.btn.result-typed.type-Grass, body.dark .btn.result-typed.type-Grass { background: linear-gradient(to bottom, #93c86d, #65b12f); }
+.btn.result-typed.type-Bug, body.dark .btn.result-typed.type-Bug { background: linear-gradient(to bottom, #cdd988, #b7c955); }
+.btn.result-typed.type-Dark, body.dark .btn.result-typed.type-Dark { background: linear-gradient(to bottom, #bfb1b1, #a39090); }
+.btn.result-typed.type-Dragon, body.dark .btn.result-typed.type-Dragon { background: linear-gradient(to bottom, #9091ff, #6062ff); }
+.btn.result-typed.type-Electric, body.dark .btn.result-typed.type-Electric { background: linear-gradient(to bottom, #ffdb5c, #ffcc16); }
+.btn.result-typed.type-Fairy, body.dark .btn.result-typed.type-Fairy { background: linear-gradient(to bottom, #fcd2f2, #fbbeec); }
+.btn.result-typed.type-Fighting, body.dark .btn.result-typed.type-Fighting { background: linear-gradient(to bottom, #df917f, #d16248); }
+.btn.result-typed.type-Fire, body.dark .btn.result-typed.type-Fire { background: linear-gradient(to bottom, #f8b24c, #f59100); }
+.btn.result-typed.type-Flying, body.dark .btn.result-typed.type-Flying { background: linear-gradient(to bottom, #b6cbff, #96b5ff); }
+.btn.result-typed.type-Ghost, body.dark .btn.result-typed.type-Ghost { background: linear-gradient(to bottom, #cdb3ee, #b893e6); }
+.btn.result-typed.type-Grass, body.dark .btn.result-typed.type-Grass { background: linear-gradient(to bottom, #a4d68e, #7dc45d); }
 .btn.result-typed.type-Ground, body.dark .btn.result-typed.type-Ground { background: linear-gradient(to bottom, #e9b760, #df981c); }
-.btn.result-typed.type-Ice, body.dark .btn.result-typed.type-Ice { background: linear-gradient(to bottom, #a6e4f6, #80d9f2); }
-.btn.result-typed.type-Normal, body.dark .btn.result-typed.type-Normal { background: linear-gradient(to bottom, #c7c7bc, #afaf9f); }
-.btn.result-typed.type-Poison, body.dark .btn.result-typed.type-Poison { background: linear-gradient(to bottom, #b86b98, #9a2b6c); }
-.btn.result-typed.type-Psychic, body.dark .btn.result-typed.type-Psychic { background: linear-gradient(to bottom, #ef92ba, #e8649c); }
+.btn.result-typed.type-Ice, body.dark .btn.result-typed.type-Ice { background: linear-gradient(to bottom, #c8f9ff, #b1f7ff); }
+.btn.result-typed.type-Normal, body.dark .btn.result-typed.type-Normal { background: linear-gradient(to bottom, #d8d9d2, #c7c9be); }
+.btn.result-typed.type-Poison, body.dark .btn.result-typed.type-Poison { background: linear-gradient(to bottom, #d486b1, #c25290); }
+.btn.result-typed.type-Psychic, body.dark .btn.result-typed.type-Psychic { background: linear-gradient(to bottom, #f4a3e2, #f07cd6); }
 .btn.result-typed.type-Rock, body.dark .btn.result-typed.type-Rock { background: linear-gradient(to bottom, #ddcfa7, #cfbb81); }
-.btn.result-typed.type-Steel, body.dark .btn.result-typed.type-Steel { background: linear-gradient(to bottom, #b2b1bf, #9190a3); }
-.btn.result-typed.type-Water, body.dark .btn.result-typed.type-Water { background: linear-gradient(to bottom, #66a6e5, #2480da); }
+.btn.result-typed.type-Steel, body.dark .btn.result-typed.type-Steel { background: linear-gradient(to bottom, #a1aeb4, #798b94); }
+.btn.result-typed.type-Water, body.dark .btn.result-typed.type-Water { background: linear-gradient(to bottom, #99d1f6, #6dbdf2); }
 /* Title row settings: labeled damage display + display toggles, one line */
 .settings-row { display: inline-flex; align-items: flex-end; gap: 18px; vertical-align: middle; position: relative; top: -8px; }
 .setting-group { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }

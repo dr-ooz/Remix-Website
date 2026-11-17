@@ -383,13 +383,11 @@ export const STAT_COLOURS: string[] = JSON.parse(
 );
 export const statColour = (v: number) => STAT_COLOURS[Math.max(0, Math.min(STAT_COLOURS.length - 1, Math.floor(v / 10)))];
 
-// Background color of each type icon (public/icons/*.svg).
-export const TYPE_COLOURS: Record<string, string> = {
-  Normal: "#999", Fire: "#ff612c", Water: "#2992ff", Grass: "#42bf24", Electric: "#ffdb00",
-  Ice: "#42d8ff", Fighting: "#ffa202", Poison: "#994dcf", Ground: "#ab7939", Flying: "#95c9ff",
-  Psychic: "#ff637f", Bug: "#9fa424", Rock: "#bcb889", Ghost: "#6e4570", Dragon: "#5462d6",
-  Dark: "#4f4747", Steel: "#6aaed3", Fairy: "#ffb1ff",
-};
+// Type colors: the calc's own (src/css/main.css type pills), so the sidebar and calc always match.
+import calcCss from "../../../../src/css/main.css?raw";
+export const TYPE_COLOURS: Record<string, string> = Object.fromEntries(
+  [...calcCss.matchAll(/select\.type-pill option\[value="(\w+)"\] \{ background: (#[0-9a-fA-F]{3,8})/g)].map((m) => [m[1]!, m[2]!]),
+);
 
 export const TYPES: Option[] = [
   { label: "(Type)", value: "" },

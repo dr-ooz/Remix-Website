@@ -4,75 +4,74 @@ Squirtle, Wartortle, Blastoise, Blastoise-Mega
 Caterpie, Metapod, Venomoth
 Combee, Vespiquen, Beedrill, Beedrill-Mega
 Venonat, Butterfree
-Pidgey, Pidgeot, Pidgeot-Mega
 Rattata, Raticate, Raticate-Mega
+Pidgey, Pidgeot, Pidgeot-Mega
 Spearow, Fearow, Skarmory
-Ekans, Arbok
+Doduo, Dodrio
 Pichu, Pikachu, Dedenne, Togedemaru, Emolga, Pachirisu, Plusle, Minun, Raichu, Raichu-Alola
+Ekans, Arbok
 Sandshrew, Sandslash
-~Sandshrew-Alola, Sandslash-Alola
-Nidoran, Nidorino, Nidorina, Nidoking, Nidoqueen
-Cleffa, Clefairy, Clefable
-Vulpix, Ninetales
-~Vulpix-Alola, Ninetales-Alola
+Sandshrew-Alola, Sandslash-Alola
 Igglybuff, Jigglypuff, Wigglytuff
+Mankey, Primeape
+Vulpix, Ninetales
+Vulpix-Alola, Ninetales-Alola
+Ponyta, Rapidash
 Oddish, Gloom, Vileplume, Bellossom
 Paras, Parasect
 Diglett, Drugtrio, Drumtrio
 Wackitt, Tauros, Cryogonal
 Meowth, Persian, Persian-Mega
-Psyduck, Golduck
-Mankey, Primeape
-Growlithe, Arcanine
 Poliwag, Poliwhirl, Poliwrath, Politoed
+Farfetch’d
 Abra, Kadabra, Alakazam, Alakazam-Mega
-Machop, Machoke, Machamp, Sawk, Throh
-Spellsprout, Weepinspell, Victreebrew, Carnivoid
-Tentacool, Tentacruel
 Geodude, Graveler, Golem, Graveler-Alola, Golem-Alola
-Ponyta, Rapidash
-Slowpoke, Slowbro, Slowbro-Mega, Slowking
-Magnemite, Magneton, Magnezone
-Farfetchd
-Doduo, Dodrio
-Seel, Dewgong
 Grimer, Muk
-~Grimer-Alola, Muk-Alola
-Shellder, Cloyster
-Gastly, Haunter, Gengar, Gengar-Mega
-Onix, Steelix, Steelix-Mega
-Zubat, Golbat, Crobat
-Drowzee, Hypno
-Krabby, Kingler
-Voltorb, Electrode
+Grimer-Alola, Muk-Alola
+Koffing, Weezing
+Slowpoke, Slowbro, Slowbro-Mega, Slowking
 Exeggcute, Exeggutor, Exeggutor-Alola
+Seel, Dewgong
+Staryu, Starmie
+Tentacool, Tentacruel
+Shellder, Cloyster
+Psyduck, Golduck
+Goldeen, Seaking
+Gastly, Haunter, Gengar, Gengar-Mega
+Cleffa, Clefairy, Clefable
+Krabby, Kingler
+Zubat, Golbat, Crobat
 Cubone, Marowak, Marowak-Alola
 Tyrogue, Hitmonlee, Hitmonchan, Hitmontop
-Lickitung, Lickilicky
-Koffing, Weezing
-Rhyhorn, Rhydon, Rhyperior
-Happiny, Chansey, Blissey
-Tangela, Tangrowth
-Kangakid, Kangaskhan, Kangaskhan-Mega
-Goldeen, Seaking
-Staryu, Starmie
-Mime Jr., Mr. Mime, Bouffalant
-Smoochum, Jynx, Meloetta-Pirouette, Meloetta-Techno
 Munchlax, Snorlax
 Pindle, Herakuna, Pinsir, Pinsir-Mega, Heracross, Heracross-Mega
 Scyther, Scizor, Scizor-Mega
+Kangakid, Kangaskhan, Kangaskhan-Mega
+Happiny, Chansey, Blissey
+Drowzee, Hypno
+Spellsprout, Weepinspell, Victreebrew, Carnivoid
+Tangela, Tangrowth
+Machop, Machoke, Machamp, Sawk, Throh
+Smoochum, Jynx, Meloetta-Pirouette, Meloetta-Techno
+Mime Jr., Mr. Mime, Bouffalant
+Lickitung, Lickilicky
+Rhyhorn, Rhydon, Rhyperior
+Magnemite, Magneton, Magnezone
+Onix, Steelix, Steelix-Mega
 Elekid, Electabuzz, Electivire
 Magby, Magmar, Magmortar
-Magikarp, Gyarados, Gyarados-Mega
 Porygon, Porygon2, Porygon-Z
-Omanyte, Omastar
 Kabuto, Kabutops
-Tyrunt, Tyrantrum, Druddigon, Aerodactyl, Aerodactyl-Mega
+Omanyte, Omastar
 Primora, Aurorus, Lapras, Tropius
+Tyrunt, Tyrantrum, Druddigon, Aerodactyl, Aerodactyl-Mega
+Voltorb, Electrode
+Nidoran, Nidorino, Nidorina, Nidoking, Nidoqueen
+Magikarp, Gyarados, Gyarados-Mega
 Horsea, Seadra, Kingdra
 Dratini, Dragonair, Dragonite
-Eevee, Vaporeon, Jolteon, Flareon, Umbreon, Espeon, Glaceon, Leafeon, Sylveon
-~Raikou, Entei, Suicune
+Growlithe, Arcanine
+Eevee, Vaporeon, Jolteon, Flareon, Umbreon, Espeon, Glaceon, Leafeon, Sylveon, Raikou, Entei, Suicune
 Avicero, Articuno, Zapdos, Moltres
 Mew, Mewtwo
 Chikorita, Bayleef, Meganium
@@ -82,90 +81,89 @@ Sentret, Furret
 Hoothoot, Noctowl
 Ledyba, Ledian
 Spinarak, Ariados
-Chinchou, Lanturn
-Togepi, Togetic, Togekiss
-Natu, Xatu
+Hoppip, Skiploom, Jumpluff
+Sunkern, Sunflora
 Mareep, Flaaffy, Ampharos, Ampharos-Mega
 Azurill, Marill, Azumarill
 Bonsly, Sudowoodo
-Hoppip, Skiploom, Jumpluff
-Aipom, Ambipom
-Sunkern, Sunflora
-Yanma, Yanmega
-Wooper, Quagsire
-Murkrow, Honchkrow
-Misdreavus, Mismagius
-Wynaut, Wobbuffet
-Girafarig
 Pineco, Forretress
-Gligar, Gliscor
-Snubbull, Granbull
-Pyukumuku, Qwilfish, Corsola, Octillery
-Sneasel, Weavile
-Teddiursa, Ursaring
-Slugma, Magcargo
-Unown, Stantler, Sigilyph
-Swinub, Piloswine, Mamoswine
-Mantyke, Mantine
-Houndour, Houndoom, Houndoom-Mega
+Natu, Xatu
 Phanpy, Donphan
+Slugma, Magcargo
+Girafarig
 Smeargle
 Delibird
+Snubbull, Granbull
 Miltick, Miltank
+Wooper, Quagsire
+Teddiursa, Ursaring
+Aipom, Ambipom
+Pyukumuku, Qwilfish, Corsola, Octillery
+Chinchou, Lanturn
+Mantyke, Mantine
+Wynaut, Wobbuffet
+Houndour, Houndoom, Houndoom-Mega
+Murkrow, Honchkrow
+Misdreavus, Mismagius
+Sneasel, Weavile
+Gligar, Gliscor
+Yanma, Yanmega
+Swinub, Piloswine, Mamoswine
+Togepi, Togetic, Togekiss
+Unown, Stantler, Sigilyph
 Larvitar, Pupitar, Tyranitar, Tyranitar-Mega
-Lugia, Ho-Oh
 Celebi
+Lugia, Ho-Oh
 Treecko, Grovyle, Sceptile, Sceptile-Mega
 Torchic, Combusken, Blaziken, Blaziken-Mega
 Mudkip, Marshtomp, Swampert, Swampert-Mega
 Poochyena, Mightyena
 Zigzagoon, Linoone, Heatmor
 Wurmple, Cascoon, Dustox
-Lotad, Lombre, Ludicolo
-Seedot, Nuzleaf, Shiftry
-Wingull, Pelipper
-Ralts, Kirlia, Gardevoir, Gardevoir-Mega, Gallade, Gallade-Mega
 Surskit, Masquerain
+Wingull, Pelipper
+Seedot, Nuzleaf, Shiftry
+Lotad, Lombre, Ludicolo
 Shroomish, Breloom
-Slakoth, Vigoroth, Slaking
 Nincada, Ninjask, Shedinja
-Whismur, Loudred, Exploud
 Makuhita, Hariyama
-Nosepass, Probopass
+Ralts, Kirlia, Gardevoir, Gardevoir-Mega, Gallade, Gallade-Mega
 Skitty, Delcatty
+Spinda
+Gulpin, Swalot
 Sableye, Sableye-Mega
 Mawile, Mawile-Mega
-Aron, Lairon, Aggron, Aggron-Mega
-Meditite, Medicham, Medicham-Mega
 Electrike, Manectric, Manectric-Mega
 Pupulse, Jolbeat, Fluibeat, Vitabeat
-Gulpin, Swalot
-Carvanha, Sharpedo, Sharpedo-Mega
-Wailmer, Wailord
+Meditite, Medicham, Medicham-Mega
+Zangoose, Seviper
+Chingling, Chimecho
 Numel, Camerupt, Camerupt-Mega
 Spoink, Grumpig
-Trapinch, Vibrava, Flygon
-Cacnea, Cacturne, Maractus
-Swablu, Altaria, Altaria-Mega
-Zangoose, Seviper
-Solrock, Lunatone
-Spinda
 Barboach, Whiscash
+Luvdisc, Alomomola
 Corphish, Crawdaunt
+Remoraid, Huntail, Gorebyss
+Relicanth
+Carvanha, Sharpedo, Sharpedo-Mega
+Wailmer, Wailord
 Baltoy, Claydol
 Lileep, Cradily
 Anorith, Armaldo
-Feebas, Milotic
-Castform, Castform-Sunny, Castform-Rainy, Castform-Snowy, Castform-Sandy
+Solrock, Lunatone
 Shuppet, Banette, Banette-Mega
 Duskull, Dusclops, Dusknoir
-Chingling, Chimecho
+Nosepass, Probopass
+Swablu, Altaria, Altaria-Mega
 Lunare, Absol, Absol-Mega
+Castform, Castform-Sunny, Castform-Rainy, Castform-Snowy, Castform-Sandy
 Snorunt, Froslass, Glalie, Glalie-Mega
 Spheal, Sealeo, Walrein
-Remoraid, Huntail, Gorebyss
-Relicanth
-Luvdisc, Alomomola
+Slakoth, Vigoroth, Slaking
+Feebas, Milotic
+Trapinch, Vibrava, Flygon
+Aron, Lairon, Aggron, Aggron-Mega
+Whismur, Loudred, Exploud
 Bagon, Shelgon, Salamence, Salamence-Mega
 Beldum, Metang, Metagross, Metagross-Mega
 Taillow, Swellow, Latios, Latias
@@ -178,33 +176,32 @@ Piplup, Prinplup, Empoleon
 Starly, Staravia, Staraptor
 Bidoof, Bibarel
 Kricketot, Kricketune
-Shinx, Luxio, Luxray
 Budew, Roselia, Roserade
-Cranidos, Rampardos
-Shieldon, Bastiodon
-Burmy-Plant, Wormadam-Plant, Beautifly
-~Burmy-Sand, Wormadam-Sand, Mothim
-~Burmy-Snow, Wormadam-Snow, Vivillon
-Buizel, Floatzel
 Cherubi, Cherrim, Cherrim-Sunshine
+Buizel, Floatzel
 Shellos, Gastrodon-West, Gastrodon-East
-Drifloon, Drifblim
+Finneon, Lumineon
+Shinx, Luxio, Luxray
 Buneary, Lopunny, Lopunny-Mega
+Burmy-Snow, Wormadam-Snow, Vivillon
+Burmy-Plant, Wormadam-Plant, Beautifly
+Burmy-Sand, Wormadam-Sand, Mothim
+Chatot
+Drifloon, Drifblim
 Glameow, Purugly
 Stunky, Skuntank
+Croagunk, Toxicroak
+Shieldon, Bastiodon
+Cranidos, Rampardos
 Bronzor, Bronzong
-Chatot
-Spiritomb
-Gible, Gabite, Garchomp, Garchomp-Mega
-Riolu, Lucario, Lucario-Mega
 Hippopotas, Hippowdon
 Skorupi, Drapion
-Croagunk, Toxicroak
-Finneon, Lumineon
 Snover, Abomasnow, Abomasnow-Mega
+Riolu, Lucario, Lucario-Mega
+Spiritomb
+Gible, Gabite, Garchomp, Garchomp-Mega
 Rotom, Rotom-Heat, Rotom-Wash, Rotom-Frost, Rotom-Fan, Rotom-Mow
 Georupt-Magma, Heatran
-Georupt-Steam, Volcanion
 Phione, Manaphy
 Shaymin, Shaymin-Sky
 Azelf, Mesprit, Uxie
@@ -213,14 +210,13 @@ Victini
 Snivy, Servine, Serperior
 Tepig, Pignite, Emboar
 Oshawott, Dewott, Samurott
+Paneeni, Simisage, Simisear, Simipour
 Patrat, Watchog
 Purrloin, Liepard
-Lillipup, Herdier, Stoutland
-Paneeni, Simisage, Simisear, Simipour
-Munna, Musharna
-Pidove, Tranquill, Unfezant
 Blitzle, Zebstrika
-Roggenrola, Boldore, Gigalith
+Lillipup, Herdier, Stoutland
+Pidove, Tranquill, Unfezant
+Munna, Musharna
 Woobat, Swoobat
 Drilbur, Excadrill
 Timburr, Gurdurr, Conkeldurr
@@ -232,39 +228,41 @@ Petilil, Lilligant
 Sandile, Krokorok, Krookodile
 Darumaka, Darmanitan, Darmanitan-Zen
 Dwebble, Crustle
+Cacnea, Cacturne, Maractus
 Scraggy, Scrafty
 Yamask, Cofagrigus
 Tirtouga, Carracosta
 Archen, Archeops
 Trubbish, Garbodor
-Minccino, Cinccino
 Gothita, Gothorita, Gothitelle
-Solosis, Duosion, Reuniclus
-Ducklett, Swanna
-Vanillite, Vanillish, Vanilluxe
+Minccino, Cinccino
 Deerling, Sawsbuck
+Ducklett, Swanna
 Karrablast, Escavalier
 Shelmet, Accelgor
-Foongus, Amoonguss
+Stunfisk
 Frillish, Jellicent
+Vanillite, Vanillish, Vanilluxe
+Foongus, Amoonguss
 Joltik, Galvantula
 Ferroseed, Ferrothorn
 Klink, Klinklang
+Solosis, Duosion, Reuniclus
 Tynamo, Eelektrik, Eelektross
 Elgyem, Beheeyem
 Litwick, Lampent, Chandelure
-Axew, Fraxure, Haxorus
 Cubchoo, Beartic
-Stunfisk
-Mienfoo, Mienshao
-Golett, Golurk
 Pawniard, Bisharp
 Rufflet, Braviary
 Vullaby, Mandibuzz
-Deino, Zweilous, Hydreigon
+Mienfoo, Mienshao
+Golett, Golurk
 Larvesta, Volcarona
-Achroma, Genesect, Magearna
+Roggenrola, Boldore, Gigalith
+Axew, Fraxure, Haxorus
+Deino, Zweilous, Hydreigon
 Zorua, Zoroark, Zeraora
+Achroma, Genesect, Magearna
 Cobalion, Terrakion, Virizion, Keldeo, Keldeo-Resolute
 Tornadus, Tornadus-Therian, Thundurus, Thundurus-Therian, Landorus, Landorus-Therian
 Kyurem, Kyurem-Black, Kyurem-White
@@ -275,25 +273,26 @@ Bunnelby, Diggersby
 Fletchling, Fletchinder, Talonflame
 Flabebe, Floette, Floette-Eternal, Florges
 Skiddo, Gogoat
-Litleo, Pyroar
 Pancham, Pangoro
 Furfrou, Furfrou-Heart, Furfrou-Star, Furfrou-Diamond, Furfrou-Debutante, Furfrou-Matron, Furfrou-Dandy, Furfrou-La-Reine, Furfrou-Kabuki, Furfrou-Pharaoh
 Espurr, Meowstic, Meowstic-F
-Honedge, Doublade, Aegislash, Aegislash-Blade
+Helioptile, Heliolisk
 Spritzee, Aromatisse
 Swirlix, Slurpuff
-Inkay, Malamar
 Binacle, Barbaracle
 Skrelp, Dragalge
 Clauncher, Clawitzer
-Helioptile, Heliolisk
+Inkay, Malamar
 Hawlucha
 Klefki
 Phantump, Trevenant
 Pumpkaboo, Gourgeist-Small, Gourgeist-Super
 Bergmite, Avalugg
+Honedge, Doublade, Aegislash, Aegislash-Blade
+Litleo, Pyroar
 Noibat, Noivern
 Goomy, Sliggoo, Goodra
+Georupt-Steam, Volcanion
 Carbink, Diancie, Diancie-Mega
 Zygarde-Core, Zygarde-10%, Zygarde-50%, Zygarde-Complete
 Hoopa, Hoopa-Unbound
@@ -302,6 +301,7 @@ Litten, Torracat, Incineroar
 Popplio, Brionne, Primarina
 Pikipek, Trumbeak, Toucannon
 Yungoos, Gumshoos
+Fomantis, Lurantis
 Grubbin, Durant, Charjabug, Vikavolt
 Crabrawler, Crabominable
 Oricorio, Oricorio-Pom-Pom, Oricorio-Pa'u, Oricorio-Sensu
@@ -310,35 +310,34 @@ Rockruff, Lycanroc, Lycanroc-Midnight, Lycanroc-Dusk
 Wishiwashi-Solo, Wishiwashi-School, Basculin, Basculin-Blue, Bruxish
 Mareanie, Toxapex
 Mudbray, Mudsdale
+Stufful, Bewear
 Dewpider, Araquanid
-Fomantis, Lurantis
 Morelull, Shiinotic
 Salandit, Salazzle
-Stufful, Bewear
-Bounsweet, Bounsour, Steenee, Tsareena
 Comfey
+Bounsweet, Bounsour, Steenee, Tsareena
 Chimpeace, Oranguru
 Chimpower, Passimian
-Wimpod, Golisopod
 Sandygast, Palossand
-Minior, Minior-Red, Minior-Fire, Minior-Electric, Minior-Grass, Minior-Water, Minior-Ice, Minior-Dragon
 Komala
 Mimikyu
+Wimpod, Golisopod
+Minior, Minior-Red, Minior-Fire, Minior-Electric, Minior-Grass, Minior-Water, Minior-Ice, Minior-Dragon
 Torkoal, Turtonator
 Dunsparce, Drampa
 Dhelmise
 Jangmo-o, Hakamo-o, Kommo-o
 Tapu Bibi, Tapu Koko, Tapu Lele, Tapu Bulu, Tapu Fini
+Marshadow
 Type: Null, Silvally
-Cosmog, Cosmoem, Solgaleo, Lunala, Necrozma
 Neurego, Nihilego
 Chrysalyx, Pheromosa, Buzzwole
 Xurkitree
 Celesteela
 Kartana
-Guzzleon, Guzzlord
-Poipole, Naganadel
 Stakataka
 Blacephalon
-Marshadow
+Poipole, Naganadel
+Guzzleon, Guzzlord
+Cosmog, Cosmoem, Solgaleo, Lunala, Necrozma
 Ditto

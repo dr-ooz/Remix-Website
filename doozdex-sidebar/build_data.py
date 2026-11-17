@@ -203,6 +203,27 @@ for p in pokedex.values():
                     and (q.get("baseSpecies") or q["name"]).split("-")[0] == base.split("-")[0]), None)
         if src:
             p["learntMoves"] = list(src["learntMoves"])
+
+# Remix dex order (remix-data/dex_order.json, from the dex order board): dexOrder = position,
+# family = family index, so the list can sort by it and draw a line between families.
+order_path = os.path.join(CALC, "remix-data", "dex_order.json")
+if os.path.exists(order_path):
+    with open(order_path, encoding="utf8") as f:
+        fams = json.load(f)["main"]["families"]
+    by_id = {to_id(p["name"]): pid for pid, p in pokedex.items()}
+    n = 0
+    for fi, fam in enumerate(fams):
+        for name in fam["members"]:
+            pid = by_id.get(to_id(name)) or (to_id(name) if to_id(name) in pokedex else None)
+            if pid and "dexOrder" not in pokedex[pid]:
+                pokedex[pid]["dexOrder"], pokedex[pid]["family"] = n, fi
+                n += 1
+    unplaced = [p["name"] for p in pokedex.values() if "dexOrder" not in p]
+    for p in pokedex.values():  # anything not on the board goes at the end, by number
+        if "dexOrder" not in p:
+            p["dexOrder"], p["family"] = 10000 + p["num"], 10000 + p["num"]
+    if unplaced:
+        print("not in dex order:", ", ".join(unplaced))
 with open(os.path.join(OUT, "data.json"), "w", encoding="utf8") as f:
     json.dump({"pokedex": pokedex, "moves": moves, "sheetId": ""}, f, ensure_ascii=False, separators=(",", ":"))
 

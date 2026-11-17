@@ -3,26 +3,27 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
-/* Layout: sticky toolbar over a wrapping wall of family cards, read left-to-right like a dex page. */
+/* Layout: sticky toolbar + tab strip. Main is one wall of family cards in dex order; other tabs are
+   labeled categories (folders) with an Unsorted pool beside them that cards are dragged out of. */
 :root {
   --bg: #f3f1f6; --panel: #ffffff; --card: #ffffff; --line: #d9d3e2; --fg: #221d2b; --muted: #6c6479;
-  --accent: #6a4fd8; --accent-soft: #e7e0fb; --cp: #2f8f83; --cp-soft: #dcf1ee; --hit: #f2b632; --sprite-bg: #ece8f2;
+  --accent: #6a4fd8; --accent-soft: #e7e0fb; --hit: #f2b632; --sprite-bg: #ece8f2; --danger: #d9534f;
   --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
   --body: "Inter", "Segoe UI", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
-  --z: 1;
+  --z: 1; --bar-h: 120px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
-  --accent: #9d86ff; --accent-soft: #2f2747; --cp: #5cc4b6; --cp-soft: #1d3633; --hit: #f2b632; --sprite-bg: #2c2636; color-scheme: dark; } }
+  --accent: #9d86ff; --accent-soft: #2f2747; --hit: #f2b632; --sprite-bg: #2c2636; --danger: #ef7470; color-scheme: dark; } }
 :root[data-theme="dark"] {
   --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
-  --accent: #9d86ff; --accent-soft: #2f2747; --cp: #5cc4b6; --cp-soft: #1d3633; --hit: #f2b632; --sprite-bg: #2c2636; color-scheme: dark; }
-body { background: var(--bg); color: var(--fg); font-family: var(--body); }
+  --accent: #9d86ff; --accent-soft: #2f2747; --hit: #f2b632; --sprite-bg: #2c2636; --danger: #ef7470; color-scheme: dark; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); margin: 0; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
-.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
-  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+.gut { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+.row1 { padding-block: 10px 6px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
 h1 { font-family: var(--display); font-size: 1.25rem; margin: 0; letter-spacing: 0.01em; }
 .count { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); }
 .tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-left: auto; }
@@ -31,30 +32,60 @@ button { font: inherit; font-weight: 600; padding: 6px 12px; border-radius: 6px;
 button:hover { border-color: var(--accent); }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-button.warn { border-color: #d9534f; color: #d9534f; }
+button.warn { border-color: var(--danger); color: var(--danger); }
+button[hidden] { display: none; }
 .zoom { display: flex; gap: 2px; }
 .zoom button { padding: 6px 9px; font-family: var(--mono); font-weight: 500; }
 .zoom button[aria-pressed=true] { background: var(--accent-soft); border-color: var(--accent); }
 .status { font-size: 0.8rem; color: var(--muted); min-width: 10rem; }
 .status.dirty { color: var(--hit); }
-.help { padding-block: 8px 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
-  font-size: 0.82rem; color: var(--muted); max-width: 70rem; }
+
+/* tab strip */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; align-items: flex-end; padding-top: 2px; }
+.tab { border-radius: 7px 7px 0 0; border-bottom: 0; padding: 6px 12px 7px; background: var(--bg); color: var(--muted); font-family: var(--display); position: relative; top: 1px; }
+.tab[aria-selected=true] { background: var(--bg); color: var(--fg); border-color: var(--line); box-shadow: inset 0 3px 0 var(--accent); }
+.tab .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--hit); margin-left: 6px; vertical-align: middle; }
+.tab-edit { display: flex; gap: 4px; align-items: center; margin-left: 4px; padding-bottom: 4px; }
+.ib { padding: 3px 8px; font-size: 0.78rem; }
+.name-in { font: inherit; font-family: var(--display); font-weight: 700; padding: 4px 8px; border: 1px solid var(--accent); border-radius: 6px; background: var(--bg); color: var(--fg); width: 11rem; }
+
+.help { padding-block: 8px 0; font-size: 0.82rem; color: var(--muted); max-width: 70rem; margin: 0; }
 .help b { color: var(--fg); font-weight: 600; }
-.wall { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start;
-  padding-block: 12px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wall { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; align-content: flex-start; }
+.main-wall { padding-block: 12px 40px; }
+
+/* folder tabs */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 36%); gap: 12px; padding-block: 12px 40px; align-items: start; }
+.sec { background: var(--panel); border: 1px solid var(--line); border-radius: 9px; margin-bottom: 10px; }
+.sec-head { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.sec.collapsed .sec-head { border-bottom: 0; }
+.sec.collapsed .wall { display: none; }
+.sec-label { flex: 1; min-width: 0; font: inherit; font-family: var(--display); font-weight: 700; font-size: 0.98rem; background: transparent; color: var(--fg);
+  border: 1px solid transparent; border-radius: 5px; padding: 3px 6px; }
+.sec-label:hover { border-color: var(--line); }
+.sec-label:focus { border-color: var(--accent); outline: none; background: var(--bg); }
+.sec-n { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+.sec .wall, .pool .wall { padding: 8px; min-height: calc(var(--z) * 30px + 34px); }
+.wall:empty::before { content: attr(data-empty); color: var(--muted); font-size: 0.8rem; align-self: center; padding: 4px; }
+.pool { position: sticky; top: calc(var(--bar-h) + 8px); max-height: calc(100vh - var(--bar-h) - 20px); overflow: auto;
+  border: 1px dashed var(--line); border-radius: 9px; background: var(--panel); }
+.pool-head { position: sticky; top: 0; z-index: 1; background: var(--panel); padding: 8px 10px; border-bottom: 1px solid var(--line);
+  font-family: var(--display); font-weight: 700; display: flex; gap: 8px; align-items: baseline; }
+.pool-head small { font-family: var(--body); font-weight: 400; color: var(--muted); font-size: 0.75rem; }
+.pool .pos { display: none; }
+@media (max-width: 800px) { .split { grid-template-columns: 1fr; } .pool { position: static; max-height: 60vh; } }
+
+/* cards: as wide as their sprites; a longer name wraps instead of widening the card */
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 7px; padding: 4px 6px 5px; cursor: grab; user-select: none;
-  display: flex; flex-direction: column; gap: 3px; max-width: 100%; touch-action: manipulation; }
+  display: flex; flex-direction: column; gap: 3px; max-width: 100%; width: min-content; touch-action: manipulation; }
 .card.hit { outline: 3px solid var(--hit); outline-offset: 1px; }
 .card.moved { box-shadow: inset 0 -2px 0 var(--accent); }
 .head { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 6px; min-width: 0; }
 .pos { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); background: none; border: 0; padding: 0; cursor: text; }
 .pos:hover { color: var(--accent); }
 .pos-in { font-family: var(--mono); font-size: 0.72rem; width: 3.6rem; padding: 0 3px; border: 1px solid var(--accent); border-radius: 4px; background: var(--bg); color: var(--fg); }
-/* the card is as wide as its sprites; a longer name wraps onto more lines instead of widening it */
-.card { width: min-content; }
 .name { font-family: var(--display); font-weight: 700; font-size: 0.8rem; line-height: 1.15; text-wrap: balance; }
 .sprites { display: flex; flex-wrap: wrap; gap: 1px; }
-.sprites.cols3 { max-width: calc(var(--z) * 40px * 3 + 2px); }
 .sp { width: calc(var(--z) * 40px); height: calc(var(--z) * 30px); background-image: url(sprites.png); background-repeat: no-repeat;
   background-size: calc(var(--z) * 1280px) calc(var(--z) * 870px); image-rendering: pixelated; border-radius: 3px; background-color: var(--sprite-bg); }
 .ghost { opacity: 0.35; }
@@ -63,56 +94,83 @@ button.warn { border-color: #d9534f; color: #d9534f; }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 </style>
 
-<div class="bar">
-  <h1>Remix Dex Order</h1>
-  <span class="count" id="count"></span>
-  <div class="tools">
-    <input type="search" id="find" placeholder="Find a Pokémon…" aria-label="Find a Pokémon">
-    <div class="zoom" role="group" aria-label="Sprite size">
-      <button type="button" id="z1" data-z="1" aria-pressed="false">1x</button>
-      <button type="button" id="z15" data-z="1.5" aria-pressed="false">1.5x</button>
-      <button type="button" id="z2" data-z="2" aria-pressed="false">2x</button>
+<div class="bar" id="bar">
+  <div class="row1 gut">
+    <h1>Remix Dex Order</h1>
+    <span class="count" id="count"></span>
+    <div class="tools">
+      <input type="search" id="find" placeholder="Find a Pokémon…" aria-label="Find a Pokémon">
+      <div class="zoom" role="group" aria-label="Sprite size">
+        <button type="button" data-z="1" aria-pressed="false">1x</button>
+        <button type="button" data-z="1.5" aria-pressed="false">1.5x</button>
+        <button type="button" data-z="2" aria-pressed="false">2x</button>
+      </div>
+      <button type="button" id="addcat" hidden>+ Category</button>
+      <button type="button" id="reset" class="warn">Reset</button>
+      <button type="button" id="submit" class="primary">Submit</button>
+      <span class="status" id="status" role="status">Loading…</span>
     </div>
-    <button type="button" id="reset" class="warn">Reset to list order</button>
-    <button type="button" id="submit" class="primary">Submit order</button>
-    <span class="status" id="status" role="status">Loading saved order…</span>
   </div>
+  <div class="tabs gut" role="tablist" aria-label="Dex orders" id="tabs"></div>
 </div>
-<p class="help"><b>Drag a card</b> to move the whole family. <b>Click its # number</b> to type a new position. <b>Submit order</b> saves it for Claude to read; until then your changes are kept only in this browser.</p>
-<div class="wall" id="wall" aria-label="Families in dex order"></div>
+<p class="help gut" id="help"></p>
+<div id="view"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <script>
 const FAMILIES = __FAMILIES__;
 const BY_ID = new Map(FAMILIES.map(f => [f.id, f]));
 const LIST_ORDER = FAMILIES.map(f => f.id);
-const DRAFT_KEY = "remixDexOrderDraft";
-const ZOOM_KEY = "remixDexOrderZoom";
-const wall = document.getElementById("wall"), statusEl = document.getElementById("status");
-let submitted = null; // ids last submitted
-let db = null;
+const MAIN = "canon"; // Main's id; its submission stays at orders/canon
+const DEFAULT_TABS = [
+  { id: MAIN, name: "Main", kind: "flat" },
+  { id: "biomes", name: "Biomes & Vibes", kind: "folders" },
+  { id: "groups", name: "Categories", kind: "folders" },
+];
+const ZOOM_KEY = "remixDexOrderZoom", TABS_KEY = "remixDexOrderTabs", CUR_KEY = "remixDexOrderTab";
+const draftKey = id => id === MAIN ? "remixDexOrderDraft" : "remixDexOrderDraft:" + id;
+
+const view = document.getElementById("view"), statusEl = document.getElementById("status"), tabsEl = document.getElementById("tabs");
+let db = null, online = false;
+let tabs = DEFAULT_TABS.map(t => ({ ...t }));
+let cur = MAIN;
+const state = {};      // tab id -> { sections: [{label, ids, collapsed}], pool: [ids] }  (Main: one unlabeled section, no pool)
+const submitted = {};  // tab id -> key() of its submitted state
+const subMain = { ids: null };
 
 function store(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch (e) {} }
 function load(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function jparse(s) { try { return JSON.parse(s); } catch (e) { return null; } }
+const tab = id => tabs.find(t => t.id === id);
+const key = st => JSON.stringify({ s: st.sections.map(x => [x.label, x.ids]), p: st.pool });
+const mainOrder = () => (state[MAIN] ? state[MAIN].sections[0].ids : subMain.ids) || LIST_ORDER;
+
+// every family exactly once; anything missing goes in the pool (or the end of Main), in Main's order
+function sanitize(st, kind) {
+  const seen = new Set(), clean = ids => (ids || []).filter(id => BY_ID.has(id) && !seen.has(id) && seen.add(id));
+  let sections = (st && st.sections || []).map(x => ({ label: String(x.label ?? ""), ids: clean(x.ids), collapsed: !!x.collapsed }));
+  let pool = clean(st && st.pool);
+  const missing = [...mainOrder(), ...LIST_ORDER].filter(id => !seen.has(id) && seen.add(id));
+  if (kind === "flat") { sections = [{ label: "", ids: [...(sections[0] ? sections[0].ids : []), ...pool, ...missing] }]; pool = []; }
+  else pool = [...pool, ...missing];
+  return { sections, pool };
+}
 
 function famName(f) {
   if (f.label) return f.label;
   const n = f.m[0][0];
-  // one Pokemon and its forms (Castform, Rotom, Deoxys...): just its name
-  if (f.m.every(x => x[0] === n || x[0].startsWith(n + "-"))) return n;
+  if (f.m.every(x => x[0] === n || x[0].startsWith(n + "-"))) return n; // one Pokemon and its forms
   return f.m.length > 1 ? n + " line" : n;
 }
 function cardFor(f) {
   const el = document.createElement("div");
-  el.className = "card";
-  el.dataset.id = f.id;
-  el.title = f.m.map(x => x[0]).join(", ");
+  el.className = "card"; el.dataset.id = f.id; el.title = f.m.map(x => x[0]).join(", ");
   const head = document.createElement("div"); head.className = "head";
   const pos = document.createElement("button"); pos.type = "button"; pos.className = "pos"; pos.title = "Type a new position";
   const name = document.createElement("span"); name.className = "name"; name.textContent = famName(f);
   head.append(pos, name);
   const sp = document.createElement("div"); sp.className = "sprites";
-  const per = Math.min(f.m.length, f.cols || 8); // sprites per row: 8 at most, or the card's own (Eevee 3x3, Pikaclones 2x5)
+  const per = Math.min(f.m.length, f.cols || 8);
   sp.style.width = `calc(var(--z) * 40px * ${per} + ${per - 1}px)`;
   for (const [n, i] of f.m) {
     const s = document.createElement("div"); s.className = "sp";
@@ -123,43 +181,180 @@ function cardFor(f) {
   el.append(head, sp);
   return el;
 }
-function currentOrder() { return [...wall.children].map(c => c.dataset.id); }
-function sanitize(ids) {
-  const seen = new Set(), out = [];
-  for (const id of ids || []) if (BY_ID.has(id) && !seen.has(id)) { seen.add(id); out.push(id); }
-  for (const id of LIST_ORDER) if (!seen.has(id)) out.push(id); // families added since: at the end
-  return out;
+function makeWall(ids, empty) {
+  const w = document.createElement("div"); w.className = "wall"; w.dataset.empty = empty || "";
+  w.append(...ids.map(id => cardFor(BY_ID.get(id))));
+  Sortable.create(w, { group: "fam", animation: 120, ghostClass: "ghost", chosenClass: "chosen",
+    filter: ".pos, .pos-in", preventOnFilter: false, onEnd: changed });
+  return w;
 }
-function render(ids) {
-  wall.replaceChildren(...ids.map(id => cardFor(BY_ID.get(id))));
-  renumber();
+
+// ---------- render ----------
+function render() {
+  const t = tab(cur), st = state[cur];
+  document.getElementById("addcat").hidden = t.kind !== "folders";
+  document.getElementById("reset").textContent = t.kind === "flat" ? "Reset to list order" : "Reset tab";
+  document.getElementById("submit").textContent = "Submit " + t.name;
+  document.getElementById("help").innerHTML = t.kind === "flat"
+    ? "<b>Drag a card</b> to move the whole family. <b>Click its # number</b> to type a new position. <b>Submit</b> saves this tab's order for Claude to read; until then changes are kept only in this browser."
+    : "<b>+ Category</b> adds a labeled folder; <b>click its name</b> to rename it. <b>Drag cards</b> from Unsorted into folders and between them; the ↑ ↓ buttons reorder folders. Each tab is submitted on its own.";
+  if (t.kind === "flat") {
+    const w = makeWall(st.sections[0].ids); w.classList.add("main-wall", "gut"); w.id = "mainwall";
+    view.replaceChildren(w);
+  } else {
+    const split = document.createElement("div"); split.className = "split gut";
+    const col = document.createElement("div"); col.id = "secs";
+    st.sections.forEach((s, i) => col.append(sectionEl(s, i, st.sections.length)));
+    if (!st.sections.length) { const p = document.createElement("p"); p.className = "help"; p.textContent = "No categories yet. Press + Category to make one."; col.append(p); }
+    const pool = document.createElement("aside"); pool.className = "pool"; pool.setAttribute("aria-label", "Unsorted");
+    const ph = document.createElement("div"); ph.className = "pool-head";
+    ph.innerHTML = `Unsorted <span class="sec-n" id="pooln"></span><small>drag into a category</small>`;
+    const pw = makeWall(st.pool, "Everything is sorted"); pw.id = "poolwall";
+    pool.append(ph, pw);
+    split.append(col, pool);
+    view.replaceChildren(split);
+  }
+  renderTabs(); renumber(); refreshStatus(); runFind();
+}
+function sectionEl(s, i, n) {
+  const el = document.createElement("section"); el.className = "sec" + (s.collapsed ? " collapsed" : "");
+  const h = document.createElement("div"); h.className = "sec-head";
+  const col = document.createElement("button"); col.type = "button"; col.className = "ib"; col.dataset.act = "collapse";
+  col.textContent = s.collapsed ? "▸" : "▾"; col.setAttribute("aria-label", s.collapsed ? "Expand" : "Collapse");
+  const lab = document.createElement("input"); lab.className = "sec-label"; lab.value = s.label; lab.placeholder = "Category name";
+  lab.setAttribute("aria-label", "Category name"); lab.addEventListener("input", changed);
+  const cnt = document.createElement("span"); cnt.className = "sec-n";
+  const up = btn("↑", "up", "Move category up", i === 0), dn = btn("↓", "down", "Move category down", i === n - 1);
+  const del = btn("✕", "delete", "Delete category (its Pokémon go back to Unsorted)"); del.classList.add("warn");
+  h.append(col, lab, cnt, up, dn, del);
+  el.append(h, makeWall(s.ids, "Drag Pokémon here"));
+  return el;
+}
+function btn(text, act, label, disabled) {
+  const b = document.createElement("button"); b.type = "button"; b.className = "ib"; b.textContent = text;
+  b.dataset.act = act; b.setAttribute("aria-label", label); b.title = label; b.disabled = !!disabled; return b;
+}
+function renderTabs() {
+  tabsEl.replaceChildren();
+  for (const t of tabs) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "tab"; b.setAttribute("role", "tab");
+    b.setAttribute("aria-selected", String(t.id === cur)); b.textContent = t.name; b.dataset.tab = t.id;
+    if (state[t.id] && isDirty(t.id)) { const d = document.createElement("span"); d.className = "dot"; d.title = "Unsubmitted changes"; b.append(d); }
+    tabsEl.append(b);
+  }
+  const edit = document.createElement("div"); edit.className = "tab-edit";
+  if (cur !== MAIN) { edit.append(btn("Rename", "rename", "Rename this tab"), btn("Delete tab", "deltab", "Delete this tab")); edit.lastChild.classList.add("warn"); }
+  edit.append(btn("+ New tab", "newtab", "Add a tab"));
+  tabsEl.append(edit);
+}
+
+// ---------- state <-> page ----------
+function readPage() {
+  const t = tab(cur);
+  if (t.kind === "flat") { state[cur] = { sections: [{ label: "", ids: [...view.querySelector(".wall").children].map(c => c.dataset.id) }], pool: [] }; return; }
+  const secs = [...view.querySelectorAll(".sec")].map(el => ({
+    label: el.querySelector(".sec-label").value, collapsed: el.classList.contains("collapsed"),
+    ids: [...el.querySelector(".wall").children].map(c => c.dataset.id) }));
+  state[cur] = { sections: secs, pool: [...document.getElementById("poolwall").children].map(c => c.dataset.id) };
 }
 function renumber() {
-  const base = submitted || LIST_ORDER;
-  [...wall.children].forEach((c, i) => {
-    c.querySelector(".pos").textContent = "#" + (i + 1);
-    c.classList.toggle("moved", base[i] !== c.dataset.id);
-  });
-  document.getElementById("count").textContent = FAMILIES.length + " families · " +
-    FAMILIES.reduce((a, f) => a + f.m.length, 0) + " entries";
+  const t = tab(cur);
+  for (const w of view.querySelectorAll(".wall")) [...w.children].forEach((c, i) => c.querySelector(".pos").textContent = "#" + (i + 1));
+  if (t.kind === "flat") {
+    const base = subMain.ids || LIST_ORDER;
+    [...view.querySelector(".wall").children].forEach((c, i) => c.classList.toggle("moved", base[i] !== c.dataset.id));
+  } else {
+    view.querySelectorAll(".sec").forEach(el => el.querySelector(".sec-n").textContent = el.querySelector(".wall").children.length);
+    document.getElementById("pooln").textContent = document.getElementById("poolwall").children.length;
+  }
+  document.getElementById("count").textContent = FAMILIES.length + " families · " + FAMILIES.reduce((a, f) => a + f.m.length, 0) + " entries";
 }
-function same(a, b) { return a && b && a.length === b.length && a.every((x, i) => x === b[i]); }
+function isDirty(id) { return key(state[id]) !== (submitted[id] ?? key(sanitize(null, tab(id).kind))); }
 function setStatus(text, dirty) { statusEl.textContent = text; statusEl.classList.toggle("dirty", !!dirty); }
-function changed() {
-  renumber();
-  const ids = currentOrder();
-  if (same(ids, submitted || LIST_ORDER)) { store(DRAFT_KEY, null); setStatus(submitted ? "Matches your submitted order" : "List order (nothing submitted yet)"); }
-  else { store(DRAFT_KEY, JSON.stringify(ids)); setStatus("Unsubmitted changes (kept in this browser)", true); }
+function refreshStatus() {
+  if (isDirty(cur)) setStatus("Unsubmitted changes (kept in this browser)" + (online ? "" : "; Submit needs claude.ai sign-in"), true);
+  else setStatus(submitted[cur] ? "Matches your submitted order" : "Nothing submitted yet");
+}
+function saveDraft(id) {
+  const st = state[id];
+  if (!isDirty(id)) { store(draftKey(id), null); return; }
+  store(draftKey(id), id === MAIN ? JSON.stringify(st.sections[0].ids) : JSON.stringify(st));
+}
+function changed() { readPage(); renumber(); saveDraft(cur); refreshStatus(); renderTabs(); }
+
+// ---------- tabs ----------
+function saveTabs() {
+  const list = tabs.map(({ id, name, kind }) => ({ id, name, kind }));
+  store(TABS_KEY, JSON.stringify(list));
+  if (db) db.doc("meta/tabs").set({ tabs: list }).catch(() => {});
+}
+function ensureState(id) {
+  if (state[id]) return;
+  const t = tab(id), raw = load(draftKey(id));
+  let d = jparse(raw);
+  if (id === MAIN && Array.isArray(d)) d = { sections: [{ label: "", ids: d }], pool: [] };
+  state[id] = sanitize(d, t.kind);
+}
+function switchTo(id) {
+  if (!tab(id)) id = MAIN;
+  cur = id; store(CUR_KEY, id); ensureState(id); render();
+}
+tabsEl.addEventListener("click", e => {
+  const tb = e.target.closest("[data-tab]");
+  if (tb) { if (tb.dataset.tab !== cur) switchTo(tb.dataset.tab); return; }
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  if (b.dataset.act === "newtab") nameInput("", name => {
+    const id = "t" + Date.now().toString(36);
+    tabs.push({ id, name: name || "New tab", kind: "folders" }); saveTabs(); switchTo(id);
+  });
+  if (b.dataset.act === "rename") nameInput(tab(cur).name, name => { if (name) { tab(cur).name = name; saveTabs(); render(); } });
+  if (b.dataset.act === "deltab") arm(b, "Click again to delete", () => {
+    tabs = tabs.filter(t => t.id !== cur); store(draftKey(cur), null); delete state[cur]; saveTabs(); switchTo(MAIN);
+  });
+});
+function nameInput(value, done) {
+  const edit = tabsEl.querySelector(".tab-edit");
+  const inp = document.createElement("input"); inp.className = "name-in"; inp.value = value; inp.placeholder = "Tab name"; inp.setAttribute("aria-label", "Tab name");
+  edit.replaceChildren(inp); inp.focus(); inp.select();
+  let fin = false;
+  const finish = ok => { if (fin) return; fin = true; ok ? done(inp.value.trim()) : renderTabs(); if (!ok) return; };
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") finish(true); if (e.key === "Escape") finish(false); });
+  inp.addEventListener("blur", () => finish(!!inp.value.trim()));
+}
+// two clicks for anything destructive (confirm() is unavailable here)
+function arm(b, text, run) {
+  if (b.dataset.armed) { clearTimeout(+b.dataset.armed); delete b.dataset.armed; run(); return; }
+  const old = b.textContent; b.textContent = text;
+  b.dataset.armed = setTimeout(() => { delete b.dataset.armed; b.textContent = old; }, 3000);
 }
 
-Sortable.create(wall, { animation: 120, ghostClass: "ghost", chosenClass: "chosen", filter: ".pos, .pos-in", preventOnFilter: false, onEnd: changed });
-
-// click the #number to move a card to a typed position
-wall.addEventListener("click", e => {
+// ---------- categories ----------
+document.getElementById("addcat").addEventListener("click", () => {
+  readPage(); state[cur].sections.push({ label: "", ids: [], collapsed: false });
+  render(); saveDraft(cur);
+  const labs = view.querySelectorAll(".sec-label"); const l = labs[labs.length - 1];
+  l.scrollIntoView({ block: "center" }); l.focus();
+});
+view.addEventListener("click", e => {
+  const b = e.target.closest(".sec-head [data-act]");
+  if (b) {
+    readPage();
+    const secs = state[cur].sections, i = [...view.querySelectorAll(".sec")].indexOf(b.closest(".sec"));
+    const act = b.dataset.act;
+    if (act === "collapse") secs[i].collapsed = !secs[i].collapsed;
+    if (act === "up" && i > 0) [secs[i - 1], secs[i]] = [secs[i], secs[i - 1]];
+    if (act === "down" && i < secs.length - 1) [secs[i + 1], secs[i]] = [secs[i], secs[i + 1]];
+    if (act === "delete") {
+      if (secs[i].ids.length) return arm(b, "Sure?", () => { readPage(); const s = state[cur].sections.splice(i, 1)[0]; state[cur].pool.unshift(...s.ids); render(); saveDraft(cur); });
+      secs.splice(i, 1);
+    }
+    render(); saveDraft(cur); return;
+  }
+  // click the #number to move a card to a typed position within its wall
   const pos = e.target.closest(".pos"); if (!pos) return;
-  const card = pos.closest(".card");
+  const card = pos.closest(".card"), wall = card.parentElement;
   const inp = document.createElement("input"); inp.className = "pos-in"; inp.type = "number"; inp.min = 1; inp.max = wall.children.length;
-  inp.id = "pos-" + card.dataset.id; inp.value = [...wall.children].indexOf(card) + 1; inp.setAttribute("aria-label", "New position");
+  inp.value = [...wall.children].indexOf(card) + 1; inp.setAttribute("aria-label", "New position");
   pos.replaceWith(inp); inp.focus(); inp.select();
   let done = false;
   const finish = apply => {
@@ -167,8 +362,7 @@ wall.addEventListener("click", e => {
     const n = parseInt(inp.value, 10);
     inp.replaceWith(pos);
     if (apply && n >= 1) {
-      const kids = [...wall.children].filter(c => c !== card);
-      const at = Math.min(n - 1, kids.length);
+      const kids = [...wall.children].filter(c => c !== card), at = Math.min(n - 1, kids.length);
       at >= kids.length ? wall.append(card) : wall.insertBefore(card, kids[at]);
       card.scrollIntoView({ block: "center" });
     }
@@ -178,20 +372,24 @@ wall.addEventListener("click", e => {
   inp.addEventListener("blur", () => finish(true));
 });
 
-// find
-document.getElementById("find").addEventListener("input", e => {
-  const q = e.target.value.trim().toLowerCase().replace(/[^a-z0-9%]/g, "");
+// ---------- find / zoom / reset / submit ----------
+const findEl = document.getElementById("find");
+function runFind(scroll) {
+  const q = findEl.value.trim().toLowerCase().replace(/[^a-z0-9%]/g, "");
   let first = null;
-  for (const c of wall.children) {
-    const f = BY_ID.get(c.dataset.id);
-    const hit = q && f.m.some(x => x[0].toLowerCase().replace(/[^a-z0-9%]/g, "").includes(q));
+  for (const c of view.querySelectorAll(".card")) {
+    const hit = q && BY_ID.get(c.dataset.id).m.some(x => x[0].toLowerCase().replace(/[^a-z0-9%]/g, "").includes(q));
     c.classList.toggle("hit", !!hit);
     if (hit && !first) first = c;
   }
-  if (first) first.scrollIntoView({ block: "center", behavior: "smooth" });
-});
+  if (first && scroll) {
+    const sec = first.closest(".sec.collapsed");
+    if (sec) sec.classList.remove("collapsed");
+    first.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+}
+findEl.addEventListener("input", () => runFind(true));
 
-// zoom
 function setZoom(z) {
   document.documentElement.style.setProperty("--z", z);
   document.querySelectorAll(".zoom button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.z === String(z))));
@@ -200,48 +398,61 @@ function setZoom(z) {
 document.querySelectorAll(".zoom button").forEach(b => b.addEventListener("click", () => setZoom(b.dataset.z)));
 setZoom(load(ZOOM_KEY) || "1.5");
 
-// reset (two clicks, since confirm() is unavailable)
-const resetBtn = document.getElementById("reset"); let resetArmed = null;
-resetBtn.addEventListener("click", () => {
-  if (!resetArmed) { resetBtn.textContent = "Click again to reset"; resetArmed = setTimeout(() => { resetArmed = null; resetBtn.textContent = "Reset to list order"; }, 3000); return; }
-  clearTimeout(resetArmed); resetArmed = null; resetBtn.textContent = "Reset to list order";
-  render(LIST_ORDER); changed();
-});
+document.getElementById("reset").addEventListener("click", e => arm(e.currentTarget, "Click again to reset", () => {
+  state[cur] = sanitize(null, tab(cur).kind); render(); saveDraft(cur);
+}));
 
-// submit
 const submitBtn = document.getElementById("submit");
 submitBtn.addEventListener("click", async () => {
   if (!db) { setStatus("Can't save here: open this page signed in to claude.ai", true); return; }
-  const ids = currentOrder();
+  readPage();
+  const t = tab(cur), st = state[cur], id = cur;
+  const sections = st.sections.map(s => ({ label: s.label.trim(), families: s.ids }));
+  const doc = { name: t.name, kind: t.kind, families: sections.flatMap(s => s.families), submittedAt: new Date().toISOString() };
+  if (t.kind === "folders") { doc.sections = sections; doc.unsorted = st.pool; }
+  doc.count = doc.families.length;
   submitBtn.disabled = true; setStatus("Saving…");
   try {
-    await db.doc("orders/canon").set({ families: ids, count: ids.length, submittedAt: new Date().toISOString() });
-    submitted = ids; store(DRAFT_KEY, null);
-    setStatus("Submitted " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
-    renumber();
+    await db.doc("orders/" + id).set(doc);
+    submitted[id] = key(st);
+    if (id === MAIN) subMain.ids = [...st.sections[0].ids];
+    saveDraft(id);
+    setStatus("Submitted " + t.name + " " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
+    renumber(); renderTabs();
   } catch (e) {
-    setStatus("Save failed (" + (e && (e.code || e.message) || "error") + "). Your order is still kept in this browser.", true);
+    setStatus("Save failed (" + (e && (e.code || e.message) || "error") + "). Your changes are still kept in this browser.", true);
   } finally { submitBtn.disabled = false; }
 });
 
-// start: the list order, then the submitted order, then this browser's unsubmitted draft
-let draft = null; try { draft = JSON.parse(load(DRAFT_KEY) || "null"); } catch (e) {}
-render(sanitize(draft || LIST_ORDER));
-if (draft) setStatus("Unsubmitted changes (kept in this browser)", true);
+// keep the folder pool's sticky offset under the toolbar
+new ResizeObserver(([e]) => document.documentElement.style.setProperty("--bar-h", e.target.offsetHeight + "px")).observe(document.getElementById("bar"));
+
+// ---------- start: local tabs + drafts first, then the saved tabs and submissions ----------
+tabs = (jparse(load(TABS_KEY)) || DEFAULT_TABS).map(t => ({ ...t }));
+if (!tab(MAIN)) tabs.unshift({ ...DEFAULT_TABS[0] });
+switchTo(load(CUR_KEY) || MAIN);
 (async () => {
-  const timer = setTimeout(() => { if (!db) setStatus(draft ? "Unsubmitted changes (offline: Submit unavailable)" : "Offline: Submit unavailable", true); }, 10000);
   try { db = window.claude ? await window.claude.use("db") : null; } catch (e) { db = null; }
-  if (!db) { clearTimeout(timer); setStatus("Saving needs claude.ai sign-in; changes stay in this browser", true); return; }
-  try {
-    const snap = await db.doc("orders/canon").get();
-    clearTimeout(timer);
-    const data = snap && (snap.data ? snap.data() : snap);
-    if (data && data.families) {
-      submitted = sanitize(data.families);
-      if (!draft) render(submitted);
-      renumber();
-      if (!draft) setStatus("Showing your submitted order");
-    } else if (!draft) setStatus("List order (nothing submitted yet)");
-  } catch (e) { clearTimeout(timer); if (!draft) setStatus("List order (couldn't load the submitted order)"); }
+  online = !!db;
+  if (!db) { refreshStatus(); return; }
+  const get = async p => { try { const s = await db.doc(p).get(); return s && (s.data ? s.data() : s); } catch (e) { return null; } };
+  const meta = await get("meta/tabs");
+  if (meta && Array.isArray(meta.tabs) && meta.tabs.length) {
+    tabs = meta.tabs.map(t => ({ ...t })); if (!tab(MAIN)) tabs.unshift({ ...DEFAULT_TABS[0] });
+    store(TABS_KEY, JSON.stringify(tabs));
+  } else saveTabs();
+  const docs = await Promise.all(tabs.map(t => get("orders/" + t.id)));
+  // Main first: the other tabs fill their Unsorted pool in Main's order
+  tabs.forEach((t, i) => { if (t.id === MAIN && docs[i] && docs[i].families) subMain.ids = sanitize({ sections: [{ ids: docs[i].families }] }, "flat").sections[0].ids; });
+  for (const t of tabs) if (!load(draftKey(t.id))) delete state[t.id]; // rebuilt below, now Main's order is known
+  tabs.forEach((t, i) => {
+    const d = docs[i]; if (!d) return;
+    const sub = t.kind === "flat" ? sanitize({ sections: [{ ids: d.families }] }, "flat")
+      : sanitize({ sections: (d.sections || []).map(s => ({ label: s.label, ids: s.families })), pool: d.unsorted }, "folders");
+    submitted[t.id] = key(sub);
+    if (!load(draftKey(t.id))) state[t.id] = sub; // no unsubmitted draft here: show what was submitted
+  });
+  if (!tab(cur)) cur = MAIN;
+  switchTo(cur);
 })();
 </script>
