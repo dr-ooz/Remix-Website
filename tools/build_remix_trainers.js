@@ -27,7 +27,8 @@ for (const t of trainers) {
 		for (const s in m.evs) if (m.evs[s]) evs[s] = m.evs[s];
 		for (const s in m.ivs) if (m.ivs[s] !== 31) ivs[s] = m.ivs[s];
 		setdex[m.species][label] = {level: m.level, ability: m.ability, item: m.item || undefined, nature: m.nature,
-			moves: m.moves, evs, ivs, sub_index: i};
+			// the game's move names use ’ (Land’s Wrath); the calc and guide use ' (Land's Wrath)
+			moves: m.moves.map((x) => String(x).replace(/’/g, "'")), evs, ivs, sub_index: i};
 		count++;
 	});
 }

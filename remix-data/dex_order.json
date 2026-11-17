@@ -627,6 +627,14 @@
     ]
    },
    {
+    "id": "growlithe",
+    "label": null,
+    "members": [
+     "Growlithe",
+     "Arcanine"
+    ]
+   },
+   {
     "id": "magikarp",
     "label": null,
     "members": [
@@ -651,14 +659,6 @@
      "Dratini",
      "Dragonair",
      "Dragonite"
-    ]
-   },
-   {
-    "id": "growlithe",
-    "label": null,
-    "members": [
-     "Growlithe",
-     "Arcanine"
     ]
    },
    {
@@ -2891,6 +2891,13 @@
     ]
    },
    {
+    "id": "ditto",
+    "label": null,
+    "members": [
+     "Ditto"
+    ]
+   },
+   {
     "id": "neurego",
     "label": null,
     "members": [
@@ -2967,13 +2974,6 @@
      "Solgaleo",
      "Lunala",
      "Necrozma"
-    ]
-   },
-   {
-    "id": "ditto",
-    "label": null,
-    "members": [
-     "Ditto"
     ]
    }
   ]

@@ -67,10 +67,10 @@ Primora, Aurorus, Lapras, Tropius
 Tyrunt, Tyrantrum, Druddigon, Aerodactyl, Aerodactyl-Mega
 Voltorb, Electrode
 Nidoran, Nidorino, Nidorina, Nidoking, Nidoqueen
+Growlithe, Arcanine
 Magikarp, Gyarados, Gyarados-Mega
 Horsea, Seadra, Kingdra
 Dratini, Dragonair, Dragonite
-Growlithe, Arcanine
 Eevee, Vaporeon, Jolteon, Flareon, Umbreon, Espeon, Glaceon, Leafeon, Sylveon, Raikou, Entei, Suicune
 Avicero, Articuno, Zapdos, Moltres
 Mew, Mewtwo
@@ -330,6 +330,7 @@ Jangmo-o, Hakamo-o, Kommo-o
 Tapu Bibi, Tapu Koko, Tapu Lele, Tapu Bulu, Tapu Fini
 Marshadow
 Type: Null, Silvally
+Ditto
 Neurego, Nihilego
 Chrysalyx, Pheromosa, Buzzwole
 Xurkitree
@@ -340,4 +341,3 @@ Blacephalon
 Poipole, Naganadel
 Guzzleon, Guzzlord
 Cosmog, Cosmoem, Solgaleo, Lunala, Necrozma
-Ditto

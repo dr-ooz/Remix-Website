@@ -1266,8 +1266,8 @@ function getSetOptions(sets) {
 				b = b.slice(0, b.lastIndexOf("-"));
 				if (b in REMIX_DEX_ORDER) return REMIX_DEX_ORDER[b] + 0.5;
 			}
-			// not on the board at all (boss-only legends): just before Ditto, which ends the dex
-			return "Ditto" in REMIX_DEX_ORDER ? REMIX_DEX_ORDER["Ditto"] - 0.5 : 100000;
+			// not on the board at all (boss-only legends): after the whole dex
+			return 100000;
 		};
 		pokeNames.sort(function (a, b) { return dexPos(a) - dexPos(b) || (a < b ? -1 : a > b ? 1 : 0); });
 	}

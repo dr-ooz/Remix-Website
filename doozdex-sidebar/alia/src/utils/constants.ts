@@ -130,6 +130,24 @@ const VANILLA_TYPE_CHART: Record<string, TypeChart> = {
 };
 const TCA = Object.keys(VANILLA_ABILITIES);
 
+// Signature items from the calc's item effects: which Pokemon hold one, and the abilities it gives.
+// A Pokemon with several signature items gets one combined entry ("Metal Coat / Hard Stone").
+import sigItemsJson from "../../../../remix-data/signature_items.json";
+const SIG = (() => {
+  const id = (n: string) => n.normalize("NFD").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const byMon: Record<string, string[]> = {};
+  const data = sigItemsJson as Record<string, { holders: string[]; abilities: string[] }>;
+  for (const [item, info] of Object.entries(data)) for (const h of info.holders) (byMon[id(h)] ??= []).push(item);
+  const signatureItems: Record<string, string> = {};
+  const magicItems: Record<string, { abilities: string[] }> = {};
+  for (const [mon, items] of Object.entries(byMon)) {
+    const name = items.join(" / ");
+    signatureItems[mon] = name;
+    magicItems[name] = { abilities: [...new Set(items.flatMap((i) => data[i]!.abilities))] };
+  }
+  return { signatureItems, magicItems };
+})();
+
 export const DATASET_IDS: DatasetData[] = [
   {
     value: "remix",
@@ -137,14 +155,9 @@ export const DATASET_IDS: DatasetData[] = [
     sheetId: "1qXyNhB8KGqqCExq-dYXUIm1FGgHfpjvuvps1V6npFnU",
     dexitedPokemon: new Set(["mimikyubusted", "mimikyubustedtotem", "magearnaoriginal"]),
     unusable: new Set(),
-    magicItems: { "Shiny Scale": { abilities: ["Magic Bounce"] } },
-    signatureItems: {
-      ariados: "Shiny Scale",
-      spinarak: "Shiny Scale",
-      bagon: "Shiny Scale",
-      shelgon: "Shiny Scale",
-      salamence: "Shiny Scale",
-    },
+    // every Remix signature item (remix-data/signature_items.json, from the calc's item effects)
+    magicItems: SIG.magicItems,
+    signatureItems: SIG.signatureItems,
     typeChart: {
       ...VANILLA_TYPE_CHART,
       Ice: { ...VANILLA_TYPE_CHART.Ice, Ice: 0 },

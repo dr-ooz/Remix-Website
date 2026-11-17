@@ -7991,10 +7991,6 @@ var SM_PATCH = {
         types: ["Normal", "Flying"],
         bs: { hp: 40, at: 60, df: 40, sa: 40, sd: 40, sp: 80 }
     },
-    Starvia: {
-        types: ["Normal", "Flying"],
-        bs: { hp: 55, at: 90, df: 55, sa: 45, sd: 55, sp: 100 }
-    },
     Staraptor: {
         types: ["Normal", "Flying"],
         bs: { hp: 85, at: 120, df: 80, sa: 50, sd: 70, sp: 110 }

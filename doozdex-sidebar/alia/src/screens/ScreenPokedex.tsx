@@ -1,4 +1,4 @@
-import { statBars, setStatBars, barsSoft, setBarsSoft, ROW_H_BARS } from "../components/Pokemon";
+import { statBars, setStatBars, ROW_H_BARS } from "../components/Pokemon";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 import type { JSX } from "solid-js/jsx-runtime";
@@ -220,14 +220,6 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       data: p,
       famStart: or === "num" && i > 0 && p.family !== standardMons[i - 1].family,
     }));
-    // Ditto closes the dex; in dex order it also opens the list
-    if (or === "num" && !reversed()) {
-      const ditto = standardMons.find((p) => nameToId(p.name) === "ditto");
-      if (ditto && standardMons.length > 1) {
-        if (result[0]) (result[0] as any).famStart = true;
-        result.unshift({ type: "item", data: ditto });
-      }
-    }
 
     if (signatureItemMons.length > 0) {
       result.push({
@@ -367,11 +359,6 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             <Button class="text-xs" onclick={() => setStatBars(!statBars())}>
               {statBars() ? "Stat numbers" : "Stat bars"}
             </Button>
-            <Show when={statBars()}>
-              <Button class="text-xs" onclick={() => setBarsSoft(!barsSoft())}>
-                {barsSoft() ? "Solid bars" : "Soft bars"}
-              </Button>
-            </Show>
           </div>
         </div>
       </div>

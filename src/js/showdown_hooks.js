@@ -47,6 +47,10 @@ function addToDex(poke) {
 	dexObject.nature = poke.nature;
 	dexObject.item = poke.item;
 	dexObject.isCustomSet = poke.isCustomSet;
+	// Remix: every import goes under "My Box", so keep the nickname ("Father (Scizor) @ Item" -> "Father")
+	// with the set. The parser puts it in nameProp; without one, nameProp is the import box's name.
+	var importName = ($(".import-name-text").first().val() || "").trim() || "Custom Set";
+	if (poke.nameProp && poke.nameProp !== importName && poke.nameProp !== poke.name) dexObject.nickname = poke.nameProp;
 	var customsets;
 	if (localStorage.customsets) {
 		customsets = JSON.parse(localStorage.customsets);

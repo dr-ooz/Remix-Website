@@ -29,7 +29,9 @@ function remixTypeTop(hex) { return remixMixHex(hex, "#ffffff", 0.3); }
 
 /* Text on a type-colored box (boss guide moves and types): the same hue, much darker and a bit
    more saturated, so it reads on its own color. HSL: lightness x0.36, saturation x1.25 + 10 points. */
-function remixTypeText(hex) {
+// Types whose dark text needs to be lighter to read well on their own color (lightness factor)
+var REMIX_TYPE_TEXT_LIGHT = { Flying: 0.5, Dragon: 0.56 };
+function remixTypeText(hex, type) {
 	var n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
 	var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn, h = 0, s = 0;
 	if (d) {
@@ -37,7 +39,7 @@ function remixTypeText(hex) {
 		h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
 		h = (h * 60 + 360) % 360;
 	}
-	l *= 0.36; s = Math.min(1, s * 1.25 + 0.1);
+	l *= REMIX_TYPE_TEXT_LIGHT[type] || 0.36; s = Math.min(1, s * 1.25 + 0.1);
 	var c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
 	var rgb = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
 	return "#" + rgb.map(function (v) { return ("0" + Math.round((v + m) * 255).toString(16)).slice(-2); }).join("");
@@ -68,7 +70,7 @@ function remixApplyTypeCss() {
 			"select.type-pill option[value=\"" + t + "\"]{background:" + c + ";color:#fff}" +
 			".btn.result-typed.type-" + t + ",body.dark .btn.result-typed.type-" + t + "{background:" + g + "}" +
 			".tc-cell[data-type=\"" + t + "\"] .tc-tile{background:" + c + "}" +
-			".bg-t-" + t + "{background:" + bgGrad(c, REMIX_BOSSGUIDE_SAT[t]) + ";color:" + remixTypeText(c) + "}\n";
+			".bg-t-" + t + "{background:" + bgGrad(c, REMIX_BOSSGUIDE_SAT[t]) + ";color:" + remixTypeText(c, t) + "}\n";
 	}
 	var el = document.getElementById("remix-type-css");
 	if (!el) { el = document.createElement("style"); el.id = "remix-type-css"; document.head.appendChild(el); }

@@ -29,14 +29,25 @@ const CONTENT_H = ROW_H - ROW_LINE;
 const BARS_KEY = "dzStatBars";
 const loadBars = () => { try { return localStorage.getItem(BARS_KEY) !== "off"; } catch { return true; } }; // bars by default
 export const [statBars, setStatBarsSignal] = createSignal(loadBars());
-// Bar look: "soft" (default: see-through fill with a solid top line) or "solid" (full color).
-const SOFT_KEY = "dzStatBarsSoft";
-const loadSoft = () => { try { return localStorage.getItem(SOFT_KEY) !== "off"; } catch { return true; } }; // soft by default
-export const [barsSoft, setBarsSoftSignal] = createSignal(loadSoft());
-export const setBarsSoft = (on: boolean) => {
-  setBarsSoftSignal(on);
-  try { localStorage.setItem(SOFT_KEY, on ? "on" : "off"); } catch {}
+// Bar fill: a darker full-saturation shade of the stat color at the bottom, the mid shade at 35%
+// up, the full color from 87% up.
+// HSL: lightness x0.72, full saturation
+export const darkShade = (hex: string, f = 0.72) => {
+  const n = parseInt(hex.slice(1), 16), r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+  let l = (mx + mn) / 2, h = 0, s = 0;
+  if (d) {
+    s = d / (1 - Math.abs(2 * l - 1));
+    h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+  }
+  l *= f; s = d ? 1 : 0;
+  const c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = l - c / 2;
+  const rgb = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return "#" + rgb.map((v) => Math.round((v + m) * 255).toString(16).padStart(2, "0")).join("");
 };
+export const barFill = (c: string) => `linear-gradient(to top, ${darkShade(c, 0.61)} 0%, ${darkShade(c)} 35%, ${c} 87%)`;
+
 export const setStatBars = (on: boolean) => {
   setStatBarsSignal(on);
   try { localStorage.setItem(BARS_KEY, on ? "on" : "off"); } catch {}
@@ -177,6 +188,10 @@ const Stats = (props: { data: PokemonData }) => (
   </div>
 );
 
+// Bar height (% of the bars area): 150 reaches the name's baseline; 150-250 is squeezed into the
+// room left above it so 250+ stops 1px under the row's top border.
+const barPct = (v: number) => (v <= 150 ? (v / 150) * 100 : 100 + ((Math.min(v, 250) - 150) / 100) * 50);
+
 // Bar graph version: one bar per stat, growing up from the bottom of the row. 150 reaches the
 // bottom of the name's letters; higher stats (rare, up to 250) carry on up behind the name.
 // The number sits on its bar.
@@ -188,15 +203,11 @@ const StatBars = (props: { data: PokemonData }) => (
           <div class="relative h-full flex-1">
             <div
               class="absolute right-0 bottom-0 left-0 rounded-t-[2px]"
-              style={
-                barsSoft()
-                  ? {
-                      height: `${(Math.min(v, 250) / 150) * 100}%`,
-                      background: `color-mix(in srgb, ${statColour(v)} 40%, transparent)`,
-                      "box-shadow": `inset 0 2px 0 ${statColour(v)}`,
-                    }
-                  : { height: `${(Math.min(v, 250) / 150) * 100}%`, background: statColour(v) }
-              }
+              style={{
+                height: `${barPct(v)}%`,
+                background: barFill(statColour(v)),
+                "box-shadow": `inset 0 2px 0 ${statColour(v)}`,
+              }}
             />
             <div class="absolute right-0 bottom-0 left-0 text-center text-[12px] leading-[14px] font-bold tracking-[-0.04em] text-white [text-shadow:0_0_2px_#000,0_0_2px_#000,0_0_1px_#000]">
               {v}
