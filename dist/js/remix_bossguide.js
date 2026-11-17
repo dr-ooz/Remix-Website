@@ -9,8 +9,8 @@
 // Alt+drag any part to move it on every card, drag moves to reorder them. Edits are kept
 // in this browser (localStorage remixGuideEdits); "Save to file" downloads guide_edits.json -> put it in
 // remix-data/ and rebuild to make them permanent.
-var remixDetailed = false;
-try { remixDetailed = localStorage.getItem("remixDetailedLayout") === "1"; } catch (e) {}
+var remixDetailed = true; // on by default; turning it off is remembered
+try { remixDetailed = localStorage.getItem("remixDetailedLayout") !== "0"; } catch (e) {}
 var bgEditing = false, bgSelected = null;
 var BG_CAN_EDIT = /^(localhost|127\.0\.0\.1|\[::1\]|)$/.test(location.hostname) || /[?&]edit=1/.test(location.search);
 var bgShowMine = true;
@@ -138,11 +138,20 @@ function bgArtFail(img) {
 
 // Stat bars in their own box under the nature row (same gradient bars as the sidebar). The box's
 // top is 150, or the team's highest stat when one is higher (set per team in bgRenderSide). No BST.
-// Bar scale: each Pokemon's box tops out at 150, or at its own highest stat when that's higher.
+// Bar scale: the box top is the team's highest stat (up to 150); a Pokemon with a stat over 150 uses its own.
 function bgMonTop(bs) {
-	var top = 150;
-	BG_STATS.forEach(function (st) { if (bs && bs[st[0]] > top) top = bs[st[0]]; });
-	return top;
+	var own = 0;
+	BG_STATS.forEach(function (st) { if (bs && bs[st[0]] > own) own = bs[st[0]]; });
+	return own > 150 ? own : Math.max(1, Math.min(150, bgTeamTop || 150));
+}
+var bgTeamTop = 150;
+function bgSetTeamTop(cards) {
+	bgTeamTop = 0;
+	cards.forEach(function (c) {
+		var bs = (pokedex[c.species] || {}).bs || {};
+		BG_STATS.forEach(function (st) { if ((bs[st[0]] || 0) > bgTeamTop) bgTeamTop = bs[st[0]]; });
+	});
+	bgTeamTop = Math.min(150, bgTeamTop || 150);
 }
 
 // Abilities that boost certain moves: the ability name is underlined, and so are (in italics) the
@@ -234,8 +243,31 @@ var bgZOn = {};  // "label|species|slot" -> true while shown as a Z-move (this p
 var BG_GENERIC_Z = ["Breakneck Blitz", "All-Out Pummeling", "Supersonic Skystrike", "Acid Downpour", "Tectonic Rage",
 	"Continental Crush", "Savage Spin-Out", "Never-Ending Nightmare", "Corkscrew Crash", "Inferno Overdrive", "Hydro Vortex",
 	"Bloom Doom", "Gigavolt Havoc", "Shattered Psyche", "Subzero Slammer", "Devastating Drake", "Black Hole Eclipse", "Twinkle Tackle"];
+// Remix items that work as Z-crystals: Gift Bag (Delibird: any Z-crystal, + Z-Celebrate), Clanging Scale
+// (Kommo-o line: Drakonic Wave -> Clangorous Soulblaze), Light Ball (Pikachu: Catastropika)
+var BG_SIG_Z = {
+	"Gift Bag": {species: /^Delibird/, any: true},
+	"Clanging Scale": {species: /^(Jangmo-o|Hakamo-o|Kommo-o)/, moves: {"Drakonic Wave": "Clangorous Soulblaze"}},
+	"Light Ball": {species: /^Pikachu/, moves: {"Volt Tackle": "Catastropika"}}
+};
+var BG_TYPE_Z = {};
+Object.keys(BG_ITEM_TYPES).forEach(function (w) { if (/ium$/.test(w)) BG_TYPE_Z[BG_ITEM_TYPES[w]] = w + " Z"; });
+function bgZBlurb(name) { return (REMIX_MOVE_BLURBS[name] || "").replace(/^(\d+|Varies) BP(, | \| |$)/, "").replace(/^\| /, ""); }
 function bgZMove(species, set, mv, type) {
-	var item = set.item || "";
+	var item = set.item || "", sz = BG_SIG_Z[item];
+	if (sz) {
+		if (!sz.species.test(species)) return null;
+		if (sz.moves) {
+			var zn = sz.moves[mv];
+			if (!zn) return null;
+			var ai = REMIX_MOVE_AI_BP[zn];
+			return {name: zn, bp: ai ? ai[1] : ((moves[zn] || {}).bp || 0), note: bgZBlurb(zn)};
+		}
+		// any type: use that type's crystal
+		var md0 = moves[mv] || {}, mt = md0.type || type;
+		if (md0.category === "Status") return bgZStatus(mv);
+		return bgZMove(species, $.extend({}, set, {item: BG_TYPE_Z[type] || BG_TYPE_Z[mt]}), mv, type);
+	}
 	if (!/ Z$/.test(item)) return null;
 	var md = moves[mv] || {}, crystalType = BG_ITEM_TYPES[item.split(" ")[0]];
 	try {
@@ -249,18 +281,19 @@ function bgZMove(species, set, mv, type) {
 	} catch (e) {}
 	// status moves: a Z-crystal of the move's type gives the move's Z-Effect
 	var ztype = BG_ITEM_TYPES[item.split(" ")[0]];
-	if (md.category === "Status" && ztype && ztype === (md.type || type)) {
-		var desc = REMIX_MOVE_DESCS[mv] || "", m = desc.match(/Z[- ]?(?:Effect|Power|Move)?:?\s*(.+?)\.?$/i);
-		return {name: "Z-" + mv, bp: 0, note: m ? "Z-Effect: " + m[1] : "Z-Effect"};
-	}
+	if (md.category === "Status" && ztype && ztype === (md.type || type)) return bgZStatus(mv);
 	return null;
 }
+function bgZStatus(mv) {
+	var desc = REMIX_MOVE_DESCS[mv] || "", m = desc.match(/Z[- ]?(?:Effect|Power|Move)?:?\s*(.+?)\.?$/i);
+	return {name: "Z-" + mv, bp: 0, note: m ? "Z-Effect: " + m[1] : "Z-Effect"};
+}
 function bgZAllBox(species, label, set) {
-	if (!/ Z$/.test(set.item || "")) return "";
+	if (!/ Z$/.test(set.item || "") && !BG_SIG_Z[set.item]) return "";
 	var slots = [0, 1, 2, 3].filter(function (i) { var mv = (set.moves || [])[i]; return mv && bgZMove(species, set, mv, (moves[mv] || {}).type); });
 	if (!slots.length) return "";
 	var all = slots.every(function (i) { return bgZOn[label + "|" + species + "|" + i]; });
-	return "<label class='bg-zall' title='Show all eligible moves as Z-moves'><input type='checkbox' data-zall='" + bgEsc(label + "|" + species) +
+	return "<label class='bg-zall" + (BG_SIG_Z[set.item] ? " bg-zall-side" : "") + "' title='Show all eligible moves as Z-moves'><input type='checkbox' data-zall='" + bgEsc(label + "|" + species) +
 		"' data-slots='" + slots.join(",") + "'" + (all ? " checked" : "") + ">All Z</label>";
 }
 $(document).on("click", "#bg-row .bg-zchk, #bg-row .bg-zall", function (e) { e.stopPropagation(); });
@@ -287,7 +320,7 @@ function bgCard(n, species, label, set, info) {
 	var summary = set.item ? (REMIX_ITEM_SUMMARIES[set.item] || "") : "";
 	var icon = set.item ? remixItemIcon(set.item) : "";
 	var sigInfo = set.item && typeof REMIX_SIGNATURE_ITEMS !== "undefined" && REMIX_SIGNATURE_ITEMS[set.item];
-	var sig = sigInfo && sigInfo.holders.indexOf(species) !== -1 ? "(Signature item!)" : "";
+	var sig = sigInfo && sigInfo.holders.indexOf(species) !== -1 ? (set.item === "Thick Club" ? "Doubles Attack" : "Signature Item!" + String.fromCharCode(10) + "Hover to see effects!") : "";
 	var monNote = (info.mons || {})[species] || "";
 	var ordKey = "ord:" + label + ":" + species;
 	var h = "<div class='bg-card'>";
@@ -301,10 +334,12 @@ function bgCard(n, species, label, set, info) {
 	h += "<div class='bg-ability' data-tip='" + bgEsc(abDesc) + "'>" +
 		bgEd("div", "bg-abname" + (boosts ? " bg-abboost" : ""), "ab:" + (set.ability || ""), set.ability || "—", true) +
 		(boosts ? "<div class='bg-abhint'>(Underlined = Boosted)</div>" : "") + "</div>";
+	// signature Z items (Gift Bag, Clanging Scale, Light Ball): "All Z" sits under the icon, leaving the note its room
+	var sigZ = !!BG_SIG_Z[set.item], iconImg = icon ? "<img class='bg-itemicon' data-tk='bg-itemicon' src='" + icon + "' alt='' draggable='false'>" : "";
 	h += "<div class='bg-item' data-tip='" + bgEsc(itemDesc) + "'>" +
-		(icon ? "<img class='bg-itemicon' data-tk='bg-itemicon' src='" + icon + "' alt='' draggable='false'>" : "") +
-		"<div class='bg-itemtext'>" + bgItemName(set.item) + bgZAllBox(species, label, set) +
-		(summary || sig || bgEditing ? bgEd("small", "bg-itsum", "is:" + (set.item || ""), summary || sig, false) : "") + "</div></div>";
+		(sigZ ? "<div class='bg-iconcol'>" + iconImg + bgZAllBox(species, label, set) + "</div>" : iconImg) +
+		"<div class='bg-itemtext'>" + bgItemName(set.item) + (sigZ ? "" : bgZAllBox(species, label, set)) +
+		(sig || summary || bgEditing ? bgEd("small", "bg-itsum", "is:" + (set.item || ""), sig || summary, false) : "") + "</div></div>";
 	h += "<div class='bg-natrow'>" + bgEd("div", "bg-natname", "natn:" + label + ":" + species, set.nature || "Hardy", true)
 		.replace("<div ", "<div data-tip='" + bgEsc(bgNatureTip(set.nature)) + "' ") +
 		bgEd("div", "bg-evs bg-wrapfit", "evs:" + label + ":" + species, bgEvText(set.evs), false) + "</div>";
@@ -323,7 +358,7 @@ function bgCard(n, species, label, set, info) {
 		var zm = bgZMove(species, set, mv, type), zKey = label + "|" + species + "|" + slot, zOn = zm && bgZOn[zKey];
 		var shown = mv, tip = why + (REMIX_MOVE_DESCS[mv] || "");
 		if (zOn) { shown = zm.name; bp = zm.bp; boosted = false; note = zm.note; tip = zm.name + (zm.note ? ": " + zm.note : ""); }
-		var zBox = zm ? "<label class='bg-zchk' title='Show as its Z-move'><input type='checkbox' data-z='" + bgEsc(zKey) + "'" + (zOn ? " checked" : "") + ">Z</label>" : "";
+		var zBox = "";
 		h += "<div class='bg-move bg-t-" + bgEsc(type) + (zOn ? " bg-zon" : "") + "' data-slot='" + slot + "' data-tip='" + bgEsc(tip) + "'>" + drag + zBox +
 			(zOn ? "<div class='bg-mvtop bg-wrapfit bg-zname' data-start='25'>" : "<div class='bg-mvtop bg-fit' data-tk='bg-mvtop'>") +
 			(zOn ? "<b class='bg-mvname'>" + bgEsc(bgZLines(shown)) + "</b>" :
@@ -479,7 +514,11 @@ $(document).on("keydown", "#bg-row .pl-ed", function (e) { if (e.key === "Enter"
 function bgRenderSide(side) {
 	var box = $(side === "p2" ? "#boss-guide" : "#boss-guide-p");
 	var t = bgTeam(side), h;
-	if (t.empty) h = "<div class='bg-empty-msg'>" + t.empty + "</div>";
+	if (!t.empty) bgSetTeamTop(t.cards);
+	if (t.empty && side === "p2") h = "<div class='bg-title'><span class='bg-tpick' title='Pick a trainer'><u class='bg-tt'>Choose a Trainer</u>" +
+		"<span class='bg-caret'>&#9662;</span><span class='bg-tpick-hint'>Click to pick a trainer</span></span></div>" +
+		"<div class='bg-empty-msg'>" + t.empty + "</div>";
+	else if (t.empty) h = "<div class='bg-empty-msg'>" + t.empty + "</div>";
 	else if (side === "p1" && !bgEditing) h = plRenderHtml(t);
 	else {
 		var title = bgEd("u", "bg-tt", "tt:" + t.key, t.title, false);

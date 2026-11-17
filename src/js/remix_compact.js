@@ -103,14 +103,28 @@ $(function () {
 	$(document).on("select2-open", function () { if (!raf) raf = requestAnimationFrame(place); });
 })();
 
-// "Team Previews" note in the empty space at the bottom of the Field column
+// "Team Previews" note below the Field column, on the page background (the Field cell itself ends
+// with the import/export buttons)
 $(function () {
 	setTimeout(function () {
 		if ($(".rf-tp").length) return;
-		$(".field-info").append("<div class='rf-tp'><div class='rf-tp-head'>Team Previews</div>" +
-			"<div class='rf-tp-text'>Placeholder: how the boss guide works will be explained here. Turn on " +
-			"<b>Detailed Team Layout</b> (top bar) to see the boss's full team and yours below the calc.</div></div>");
+		$(".field-info").after("<div class='rf-tp'><div class='rf-tp-head'>Team Previews</div>" +
+			"<div class='rf-tp-text'>Scroll down to see detailed Team Previews for trainers and your team too!</div></div>");
+		// Trainer AI Guide cell above Field: the Doubles AI calc button + guide sections (placeholders for now)
+		if (!$(".rf-ai").length) {
+			var ai = $("<fieldset class='rf-ai'><legend align='center'>Trainer AI Guide</legend>" +
+				"<details class='rf-ai-more'><summary><span class='rf-ai-q'>?</span> Click to learn more about the Trainer AI</summary>" +
+				"<div class='rf-ai-body'>Coming soon: how trainers pick their moves, when they switch, and how they use items.</div></details></fieldset>");
+			$(".field-info").before(ai);
+			$("#dai-open").insertAfter(ai.find("legend"));
+		}
+		if (window.remixEqualizeColumns) window.remixEqualizeColumns();
 	}, 120);
+	// the AI guide dropdown changes the column's height
+	$(document).on("toggle", ".rf-ai-more", function () { if (window.remixEqualizeColumns) window.remixEqualizeColumns(); });
+	// re-measure once the column widths and fonts have settled
+	[400, 1200, 2500].forEach(function (ms) { setTimeout(function () { if (window.remixEqualizeColumns) window.remixEqualizeColumns(); }, ms); });
+	$(window).on("load", function () { if (window.remixEqualizeColumns) window.remixEqualizeColumns(); });
 });
 
 // Keep the 3 calc columns the same height (the Field column stretches to match the Pokemon panels)
@@ -122,12 +136,24 @@ $(function () {
 		var sets = $(".wrapper > .panel > fieldset, .wrapper > .panel > div > fieldset").filter(":visible");
 		sets.css("min-height", "");
 		var panels = $(".wrapper > .panel:visible"), maxH = 0;
-		panels.each(function () { maxH = Math.max(maxH, this.offsetHeight); });
+		// the middle column (Trainer AI Guide, Field, Team Previews) lines up with the Pokemon panels: its AI Guide
+		// cell takes up any spare height, so the column starts and ends level with them
+		var ai = $(".rf-ai")[0], fi = $(".field-info")[0];
+		if (ai) { ai.style.minHeight = ""; if (fi) ai.style.width = fi.offsetWidth + "px"; }
+		var tpn = $(".rf-tp")[0];
+		if (tpn && fi) tpn.style.width = (fi.offsetWidth + 4) + "px";
+		var h = function (p) { return p.offsetHeight; };
+		panels.each(function () { maxH = Math.max(maxH, h(this)); });
 		panels.each(function () {
 			var fs = $(this).find("fieldset:visible").first()[0];
-			if (fs && this.offsetHeight < maxH) {
-				fs.style.minHeight = (fs.offsetHeight + maxH - this.offsetHeight) + "px";
-				var over = this.offsetHeight - maxH; // padding / box-sizing difference
+			// middle column: grow the AI Guide cell (the Field cell hugs its content)
+			if (ai && $.contains(this, ai)) {
+				if (h(this) < maxH) ai.style.minHeight = (ai.offsetHeight + maxH - h(this)) + "px";
+				return;
+			}
+			if (fs && h(this) < maxH) {
+				fs.style.minHeight = (fs.offsetHeight + maxH - h(this)) + "px";
+				var over = h(this) - maxH; // padding / box-sizing difference
 				if (over) fs.style.minHeight = (parseFloat(fs.style.minHeight) - over) + "px";
 			}
 		});

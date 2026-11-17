@@ -80,3 +80,33 @@ $(function () {
 		".level, .nature, select.ability, select.item, .evs, .ivs, select.move-selector, .teraType",
 		function () { remixQueueSave($(this).closest(".poke-info")); });
 });
+
+// "Save Set" button next to your Pokemon search: saves whatever is in the panel (a Blank Set too) into
+// your box ("My Box", where imported sets go), so it shows with your saved sets and team.
+$(function () {
+	setTimeout(function () {
+		var p1 = $("#p1"), sel = p1.find(".select2-container.set-selector").first();
+		if (!sel.length || $("#remix-saveset").length) return;
+		var btn = $("<button type='button' id='remix-saveset' class='btn remix-saveset' title='Save this Pokemon to your box'>Save Set</button>");
+		sel.after(btn);
+		btn.on("click", function () {
+			var ref = remixSaveSetRef(p1);
+			if (!ref || !ref.species || typeof addToDex !== "function") return;
+			var poke = { name: ref.species, nameProp: "My Box", isCustomSet: true, evs: {}, ivs: {}, moves: [],
+				level: ~~p1.find(".level").val() || 100, nature: p1.find(".nature").val() || "Hardy",
+				ability: p1.find("select.ability").val(), item: p1.find("select.item").val() || "" };
+			REMIX_SAVE_STATS.forEach(function (s) {
+				var row = p1.find("." + s);
+				if (row.find(".evs").length) poke.evs[s] = ~~row.find(".evs").val();
+				if (row.find(".ivs").length) poke.ivs[s] = ~~row.find(".ivs").val();
+			});
+			for (var i = 1; i <= 4; i++) {
+				var m = p1.find(".move" + i + " select.move-selector").val();
+				if (m && m !== "(No Move)") poke.moves.push(m);
+			}
+			addToDex(poke);
+			btn.text("Saved!");
+			setTimeout(function () { btn.text("Save Set"); }, 1500);
+		});
+	}, 600);
+});

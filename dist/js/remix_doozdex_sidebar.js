@@ -84,7 +84,7 @@
 	function init() {
 		build();
 		setWidth(Number(load(KEY_WIDTH)) || DEFAULT_W);
-		window.remixToggleDoozdex(load(KEY_OPEN) === "1");
+		window.remixToggleDoozdex(load(KEY_OPEN) !== "0"); // open by default; closing it is remembered
 	}
 
 	if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);

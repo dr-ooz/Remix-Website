@@ -8,7 +8,7 @@
    (doozdex-sidebar/alia/src/utils/constants.ts reads this file at build time),\r
    and any future site page that colors stats. Keep the array as plain JSON\r
    (double quotes, one line) - the sidebar build parses it. */\r
-var REMIX_STAT_COLORS = ["#4f0303","#610505","#880707","#ae0909","#d14800","#e47c00","#f4b82b","#f4e42f","#f9ff00","#d0f300","#95e40c","#5cc70a","#3eb609","#11a608","#00bf70","#009c68","#1fddb8","#00c2ae","#4afffb","#00e4e8","#59ffff","#59ffff","#59ffff","#59ffff","#59ffff","#59ffff"];\r
+var REMIX_STAT_COLORS = ["#4f0303","#610505","#880707","#ae2400","#d15d00","#e48c01","#f4c216","#f4e50c","#e8ff00","#bdf300","#8ae400","#58c700","#37b600","#00b816","#00d655","#00ff70","#00f289","#00f5bf","#00ffe8","#00f7ff","#00d2ff","#00d2ff","#00d2ff","#00d2ff","#00d2ff","#00d2ff"];\r
 \r
 /* Local color editor preview (only on localhost): stat colors not saved yet, in this browser only. */\r
 var REMIX_STAT_COLORS_SAVED = REMIX_STAT_COLORS.slice();\r

@@ -34,7 +34,7 @@
 .bg-itname { display: block; max-width: 100%; }
 .bg-item img { flex: none; width: 62px; height: 62px; image-rendering: pixelated; }
 .bg-itname.bg-ittyped { font-weight: bold; font-size: 0.9em; }
-.bg-itsum { max-width: 100%; font-size: 15px; line-height: 1.12; color: #8f8; font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bg-itsum { max-width: 100%; font-size: 15px; line-height: 1.12; color: #8f8; font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
 .bg-natrow { flex: 0 0 auto; min-height: 26px; display: grid; grid-template-columns: auto 1fr; padding: 0 !important; font-size: 16px; }
 .bg-natname { padding: 1px 6px; border-right: 2px solid #fff; font-weight: bold; max-width: 9em; cursor: help; }
 .bg-evs { padding: 1px 4px; font-style: italic; min-width: 0; max-height: 36px; overflow: hidden; text-align: center; line-height: 1.1; align-self: center; }
@@ -68,9 +68,9 @@
 /* ===== Calc layout tweaks (remix_compact.js) ===== */
 .rf-io-row { margin-top: 8px; }
 tr:has(#StatBoostL), tr:has(#StatBoost2L) { display: none !important; }
-.rf-tp { margin-top: 14px; text-align: center; }
-.rf-tp-head { font-size: 1.5em; font-weight: bold; }
-.rf-tp-text { font-size: 0.8em; opacity: 0.75; margin-top: 2px; line-height: 1.3; }
+.rf-tp { clear: both; margin-top: 10px; text-align: center; width: 280px; box-sizing: border-box; white-space: normal; }
+.rf-tp-head { font-size: 2.2em; font-weight: bold; line-height: 1.1; }
+.rf-tp-text { font-size: 0.95em; opacity: 0.85; margin-top: 4px; line-height: 1.3; }
 .bg-mine-bar { margin: 10px 0 6px; text-align: center; }
 .bg-mine-bar .btn { width: auto; padding: 2px 12px; font-size: 12px; }
 .remix-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); z-index: 9000; display: none; }
@@ -159,5 +159,22 @@ body.dark .rf-allbtn.on, .rf-allbtn.on { background: linear-gradient(to bottom, 
 	border-radius: 4px; padding: 0 3px; cursor: pointer; display: flex; align-items: center; gap: 2px; line-height: 16px; }
 .bg-zchk input, .bg-zall input { margin: 0; width: 13px; height: 13px; cursor: pointer; }
 .bg-move.bg-zon { box-shadow: inset 0 0 0 3px #ffd84a; }
-.bg-zall { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-weight: bold; color: #ffd84a; cursor: pointer; margin-top: 2px; }
+.bg-zall { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-weight: bold; color: #ffd84a; cursor: pointer; margin-top: 9px; }
+/* signature Z items: the toggle sits at the side so the note under the name keeps its room */
+.bg-item { position: relative; }
+.bg-iconcol { flex: none; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.bg-iconcol .bg-itemicon { width: 46px; height: 46px; }
+.bg-zall.bg-zall-side { margin: 0; font-size: 12px; }
 .bg-zname { line-height: 1.05; max-width: 100%; overflow: hidden; text-align: center; }
+/* Save Set button beside your Pokemon search */
+.remix-saveset { font-size: 12px; padding: 2px 8px; margin-left: 4px; vertical-align: middle; width: auto; }
+#p1 .select2-container.set-selector { width: calc(100% - 86px) !important; display: inline-block; vertical-align: middle; }
+/* Trainer AI Guide cell above Field (same frame as the Field cell) */
+.rf-ai { box-sizing: border-box; float: left; width: 280px; margin: 0 2px 8px; text-align: center; display: flex; flex-direction: column; gap: 6px; }
+.rf-ai .dai-open { align-self: stretch; white-space: normal; width: auto; max-width: 100%; }
+.rf-ai-more { font-size: 0.85em; text-align: left; }
+.rf-ai-more summary { cursor: pointer; text-align: center; opacity: 0.85; }
+.rf-ai-q { display: inline-flex; align-items: center; justify-content: center; width: 1.3em; height: 1.3em; border-radius: 50%;
+	background: #6a4fd8; color: #fff; font-weight: bold; font-size: 0.9em; margin-right: 3px; }
+.rf-ai-body { margin-top: 4px; opacity: 0.8; line-height: 1.3; }
+.field-info { clear: both; }
