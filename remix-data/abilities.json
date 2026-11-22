@@ -45,7 +45,7 @@
  ],
  [
   "Trifecta",
-  "Immune to Fire, Ice & Electric moves. Normal moves change type to whatever of the 3 is the strongest at the start of the turn, and are boosted by 20%."
+  "Immune to Fire+Burn, Ice+Freeze & Electric+Para.  Normal moves change to the strongest of the 3 types at the start of the turn, and are boosted by 20%."
  ],
  [
   "Cloud Nine",
@@ -368,8 +368,8 @@
   "Maximizes the number of times multi-strike moves hit."
  ],
  [
-  "OLD HYDRATION",
-  "Heals status conditions if it's raining."
+  "Seaweed",
+  "Boosts Grass moves by 50%. Leech Seed on contact, attacking or defending. Its attacks never miss a leeched target."
  ],
  [
   "Solar Power",
@@ -404,8 +404,8 @@
   "Powers up the Pokémon's weaker moves."
  ],
  [
-  "Leaf Guard",
-  "Prevents status conditions in harsh sunlight."
+  "Purification",
+  "Immune to Poison moves. Shields critical hits for 7 turns on entry, and only takes damage from direct attacks (Magic Guard)."
  ],
  [
   "Disgusted",
@@ -484,8 +484,8 @@
   "Changes the Pokémon's type to match the Plate or Z-Crystal it holds."
  ],
  [
-  "Flower Gift",
-  "Boosts the Sp. Atk and Sp. Def of it and its allies by 50% in harsh sunlight."
+  "Rise and Shine",
+  "Summons the sun after being attacked. Changes into Sunshine form when sun is up. Also grants Solar Power. (50% damage in Sun)"
  ],
  [
   "Bad Dreams",
@@ -693,7 +693,7 @@
  ],
  [
   "Refrigerate",
-  "Normal-type moves become Ice-type moves. The power of those moves is boosted a little."
+  "Normal-type moves become Ice-type moves. The power of those moves is boosted by 20%."
  ],
  [
   "Sweet Veil",
@@ -701,7 +701,7 @@
  ],
  [
   "Stance Change",
-  "The Pokémon changes its form to Blade Forme when it uses an attack move, and changes to Shield Forme when it uses King's Shield."
+  "Changes to Blade when using a physical move, Swords Dance or Sharpen. Regal Shield/Iron Defense > Shield. Sharpness Blade. Battle Armor Shield. Both Levitate."
  ],
  [
   "Gale Wings",
@@ -745,7 +745,7 @@
  ],
  [
   "Lunar Aura",
-  "User side gets 1.5x Fairy/Dark/Ghost/Psychic-type moves and Surf/Draco Meteor. Moonlight heals 2/3, Gravity lasts 10 turns, no Meteor Beam charge."
+  "User side gets 1.5x Fairy/Dark/Ghost/Psychic-type moves and Surf/Draco Meteor. Moonlight heals 2/3, Gravity>10 turns, Aurora Veil/Meteor Beam>instant."
  ],
  [
   "Aura Break",
@@ -837,15 +837,15 @@
  ],
  [
   "Battle Bond",
-  "Defeating an opposing Pokémon strengthens the Pokémon's bond with its Trainer, and it becomes Ash-Greninja. Water Shuriken gets more powerful."
+  "Defeating an opposing Pokémon strengthens the Pokémon's bond with its Trainer, and it becomes Ash-Greninja. Boosts highest stat after each KO."
  ],
  [
   "Power Construct",
-  "Other Cells gather to aid when its HP becomes half or less. Then the Pokémon changes its form to Complete Forme."
+  "Energy Shield. Core regenerates. 10% Hustle. 50% Mold Breaker. Complete neutral to Fairy/Flying. Reverts to Core & pivots end of turn when below 10%."
  ],
  [
   "Corrosion",
-  "Its Poison moves get 30% stronger, hit Steel, Rock, and Ground super-effectively, and can poison any type."
+  "Its Poison moves get 30% stronger, hit Steel, Rock, and Ground super-effectively, and can inflict poison on Steel and Poison types."
  ],
  [
   "Comatose",

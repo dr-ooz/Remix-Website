@@ -44,6 +44,10 @@ export interface RemixItemFx {
     trifecta: boolean;
     statusImmune: string[];
     weatherNeutral: boolean;
+    powerMult: Array<{
+        mult: number;
+        weather?: string[];
+    }>;
 }
 export declare class Pokemon implements State.Pokemon {
     gen: I.Generation;

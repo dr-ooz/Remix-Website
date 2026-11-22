@@ -6,6 +6,7 @@ $("#p2 .ability").bind("keyup change", function () {
 });
 
 $("#p2 .item").bind("keyup change", function () {
+	remixAutoSide($(this).closest(".poke-info"), $(this).closest(".poke-info").find(".ability").val(), 1);
 	autosetStatus("#p2", $(this).val());
 });
 

@@ -8,11 +8,14 @@ exports.REMIX_ITEM_EFFECTS = {
                 "Bounsour"
             ],
             "abilities": [
-                "Filter",
                 "Regenerator"
             ],
             "items": [
                 "Big Root"
+            ],
+            "immune": [
+                "Bug",
+                "Poison"
             ],
             "appetiteDoubles": true
         }
@@ -577,7 +580,7 @@ exports.REMIX_ITEM_EFFECTS = {
                 "Manaphy"
             ],
             "abilities": [
-                "Refraction"
+                "Rain Dish"
             ],
             "items": [
                 "Covert Cloak"
@@ -660,16 +663,20 @@ exports.REMIX_ITEM_EFFECTS = {
                 "Lurantis",
                 "Lurantis-Totem"
             ],
-            "stab": [
-                "Bug"
-            ],
             "abilities": [
                 "Tangled Feet",
-                "Filter",
                 "Tinted Lens"
             ],
             "items": [
                 "Scope Lens"
+            ]
+        },
+        {
+            "species": [
+                "Lurantis-Totem"
+            ],
+            "immune": [
+                "Bug"
             ]
         }
     ],
@@ -1197,6 +1204,7 @@ exports.REMIX_ITEM_EFFECTS = {
                 "Cradily"
             ],
             "abilities": [
+                "Seaweed",
                 "Rain Dish",
                 "Suction Cups"
             ],
@@ -1783,10 +1791,9 @@ exports.REMIX_ITEM_EFFECTS = {
                 "Carracosta"
             ],
             "abilities": [
-                "Solid Rock"
+                "Bulletproof"
             ],
             "items": [
-                "Rocky Helmet",
                 "Covert Cloak"
             ]
         }
@@ -1863,7 +1870,7 @@ exports.REMIX_ITEM_EFFECTS = {
                 "Ribombee"
             ],
             "abilities": [
-                "Regenerator"
+                "Sap Sipper"
             ],
             "items": [
                 "Big Root"
@@ -2022,6 +2029,25 @@ exports.REMIX_ITEM_EFFECTS = {
                     "weather": [
                         "Sun",
                         "Harsh Sunshine"
+                    ]
+                }
+            ]
+        },
+        {
+            "species": [
+                "Clauncher",
+                "Clawitzer"
+            ],
+            "abilities": [
+                "Turboblaze"
+            ],
+            "weatherNeutral": true,
+            "powerMult": [
+                {
+                    "mult": 1.5,
+                    "weather": [
+                        "Rain",
+                        "Heavy Rain"
                     ]
                 }
             ]

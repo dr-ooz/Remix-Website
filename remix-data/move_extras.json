@@ -7261,7 +7261,7 @@
 "crit": 0,
 "target": 0,
 "contact": false,
-"secondary": true,
+"secondary": false,
 "trap": false,
 "protect": true,
 "flags": []
@@ -7274,7 +7274,7 @@
 "crit": 0,
 "target": 0,
 "contact": false,
-"secondary": true,
+"secondary": false,
 "trap": false,
 "protect": true,
 "flags": []
@@ -7718,7 +7718,7 @@
 "contact": true,
 "secondary": false,
 "trap": false,
-"protect": true,
+"protect": false,
 "flags": []
 },
 "594": {
@@ -8584,7 +8584,7 @@
 "hitMin": 0,
 "hitMax": 0,
 "drainRecoil": 0,
-"crit": 0,
+"crit": 6,
 "target": 0,
 "contact": true,
 "secondary": false,

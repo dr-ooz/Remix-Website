@@ -115,7 +115,7 @@ $(function () {
 			var ai = $("<fieldset class='rf-ai'><legend align='center'>Trainer AI Guide</legend>" +
 				"<details class='rf-ai-more'><summary><span class='rf-ai-q'>?</span> Click to learn more about the Trainer AI</summary>" +
 				"<div class='rf-ai-body'>Coming soon: how trainers pick their moves, when they switch, and how they use items.</div></details></fieldset>");
-			$(".field-info").before(ai);
+			$(".field-info").after(ai);
 			$("#dai-open").insertAfter(ai.find("legend"));
 		}
 		if (window.remixEqualizeColumns) window.remixEqualizeColumns();

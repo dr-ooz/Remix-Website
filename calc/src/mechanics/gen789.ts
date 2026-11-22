@@ -157,7 +157,7 @@ export function calculateSMSSSV(
   // will not be a critical hit (UltiMario)
   // Remix (gen 7): Oblivious / Scribble / Schooling / Zen form can't be crit; Merciless = any status
   const remixCritImmune = gen.num === 7 && (
-    defender.hasAbility("Oblivious", "Scribble", "Schooling", "Good Fortune") ||
+    defender.hasAbility("Oblivious", "Scribble", "Schooling") || // Good Fortune / Purification = Lucky Chant (auto-ticked, toggleable)
     defender.remixItemFx().critImmune ||
     defender.named("Darmanitan-Zen"));
   const isCritical =
@@ -473,6 +473,7 @@ export function calculateSMSSSV(
       (move.hasType("Fire") && defender.hasAbility("Unmeltable")) ||
       (move.hasType("Water") && defender.hasAbility("Hydration")) ||
       (move.hasType("Fire", "Ice", "Electric") && defender.hasAbility("Trifecta")) ||
+      (move.hasType("Poison") && defender.hasAbility("Purification")) ||
       (move.priority > 0 && defender.hasAbility("Swiftness", "Elegance"))))
   ) {
     desc.defenderAbility = defender.ability;
@@ -1563,9 +1564,21 @@ export function calculateBPModsSMSSSV(
     desc.attackerAbility = attacker.ability;
   }
 
+  // Remix: Seaweed = 1.5x power on Grass moves
+  if (gen.num === 7 && attacker.hasAbility("Seaweed") && move.hasType("Grass")) {
+    bpMods.push(6144);
+    desc.attackerAbility = attacker.ability;
+  }
+
   // Remix item power boosts (type boosts, move boosts)
   {
     const fx = attacker.remixItemFx();
+    for (const pm of fx.powerMult) { // e.g. Geothermal Rock on Clauncher: 1.5x all moves in rain
+      if (!pm.weather || field.hasWeather(...(pm.weather as any[]))) {
+        bpMods.push(Math.round(4096 * pm.mult));
+        desc.attackerItem = attacker.item;
+      }
+    }
     const pow = (fx.boost[move.type] || 1) * (fx.moveBoost[move.name] || 1);
     if (pow !== 1) {
       bpMods.push(Math.round(4096 * pow));
@@ -1731,15 +1744,10 @@ export function calculateAtModsSMSSSV(
       (attacker.hasAbility("Guts") && attacker.status) ||
       (attacker.hasAbility("Flare Boost") && attacker.hasStatus("brn")) ||
       (attacker.hasAbility("Solar Power") && field.hasWeather("Sun", "Harsh Sunshine")) ||
-      (phys && attacker.hasAbility("Toxic Boost") && attacker.hasStatus("psn", "tox")) ||
-      (!phys && attacker.named("Cherrim") && attacker.hasAbility("Flower Gift") &&
-        field.hasWeather("Sun", "Harsh Sunshine"))
+      (phys && attacker.hasAbility("Toxic Boost") && attacker.hasStatus("psn", "tox"))
     ) {
       atMods.push(6144);
       desc.attackerAbility = attacker.ability;
-    } else if (!phys && field.attackerSide.isFlowerGift && field.hasWeather("Sun", "Harsh Sunshine")) {
-      atMods.push(6144);
-      desc.isFlowerGiftAttacker = true;
     }
     for (const st of attacker.remixItemFx().stats) {
       if (st.stat === (phys ? "at" : "sa") && remixStatCondition(st, field)) {
@@ -2034,6 +2042,7 @@ export function calculateDfModsSMSSSV(
     dfMods.push(6144);
     desc.defenderAbility = defender.ability;
   } else if (
+    gen.num !== 7 &&
     defender.named("Cherrim") &&
     defender.hasAbility("Flower Gift") &&
     field.hasWeather("Sun", "Harsh Sunshine") &&
@@ -2043,6 +2052,7 @@ export function calculateDfModsSMSSSV(
     desc.defenderAbility = defender.ability;
     desc.weather = field.weather;
   } else if (
+    gen.num !== 7 &&
     field.defenderSide.isFlowerGift &&
     field.hasWeather("Sun", "Harsh Sunshine") &&
     !hitsPhysical

@@ -2138,14 +2138,6 @@
     ]
    },
    {
-    "id": "foongus",
-    "label": null,
-    "members": [
-     "Foongus",
-     "Amoonguss"
-    ]
-   },
-   {
     "id": "joltik",
     "label": null,
     "members": [
@@ -2185,6 +2177,14 @@
      "Tynamo",
      "Eelektrik",
      "Eelektross"
+    ]
+   },
+   {
+    "id": "foongus",
+    "label": null,
+    "members": [
+     "Foongus",
+     "Amoonguss"
     ]
    },
    {
@@ -2824,12 +2824,12 @@
     "members": [
      "Minior",
      "Minior-Red",
-     "Minior-Fire",
-     "Minior-Electric",
-     "Minior-Grass",
-     "Minior-Water",
-     "Minior-Ice",
-     "Minior-Dragon"
+     "Minior-Blaze",
+     "Minior-Surge",
+     "Minior-Verdant",
+     "Minior-Tidal",
+     "Minior-Frost",
+     "Minior-Draco"
     ]
    },
    {

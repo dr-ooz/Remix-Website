@@ -21,7 +21,11 @@
 		"#dz-close{position:absolute;top:2px;right:-30px;width:26px;height:26px;border:1px solid #cfc8d8;border-left:0;" +
 		"border-radius:0 4px 4px 0;background:#fff;color:#17141c;font:bold 14px/24px sans-serif;cursor:pointer;padding:0}" +
 		"body.dark #dz-close{background:#221d2a;color:#fff;border-color:#3a3344}" +
-		"body.dz-resizing iframe{pointer-events:none}body.dz-resizing{cursor:ew-resize;user-select:none}";
+		"body.dz-resizing iframe{pointer-events:none}body.dz-resizing{cursor:ew-resize;user-select:none}" +
+		// closed: a small tab on the left edge opens it again (the settings-row toggle is gone)
+		"#dz-reopen{position:fixed;top:6px;left:0;z-index:2000;border:1px solid #8a5ab8;border-left:0;border-radius:0 6px 6px 0;" +
+		"background:#221d2a;color:#c9a6ef;font:bold 12px/1 sans-serif;padding:7px 8px;cursor:pointer;display:none}" +
+		"#dz-reopen:hover{background:#3a2f55}body:not(.dz-open) #dz-reopen{display:block}";
 
 	var panel, frame;
 
@@ -42,6 +46,13 @@
 			'<button type="button" id="dz-close" title="Close the DoozDex sidebar">&times;</button>';
 		document.body.appendChild(panel);
 		panel.querySelector("#dz-close").onclick = function () { window.remixToggleDoozdex(false); };
+		var reopen = document.createElement("button");
+		reopen.type = "button";
+		reopen.id = "dz-reopen";
+		reopen.title = "Open the DoozDex sidebar (Pokédex, moves, type chart)";
+		reopen.innerHTML = "DoozDex &rsaquo;";
+		reopen.onclick = function () { window.remixToggleDoozdex(true); };
+		document.body.appendChild(reopen);
 
 		// Drag the right edge to resize.
 		panel.querySelector("#dz-grip").addEventListener("mousedown", function (e) {

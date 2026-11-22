@@ -6,11 +6,14 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
     "Bounsour"
    ],
    "abilities": [
-    "Filter",
     "Regenerator"
    ],
    "items": [
     "Big Root"
+   ],
+   "immune": [
+    "Bug",
+    "Poison"
    ],
    "appetiteDoubles": true
   }
@@ -575,7 +578,7 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
     "Manaphy"
    ],
    "abilities": [
-    "Refraction"
+    "Rain Dish"
    ],
    "items": [
     "Covert Cloak"
@@ -658,16 +661,20 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
     "Lurantis",
     "Lurantis-Totem"
    ],
-   "stab": [
-    "Bug"
-   ],
    "abilities": [
     "Tangled Feet",
-    "Filter",
     "Tinted Lens"
    ],
    "items": [
     "Scope Lens"
+   ]
+  },
+  {
+   "species": [
+    "Lurantis-Totem"
+   ],
+   "immune": [
+    "Bug"
    ]
   }
  ],
@@ -1195,6 +1202,7 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
     "Cradily"
    ],
    "abilities": [
+    "Seaweed",
     "Rain Dish",
     "Suction Cups"
    ],
@@ -1781,10 +1789,9 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
     "Carracosta"
    ],
    "abilities": [
-    "Solid Rock"
+    "Bulletproof"
    ],
    "items": [
-    "Rocky Helmet",
     "Covert Cloak"
    ]
   }
@@ -1861,7 +1868,7 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
     "Ribombee"
    ],
    "abilities": [
-    "Regenerator"
+    "Sap Sipper"
    ],
    "items": [
     "Big Root"
@@ -2020,6 +2027,25 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
      "weather": [
       "Sun",
       "Harsh Sunshine"
+     ]
+    }
+   ]
+  },
+  {
+   "species": [
+    "Clauncher",
+    "Clawitzer"
+   ],
+   "abilities": [
+    "Turboblaze"
+   ],
+   "weatherNeutral": true,
+   "powerMult": [
+    {
+     "mult": 1.5,
+     "weather": [
+      "Rain",
+      "Heavy Rain"
      ]
     }
    ]

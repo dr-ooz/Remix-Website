@@ -374,7 +374,16 @@ function addSets(pokes, name) {
 	}
 }
 
+// Remix: names from older exports / RemixHex builds -> the site's current name
+var REMIX_IMPORT_ALIASES = {"Minior-Red": "Minior-Twinkle", "Minior-Fairy": "Minior-Twinkle", "Minior-Fire": "Minior-Blaze",
+	"Minior-Electric": "Minior-Surge", "Minior-Grass": "Minior-Verdant", "Minior-Water": "Minior-Tidal", "Minior-Ice": "Minior-Frost",
+	"Minior-Dragon": "Minior-Draco", "Minior": "Minior-Meteor"};
 function checkExeptions(poke) {
+	if (poke && calc.SPECIES[9][poke] === undefined) {
+		var alias = REMIX_IMPORT_ALIASES[poke] ||
+			(typeof REMIX_SPECIES_RENAMES !== "undefined" && REMIX_SPECIES_RENAMES.rename && REMIX_SPECIES_RENAMES.rename[poke]);
+		if (alias && calc.SPECIES[9][alias] !== undefined) return alias;
+	}
 	switch (poke) {
 		case "Aegislash":
 			poke = "Aegislash-Blade";

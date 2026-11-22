@@ -41,9 +41,10 @@
 "Aromatic Mist": "+Blocks crits 7 turns, +1 Sp. Def",
 "Jackpot": "+Lucky Chant 7 turns, no same move twice",
 "Laser Focus": "+Next attack always crits",
-"Aurora Veil": "+Halves ALL dmg 5 turns, snow only",
+"Aurora Veil": "+Halves ALL dmg 5 turns, snow or Lunar Aura",
 "Spikes": "+12-25% on switch-in",
 "Stealth Rock": "+Rock-weakness damage on switch-in",
 "Knock Off": "50 BP | Removes Item, 1.5x if it removes one",
-"Seed Flare": "+"
+"Seed Flare": "+",
+"Wonder Room": "+Swaps Atk & Sp. Atk 5 turns"
 }

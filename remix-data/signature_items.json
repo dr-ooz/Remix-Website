@@ -4,7 +4,6 @@
    "Bounsour"
   ],
   "abilities": [
-   "Filter",
    "Regenerator"
   ]
  },
@@ -31,19 +30,19 @@
    "Latios",
    "Latios-Mega",
    "Minior",
+   "Minior-Blaze",
    "Minior-Blue",
-   "Minior-Dragon",
-   "Minior-Electric",
-   "Minior-Fairy",
-   "Minior-Fire",
-   "Minior-Grass",
+   "Minior-Draco",
+   "Minior-Frost",
    "Minior-Green",
-   "Minior-Ice",
    "Minior-Indigo",
    "Minior-Orange",
    "Minior-Red",
+   "Minior-Surge",
+   "Minior-Tidal",
+   "Minior-Twinkle",
+   "Minior-Verdant",
    "Minior-Violet",
-   "Minior-Water",
    "Minior-Yellow",
    "Swellow",
    "Taillow"
@@ -341,7 +340,7 @@
    "Phione"
   ],
   "abilities": [
-   "Refraction"
+   "Rain Dish"
   ]
  },
  "Sharp Beak": {
@@ -389,7 +388,6 @@
   "abilities": [
    "Refraction",
    "Tangled Feet",
-   "Filter",
    "Tinted Lens"
   ]
  },
@@ -695,6 +693,7 @@
    "Lileep"
   ],
   "abilities": [
+   "Seaweed",
    "Rain Dish",
    "Suction Cups"
   ]
@@ -1009,7 +1008,7 @@
    "Tirtouga"
   ],
   "abilities": [
-   "Solid Rock"
+   "Bulletproof"
   ]
  },
  "Putrid Skull": {
@@ -1058,7 +1057,7 @@
    "Ribombee"
   ],
   "abilities": [
-   "Regenerator"
+   "Sap Sipper"
   ]
  },
  "Luminous Moss": {
@@ -1125,6 +1124,8 @@
  },
  "Geothermal Rock": {
   "holders": [
+   "Clauncher",
+   "Clawitzer",
    "Gorebyss",
    "Huntail",
    "Remoraid"
@@ -1155,44 +1156,10 @@
   ],
   "abilities": []
  },
- "Banana Bunch": {
-  "holders": [
-   "Tropius"
-  ],
-  "abilities": []
- },
  "Whipped Dream": {
   "holders": [
    "Slurpuff",
    "Swirlix"
-  ],
-  "abilities": []
- },
- "Electric Seed": {
-  "holders": [
-   "Tapu Bibi",
-   "Tapu Koko"
-  ],
-  "abilities": []
- },
- "Psychic Seed": {
-  "holders": [
-   "Tapu Bibi",
-   "Tapu Lele"
-  ],
-  "abilities": []
- },
- "Misty Seed": {
-  "holders": [
-   "Tapu Bibi",
-   "Tapu Fini"
-  ],
-  "abilities": []
- },
- "Grassy Seed": {
-  "holders": [
-   "Tapu Bibi",
-   "Tapu Bulu"
   ],
   "abilities": []
  },
@@ -1319,6 +1286,47 @@
  "Fairy Memory": {
   "holders": [
    "Silvally"
+  ],
+  "abilities": []
+ },
+ "Banana Bunch": {
+  "holders": [
+   "Tropius"
+  ],
+  "abilities": []
+ },
+ "Electric Seed": {
+  "holders": [
+   "Cherrim",
+   "Tapu Bibi",
+   "Tapu Koko"
+  ],
+  "abilities": []
+ },
+ "Psychic Seed": {
+  "holders": [
+   "Exeggcute",
+   "Exeggutor",
+   "Tapu Bibi",
+   "Tapu Lele"
+  ],
+  "abilities": []
+ },
+ "Misty Seed": {
+  "holders": [
+   "Morelull",
+   "Shiinotic",
+   "Tapu Bibi",
+   "Tapu Fini"
+  ],
+  "abilities": []
+ },
+ "Grassy Seed": {
+  "holders": [
+   "Gogoat",
+   "Skiddo",
+   "Tapu Bibi",
+   "Tapu Bulu"
   ],
   "abilities": []
  }

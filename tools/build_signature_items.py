@@ -81,6 +81,24 @@ for item in descs:
     if owner and item not in out:
         out[item] = {"holders": sorted(k for k in known if k.split("-")[0] == owner), "abilities": []}
 
+# Items whose description does not say "held by <species>" (seed lists, Tropius' Banana Bunch) or whose holders the
+# text parse misses: listed by hand (2026-11-22, from the item descriptions). Terrain Seeds: the Tapu Bibi/Koko/Lele/
+# Bulu/Fini set it as before, plus the new holders (Cherrim = Overcast, Kanto Exeggutor only).
+MANUAL = {
+    "Banana Bunch": ["Tropius"],
+    "Electric Seed": ["Tapu Bibi", "Tapu Koko", "Cherrim"],
+    "Psychic Seed": ["Tapu Bibi", "Tapu Lele", "Exeggcute", "Exeggutor"],
+    "Misty Seed": ["Tapu Bibi", "Tapu Fini", "Morelull", "Shiinotic"],
+    "Grassy Seed": ["Tapu Bibi", "Tapu Bulu", "Skiddo", "Gogoat"],
+    "Fairy Flower": ["Floette-Eternal"],
+}
+for item, hs in MANUAL.items():
+    for h in hs:
+        if h not in known:
+            print("WARNING: manual holder not a known calc name:", h)
+    entry = out.setdefault(item, {"holders": [], "abilities": []})
+    entry["holders"] = sorted(set(entry["holders"]) | set(hs))
+
 json.dump(out, open(os.path.join(DATA, "signature_items.json"), "w", encoding="utf8"), ensure_ascii=False, indent=1)
 print(len(out), "signature items")
 

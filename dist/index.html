@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Pok&eacute;mon Damage Calculator</title>
+    <title>Remix DoozDex: Boss Battles</title>
     <link type="text/css" rel="stylesheet" href="./js/vendor/select2/select2.css" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?9f6bdd41" />
-    <link type="text/css" rel="stylesheet" href="./css/remix_guide.css?1aa6125d" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?370ce026" />
+    <link type="text/css" rel="stylesheet" href="./css/remix_guide.css?29e6312c" />
     <!--<link type="text/css" rel="stylesheet" href="./css/dynamic.css?5a1643ef" /> -->
     <link type="text/css" rel="stylesheet" href="./css/vendor/bootstrap.css" />
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -42,10 +42,9 @@ function toggleTheme() {
 
 <nav><div class="header"><div class="header-inner">
     <ul class="nav">
-        <li class="header-logo"><img src="./img/RemixLogo.png" height="36px" alt="Sweltering Sun Remix" style="right: 10px; top: -4px; filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff);" /></li>
-        <li><a class="button nav-first" href="https://docs.google.com/spreadsheets/d/1cAU5pCfvg5OmhpT8oY2k280Z3qkf-DQ6WBi_XDq-wnc/edit?gid=127996286#gid=127996286">The DoozDex</a></li>
-        <li><a class="button" href="https://discord.com/invite/Wz9UYFFZhn">Discord Server</a></li>
-        <li><a class="button nav-last" href="https://scrambled.darkshinygira.com/">Scrambled Scarlet Damage Calc</a></li>
+        <li class="header-logo"><img src="./img/UltraRemixLogo.png" height="40px" alt="Pokemon Ultra Remix" style="right: 10px; top: -6px;" /></li>
+        <li><a class="button nav-first" href="./" title="Boss Battles: damage calc, trainer rosters, team layouts and Trainer AI guides">Boss Battles</a></li>
+        <li><a class="button nav-last" href="https://discord.com/invite/Wz9UYFFZhn">Discord Server</a></li>
         <li class="header-logo"><img src="./img/Dooz.png" height="44px" alt="Dooz" style="left: 10px; top: -8px; filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff);" /></li>
     </ul>
     <div style="clear:both"></div>
@@ -53,8 +52,12 @@ function toggleTheme() {
 <div class="wrapper">
 
     
+    <div class="rx-hero">
+        <div class="rx-hero-title">Pok&eacute;mon Ultra Remix: Boss Battles</div>
+        <div class="rx-hero-sub">Includes EVERYTHING you'd want for battles: Damage Calculator, Trainer Rosters, a Team Layout generator and guides to the Trainer AI!</div>
+    </div>
+    <div class="rx-sec" data-sec="calc"><span class="rx-sec-title">Damage Calc + AI Guides</span><span class="rx-sec-blurb">Damage calc with every Remix change built in, plus the Trainer AI guides and the Doubles AI calc. Buttons below toggle features on and off.</span><button type="button" class="rx-sec-hide">Hide</button></div>
     <div aria-label="Settings" role="region">
-        <span class="title-text main-title-text">Pok&eacute;mon Sweltering Sun Remix Damage Calculator</span><span class="title-hint">(Click buttons below to toggle features on and off!)</span>
         <span class="genSelection" aria-labelledby="selectGenInstruction" role="radiogroup" title="Select the generation." style="display: none;">
             <span class="visually-hidden" id="selectGenInstruction">Select the generation.</span>
             <input class="gen visually-hidden" type="radio" name="gen" value="1" id="gen1" />
@@ -81,8 +84,6 @@ function toggleTheme() {
         <button type="button" class="btn" id="ko-text-toggle" onclick="remixToggleKOText()" title="Show or hide the KO chance text (e.g. &quot;guaranteed 2HKO&quot;) at the end of the result">&#127919; KO text: Shown</button>
         <button type="button" class="btn" id="hp-memory-toggle" onclick="remixToggleHPMemory()" title="On: each Pok&eacute;mon keeps the HP you set when you switch away and back. Off: every Pok&eacute;mon you switch to starts at full HP">&#10084;&#65039; Dynamic HP: On</button>
         <button type="button" class="btn" id="sprites-toggle" onclick="remixToggleMainSprites()" title="Show or hide the big Pok&eacute;mon and item sprites in the panels (team sprites always stay)">&#128444;&#65039; Sprites: Shown</button>
-        <button type="button" class="btn" id="detailed-toggle" onclick="remixToggleDetailed()" title="Show the enemy trainer's whole team as big boss-guide cards under the calc (instead of the small team box)">&#128203; Detailed Team Layout: Off</button>
-        <button type="button" class="btn" id="doozdex-toggle" onclick="remixToggleDoozdex()" title="Show or hide the DoozDex search sidebar (Pok&eacute;dex, moves, type chart)">&#128214; DoozDex: Hidden</button>
         </span>
         </span>
         <script>if (!document.body.classList.contains('dark')) document.getElementById('theme-toggle').innerHTML = '&#127769; Dark mode';</script>
@@ -985,7 +986,7 @@ function toggleTheme() {
                                 <label class="btn btn-xxwide" for="tailwindR">Tailwind</label>
                             </div></td>
                         </tr>
-                        <tr class="gen-specific g4 g5 g6 g7 g8 g9">
+                        <tr class="gen-specific g4 g5 g6 g8 g9">
                             <td><div class="left" title="Is the Pok&eacute;mon affected by an ally's Flower Gift?">
                                 <div hidden id="selectFlowerGiftInstruction">Is the Pok&eacute;mon affected by an ally's Flower Gift?</div>
                                 <input aria-describedby="selectFlowerGiftInstruction" class="visually-hidden calc-trigger" type="checkbox" id="flowerGiftL" />
@@ -1633,14 +1634,14 @@ function toggleTheme() {
     </script>
     <script type="text/javascript" src="./calc/util.js?8fa0c7ff"></script>
     <script type="text/javascript" src="./calc/stats.js?9220179f"></script>
-    <script type="text/javascript" src="./calc/data/remix_personal.js?feb21d36"></script>
-    <script type="text/javascript" src="./calc/data/remix_species_renames.js?32d041c5"></script>
-    <script type="text/javascript" src="./js/remix_species_renames.js?0b6da7cb"></script>
-    <script type="text/javascript" src="./js/remix_item_effects.js?10ce0a1a"></script>
+    <script type="text/javascript" src="./calc/data/remix_personal.js?2cb3bec1"></script>
+    <script type="text/javascript" src="./calc/data/remix_species_renames.js?54cddd63"></script>
+    <script type="text/javascript" src="./js/remix_species_renames.js?c6a878ed"></script>
+    <script type="text/javascript" src="./js/remix_item_effects.js?2bc9084a"></script>
     <script type="text/javascript" src="./calc/data/species.js?0083e1cf"></script>
 	 <script type="text/javascript" src="./js/data/sets/gen9.js?609860b3"></script>
     <script type="text/javascript" src="./js/data/sets/gen8.js?3961cb8c"></script>
-    <script type="text/javascript" src="./js/data/sets/gen7.js?c9ca58f6"></script>
+    <script type="text/javascript" src="./js/data/sets/gen7.js?716289e9"></script>
     <script type="text/javascript" src="./js/data/sets/gen6.js?ece70b22"></script>
     <script type="text/javascript" src="./js/data/sets/gen5.js?2f75d6f5"></script>
     <script type="text/javascript" src="./js/data/sets/gen4.js?0f7df916"></script>
@@ -1649,19 +1650,19 @@ function toggleTheme() {
     <script type="text/javascript" src="./js/data/sets/gen1.js?b97f521d"></script>
     <script type="text/javascript" src="./calc/data/types.js?35449ca5"></script>
     <script type="text/javascript" src="./calc/data/natures.js?04f00dc5"></script>
-    <script type="text/javascript" src="./calc/data/remix_abilities.js?ab8f4f21"></script>
+    <script type="text/javascript" src="./calc/data/remix_abilities.js?9c769c57"></script>
     <script type="text/javascript" src="./calc/data/abilities.js?88012c81"></script>
-    <script type="text/javascript" src="./calc/data/remix_moves.js?9889843b"></script>
+    <script type="text/javascript" src="./calc/data/remix_moves.js?63a08924"></script>
     <script type="text/javascript" src="./calc/data/moves.js?26490301"></script>
-    <script type="text/javascript" src="./calc/data/remix_items.js?62f590e8"></script>
+    <script type="text/javascript" src="./calc/data/remix_items.js?299bd183"></script>
     <script type="text/javascript" src="./calc/data/items.js?a17eeb28"></script>
     <script type="text/javascript" src="./calc/data/index.js?083d2bc9"></script>
     <script type="text/javascript" src="./calc/move.js?d52a78c2"></script>
-    <script type="text/javascript" src="./calc/pokemon.js?ea223fc4"></script>
+    <script type="text/javascript" src="./calc/pokemon.js?9c7c2a24"></script>
     <script type="text/javascript" src="./calc/field.js?0a8c6a3e"></script>
     <script type="text/javascript" src="./calc/items.js?47646e68"></script>
     <script type="text/javascript" src="./calc/mechanics/util.js?393d7d60"></script>
-    <script type="text/javascript" src="./calc/mechanics/gen789.js?4c5561e5"></script>
+    <script type="text/javascript" src="./calc/mechanics/gen789.js?351d3192"></script>
     <script type="text/javascript" src="./calc/mechanics/gen56.js?326e578d"></script>
     <script type="text/javascript" src="./calc/mechanics/gen4.js?a7626c4b"></script>
     <script type="text/javascript" src="./calc/mechanics/gen3.js?070ab0fe"></script>
@@ -1671,19 +1672,19 @@ function toggleTheme() {
     <script type="text/javascript" src="./calc/result.js?d5c7552b"></script>
     <script type="text/javascript" src="./calc/adaptable.js?afeb3759"></script>
     <script type="text/javascript" src="./calc/index.js?2377cbc8"></script>
-    <script type="text/javascript" src="./js/remix_species_data.js?40ca26f1"></script>
+    <script type="text/javascript" src="./js/remix_species_data.js?acc8180f"></script>
     <script type="text/javascript" src="./js/remix_hidden.js?b8007480"></script>
-    <script type="text/javascript" src="./js/shared_controls.js?ca791428"></script>
-    <script type="text/javascript" src="./js/index_randoms_controls.js?8bd23a2e"></script>
-    <script type="text/javascript" src="./js/moveset_import.js?cddfcf7c"></script>
+    <script type="text/javascript" src="./js/shared_controls.js?d723b452"></script>
+    <script type="text/javascript" src="./js/index_randoms_controls.js?f1ba3381"></script>
+    <script type="text/javascript" src="./js/moveset_import.js?8d23edc2"></script>
     <script type="text/javascript" src="./js/showdown_hooks.js?da386bc4"></script>
     <script type="text/javascript" src="./js/sprite_version.js?df19c3d5"></script>
     <script type="text/javascript" src="./js/sprite_colors.js?25fc9f9a"></script>
-    <script type="text/javascript" src="./js/remix_item_icons.js?a14b18be"></script>
+    <script type="text/javascript" src="./js/remix_item_icons.js?6cef0919"></script>
     <script type="text/javascript" src="./js/remix_minisprite.js?0b5c1fd8"></script>
     <script type="text/javascript" src="./js/remix_forms.js?abd9f4b9"></script>
     <script type="text/javascript" src="./js/remix_teamzoom.js?dc74c75e"></script>
-    <script type="text/javascript" src="./js/remix_type_colors.js?13f5f09d"></script>
+    <script type="text/javascript" src="./js/remix_type_colors.js?b98ab375"></script>
     <script type="text/javascript" src="./js/remix_typecolors.js?5b2b4c8e"></script>
     <script type="text/javascript" src="./js/remix_layout.js?6fba4ec0"></script>
     <script type="text/javascript" src="./js/remix_kotext.js?34d1df64"></script>
@@ -1697,22 +1698,19 @@ function toggleTheme() {
     <script type="text/javascript" src="./js/remix_residual.js?8f281917"></script>
     <script type="text/javascript" src="./js/remix_doubles_ai_data.js?78b81dfa"></script>
     <script type="text/javascript" src="./js/remix_doubles_panel.js?2dcf3a88"></script>
-    <script type="text/javascript" src="./js/remix_art.js?5965befc"></script>
+    <script type="text/javascript" src="./js/remix_art.js?22e873d1"></script>
     <script type="text/javascript" src="./js/remix_stat_colors.js?328d6276"></script>
-    <script type="text/javascript" src="./js/remix_dex_order.js?18b9fa3b"></script>
-    <script type="text/javascript" src="./js/remix_color_editor.js?43b74ebf"></script>
-    <script type="text/javascript" src="./js/remix_guide_data.js?d09e4f0c"></script>
-    <script type="text/javascript" src="./js/remix_signature_items.js?2db53b67"></script>
-    <script type="text/javascript" src="./js/remix_bossguide.js?88f026e5"></script>
-    <script type="text/javascript" src="./js/remix_compact.js?62bcac53"></script>
-    <script type="text/javascript" src="./js/remix_doozdex_sidebar.js?b75f5916"></script>
+    <script type="text/javascript" src="./js/remix_dex_order.js?afba8466"></script>
+    <script type="text/javascript" src="./js/remix_color_editor.js?0b08b859"></script>
+    <script type="text/javascript" src="./js/remix_guide_data.js?696e5117"></script>
+    <script type="text/javascript" src="./js/remix_signature_items.js?892abd4c"></script>
+    <script type="text/javascript" src="./js/remix_bossguide.js?764457bb"></script>
+    <script type="text/javascript" src="./js/remix_compact.js?67af1f46"></script>
+    <script type="text/javascript" src="./js/remix_sections.js?139b1464"></script>
+    <script type="text/javascript" src="./js/remix_doozdex_sidebar.js?e322e1ec"></script>
 </div>
 
-<div class="credits">Original Calc created by Honko and maintained by Austin and Kris. Sweltering Sun Remix Calc by Dooz.
-    <ul><li><a href="https://github.com/dr-ooz/Remix-Calc/graphs/contributors" target="_blank">Contributors</a></li>
-    <li><a href="https://github.com/dr-ooz/Remix-Calc/issues" target="_blank">Bug Reports</a></li>
-    <li><a href="https://github.com/dr-ooz/Remix-Calc" target="_blank">GitHub repository</a></li></ul>
-</div>
+<div class="credits"><b>Ultra Remix Calc edits by Dooz.</b> <i><a href="https://calc.pokemonshowdown.com/" target="_blank" rel="noopener">Base Damage Calc</a> mechanics created by Honko and maintained by Austin and Kris.</i></div>
 
 </body>
 

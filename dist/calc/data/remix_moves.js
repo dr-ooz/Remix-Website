@@ -410,7 +410,8 @@ exports.REMIX_MOVES = {
         "type": "Normal",
         "category": "Status",
         "pp": 5,
-        "priority": 4
+        "priority": 4,
+        "target": "allAdjacentFoes"
     },
     "Poison Dart": {
         "bp": 45,
@@ -447,7 +448,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Dark",
         "category": "Status",
-        "pp": 5
+        "pp": 5,
+        "target": "allAdjacentFoes"
     },
     "Jagged Fangs": {
         "bp": 90,
@@ -462,7 +464,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Normal",
         "category": "Status",
-        "pp": 5
+        "pp": 5,
+        "target": "allAdjacentFoes"
     },
     "Roar": {
         "bp": 0,
@@ -788,7 +791,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Bug",
         "category": "Status",
-        "pp": 5
+        "pp": 5,
+        "target": "allAdjacentFoes"
     },
     "Dragon Burst": {
         "bp": 30,
@@ -967,7 +971,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Normal",
         "category": "Status",
-        "pp": 5
+        "pp": 5,
+        "target": "allAdjacentFoes"
     },
     "Water Shuriken": {
         "bp": 30,
@@ -1006,7 +1011,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Poison",
         "category": "Status",
-        "pp": 5
+        "pp": 5,
+        "target": "allAdjacentFoes"
     },
     "Eerie Wave": {
         "bp": 0,
@@ -1365,7 +1371,8 @@ exports.REMIX_MOVES = {
         "type": "Psychic",
         "category": "Status",
         "pp": 5,
-        "priority": 6
+        "priority": 6,
+        "target": "allAdjacentFoes"
     },
     "Brainwave": {
         "bp": 90,
@@ -1638,7 +1645,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Grass",
         "category": "Status",
-        "pp": 2
+        "pp": 2,
+        "target": "allAdjacentFoes"
     },
     "Reversal": {
         "bp": 1,
@@ -2069,7 +2077,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Grass",
         "category": "Status",
-        "pp": 5
+        "pp": 5,
+        "target": "allAdjacentFoes"
     },
     "Iron Tail": {
         "bp": 95,
@@ -2563,7 +2572,7 @@ exports.REMIX_MOVES = {
     },
     "Secret Power": {
         "bp": 70,
-        "type": "Water",
+        "type": "Normal",
         "category": "Physical",
         "zp": 160,
         "pp": 20
@@ -2951,7 +2960,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Psychic",
         "category": "Status",
-        "pp": 5
+        "pp": 5,
+        "target": "allAdjacentFoes"
     },
     "Howl": {
         "bp": 0,
@@ -3236,7 +3246,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Fighting",
         "category": "Status",
-        "pp": 5
+        "pp": 5,
+        "target": "allAdjacentFoes"
     },
     "Metal Burst": {
         "bp": 1,
@@ -3309,7 +3320,8 @@ exports.REMIX_MOVES = {
                 "Flame Orb": 60,
                 "Toxic Orb": 60,
                 "Light Ball": 60,
-                "Lagging Tail": 100
+                "Lagging Tail": 100,
+                "Coconut": 100
             }
         }
     },
@@ -3961,7 +3973,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Fairy",
         "category": "Status",
-        "pp": 20
+        "pp": 20,
+        "target": "allAdjacentFoes"
     },
     "Stealth Rock": {
         "bp": 0,
@@ -4153,7 +4166,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Dark",
         "category": "Status",
-        "pp": 2
+        "pp": 2,
+        "target": "allAdjacentFoes"
     },
     "Seed Flare": {
         "bp": 120,
@@ -5009,20 +5023,24 @@ exports.REMIX_MOVES = {
         "secondaries": true
     },
     "Fusion Flare": {
-        "bp": 180,
+        "bp": 100,
         "type": "Fire",
         "category": "Special",
-        "zp": 230,
-        "pp": 3,
-        "secondaries": true
+        "zp": 180,
+        "pp": 20,
+        "remix": {
+            "useHigherStat": true
+        }
     },
     "Fusion Bolt": {
-        "bp": 180,
+        "bp": 100,
         "type": "Electric",
         "category": "Special",
-        "zp": 230,
-        "pp": 3,
-        "secondaries": true
+        "zp": 180,
+        "pp": 20,
+        "remix": {
+            "useHigherStat": true
+        }
     },
     "Flying Press": {
         "bp": 140,
@@ -5101,7 +5119,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Fighting",
         "category": "Status",
-        "pp": 2
+        "pp": 2,
+        "target": "allAdjacentFoes"
     },
     "Ion Deluge": {
         "bp": 0,
@@ -5316,7 +5335,8 @@ exports.REMIX_MOVES = {
             30,
             100
         ],
-        "makesContact": true
+        "makesContact": true,
+        "breaksProtect": true
     },
     "Stinger Missile": {
         "bp": 25,
@@ -5354,7 +5374,8 @@ exports.REMIX_MOVES = {
         "bp": 0,
         "type": "Electric",
         "category": "Status",
-        "pp": 2
+        "pp": 2,
+        "target": "allAdjacentFoes"
     },
     "Venom Drench": {
         "bp": 0,
@@ -5719,12 +5740,13 @@ exports.REMIX_MOVES = {
         "pp": 5
     },
     "First Impression": {
-        "bp": 110,
+        "bp": 75,
         "type": "Bug",
         "category": "Physical",
         "zp": 140,
         "pp": 10,
         "priority": 4,
+        "willCrit": true,
         "makesContact": true,
         "breaksProtect": true
     },

@@ -701,7 +701,7 @@ Adamant Nature
 === [gen7] Rising Star Tatiana (#33) ===
 
 Chikorita (M) @ Oran Berry
-Ability: Leaf Guard
+Ability: Purification
 Level: 15
 Modest Nature
 - Ancient Power
@@ -794,7 +794,7 @@ Serious Nature
 === [gen7] Swimmer Portia (#37) ===
 
 Luvdisc @ Sitrus Berry
-Ability: OLD HYDRATION
+Ability: Seaweed
 Level: 21
 Serious Nature
 - Chilling Water
@@ -2995,7 +2995,7 @@ IVs: 30 HP / 25 Atk / 30 Def / 30 SpA / 25 SpD / 25 Spe
 - Ingrain
 
 Tsareena (F) @ Grassium Z
-Ability: Leaf Guard
+Ability: Purification
 Level: 60
 EVs: 252 Atk / 252 Spe
 Adamant Nature
@@ -3725,7 +3725,7 @@ Naive Nature
 === [gen7] Bellhop Jody (#182) ===
 
 Fomantis @ Sitrus Berry
-Ability: Leaf Guard
+Ability: Purification
 Level: 17
 Serious Nature
 - Razor Leaf
@@ -4879,7 +4879,7 @@ Timid Nature
 - Revelation Dance
 
 Accelgor (M) @ Focus Sash
-Ability: OLD HYDRATION
+Ability: Seaweed
 Level: 55
 EVs: 252 Atk / 252 Spe
 Adamant Nature
@@ -5112,7 +5112,7 @@ Jolly Nature
 
 === [gen7] Aether Branch Chief Faba (#241) ===
 
-Minior-Dragon @ Focus Sash
+Minior-Draco @ Focus Sash
 Ability: Star Power
 Level: 50
 EVs: 252 SpA / 252 Spe
@@ -5422,7 +5422,7 @@ Serious Nature
 === [gen7] Aether Foundation Employee (#259) ===
 
 Lurantis @ Sitrus Berry
-Ability: Leaf Guard
+Ability: Purification
 Level: 46
 Serious Nature
 - Quiver Dance
@@ -5659,7 +5659,7 @@ Serious Nature
 === [gen7] Swimmer Jared (#271) ===
 
 Alomomola @ Sitrus Berry
-Ability: OLD HYDRATION
+Ability: Seaweed
 Level: 39
 Serious Nature
 - Scald
@@ -6344,7 +6344,7 @@ Modest Nature
 - Hypnosis
 
 Dewgong @ Wacan Berry
-Ability: OLD HYDRATION
+Ability: Seaweed
 Level: 58
 Calm Nature
 - Whirlpool
@@ -7442,7 +7442,7 @@ IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe
 === [gen7] Leafeon User Linnea (#368) ===
 
 Leafeon
-Ability: Leaf Guard
+Ability: Purification
 Level: 55
 Serious Nature
 IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe
@@ -11345,7 +11345,7 @@ Timid Nature
 - Earth Power
 
 Tsareena (F) @ Focus Sash
-Ability: Leaf Guard
+Ability: Purification
 Level: 67
 EVs: 252 Atk / 252 Spe
 Adamant Nature
@@ -11582,7 +11582,7 @@ Adamant Nature
 === [gen7] Swimmer Natasha (#512) ===
 
 Wingull
-Ability: OLD HYDRATION
+Ability: Seaweed
 Level: 7
 Serious Nature
 - Chill Out
@@ -11798,7 +11798,7 @@ Serious Nature
 === [gen7] Team Skull Grunt (#525) ===
 
 Accelgor @ Sitrus Berry
-Ability: OLD HYDRATION
+Ability: Seaweed
 Level: 58
 Serious Nature
 - Cheap Shot
@@ -13384,7 +13384,7 @@ Timid Nature
 - Protect
 
 Leafeon (F) @ Focus Sash
-Ability: Leaf Guard
+Ability: Purification
 Level: 100
 EVs: 252 SpA / 252 Spe
 Timid Nature

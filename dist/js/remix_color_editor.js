@@ -26,19 +26,25 @@
 	}
 
 	// ---- state ----
-	function cur() { return tab === "types" ? REMIX_TYPE_COLORS[sel] : REMIX_STAT_COLORS[selStat]; }
-	function saved() { return tab === "types" ? REMIX_TYPE_COLORS_SAVED[sel] : REMIX_STAT_COLORS_SAVED[selStat]; }
+	// move text: the hand-picked colour, else the automatic dark shade of the type colour
+	function textOf(t, savedOnly) {
+		var o = savedOnly ? REMIX_TYPE_TEXT_SAVED[t] : REMIX_TYPE_TEXT_COLORS[t];
+		return o || remixTypeTextAuto(REMIX_TYPE_COLORS[t], t);
+	}
+	function cur() { return tab === "types" ? REMIX_TYPE_COLORS[sel] : tab === "text" ? textOf(sel) : REMIX_STAT_COLORS[selStat]; }
+	function saved() { return tab === "types" ? REMIX_TYPE_COLORS_SAVED[sel] : tab === "text" ? textOf(sel, true) : REMIX_STAT_COLORS_SAVED[selStat]; }
 	function changes() {
-		var types = {}, nt = 0, ns = 0;
+		var types = {}, text = {}, nt = 0, ns = 0, nx = 0;
 		TYPES.forEach(function (t) { if (REMIX_TYPE_COLORS[t] !== REMIX_TYPE_COLORS_SAVED[t]) { types[t] = REMIX_TYPE_COLORS[t]; nt++; } });
+		TYPES.forEach(function (t) { if ((REMIX_TYPE_TEXT_COLORS[t] || "") !== (REMIX_TYPE_TEXT_SAVED[t] || "")) nx++; if (REMIX_TYPE_TEXT_COLORS[t]) text[t] = REMIX_TYPE_TEXT_COLORS[t]; });
 		REMIX_STAT_COLORS.forEach(function (c, i) { if (c !== REMIX_STAT_COLORS_SAVED[i]) ns++; });
-		return { types: types, nt: nt, ns: ns };
+		return { types: types, text: text, nt: nt, ns: ns, nx: nx };
 	}
 	function persist() {
 		var c = changes();
 		try {
-			if (!c.nt && !c.ns) localStorage.removeItem(KEY);
-			else localStorage.setItem(KEY, JSON.stringify({ types: c.types, stats: c.ns ? REMIX_STAT_COLORS.slice() : undefined }));
+			if (!c.nt && !c.ns && !c.nx) localStorage.removeItem(KEY);
+			else localStorage.setItem(KEY, JSON.stringify({ types: c.types, text: c.nx ? c.text : undefined, stats: c.ns ? REMIX_STAT_COLORS.slice() : undefined }));
 		} catch (e) {}
 	}
 	var sidebarTimer = null, guideTimer = null;
@@ -56,7 +62,9 @@
 	}
 	function setColor(hex, keepWheel) {
 		hex = hex.toLowerCase();
-		if (tab === "types") REMIX_TYPE_COLORS[sel] = hex; else REMIX_STAT_COLORS[selStat] = hex;
+		if (tab === "types") REMIX_TYPE_COLORS[sel] = hex;
+		else if (tab === "text") { if (hex === remixTypeTextAuto(REMIX_TYPE_COLORS[sel], sel) && !REMIX_TYPE_TEXT_SAVED[sel]) delete REMIX_TYPE_TEXT_COLORS[sel]; else REMIX_TYPE_TEXT_COLORS[sel] = hex; }
+		else REMIX_STAT_COLORS[selStat] = hex;
 		if (!keepWheel) hsv = rgbToHsv(hexToRgb(hex));
 		persist(); refreshPage(tab); render(keepWheel);
 	}
@@ -83,11 +91,13 @@
 		"#ce .ce-side{display:grid;gap:6px}#ce .ce-cmp{display:flex;gap:4px}#ce .ce-cmp div{flex:1;height:30px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;text-shadow:0 1px 2px #000}" +
 		"#ce .ce-name{font-weight:bold;font-size:15px}#ce .ce-foot{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:#c9bfd8}" +
 		"#ce .ce-note{width:100%;font-size:11.5px;color:#a59cb3}" +
+		"#ce .ce-move{margin-top:8px;border:1px solid #fff;border-radius:4px;padding:5px 6px;text-align:center;font-family:Verdana,Arial,sans-serif;font-weight:bold}" +
+		"#ce .ce-mvtop{font-size:17px;line-height:1.15}#ce .ce-mvtop i{font-size:0.8em;text-decoration:underline}#ce .ce-mvnote{font-size:12px}" +
 		"</style>");
 	var btn = $("<button type='button' id='ce-btn' title='Preview type and stat colors (only on your computer)'>Colors</button>").appendTo("body");
 	var box = $("<div id='ce' role='dialog' aria-label='Color editor'></div>").appendTo("body");
 	box.html(
-		"<div class='ce-tabs'><button type='button' data-tab='types'>Types</button><button type='button' data-tab='stats'>Stat colors</button>" +
+		"<div class='ce-tabs'><button type='button' data-tab='types'>Types</button><button type='button' data-tab='text'>Move text</button><button type='button' data-tab='stats'>Stat colors</button>" +
 		"<button type='button' class='ce-x' style='margin-left:auto' aria-label='Close'>&times;</button></div>" +
 		"<div class='ce-list'></div>" +
 		"<div class='ce-pick'><div><div class='ce-wheel'><canvas width='300' height='300' aria-label='Color wheel'></canvas><div class='ce-dot'></div></div>" +
@@ -95,6 +105,7 @@
 		"<div class='ce-side'><div class='ce-name'></div><input class='ce-hex' maxlength='7' spellcheck='false' aria-label='Hex color'>" +
 		"<div class='ce-cmp'><div class='ce-saved' title='Click to go back to the saved color'></div><div class='ce-now'></div></div>" +
 		"<button type='button' class='ce-revert1'>Back to saved</button></div></div>" +
+		"<div class='ce-move'><div class='ce-mvtop'><b>Move Name</b> <i>(*90 BP)</i></div><div class='ce-mvnote'>*30 BP, 2-5 Hits, 30% Flinch</div></div>" +
 		"<div class='ce-foot'><span class='ce-count'></span><button type='button' class='ce-revert'>Undo all</button>" +
 		"<div class='ce-note'>Previews show only in this browser. Tell Claude <b>save colors</b> to keep them site-wide.</div></div>");
 
@@ -114,7 +125,13 @@
 	function render(keepWheel) {
 		box.find("[data-tab]").each(function () { this.setAttribute("aria-pressed", String(this.dataset.tab === tab)); });
 		var list = box.find(".ce-list").empty();
-		if (tab === "types") TYPES.forEach(function (t) {
+		if (tab === "text") TYPES.forEach(function (t) {
+			$("<div class='ce-item' role='option'></div>").attr({ "data-k": t, "aria-selected": String(t === sel) })
+				.toggleClass("ch", (REMIX_TYPE_TEXT_COLORS[t] || "") !== (REMIX_TYPE_TEXT_SAVED[t] || ""))
+				.css({ background: REMIX_TYPE_COLORS[t] })
+				.append($("<span>").text(t).css("color", textOf(t))).appendTo(list);
+		});
+		else if (tab === "types") TYPES.forEach(function (t) {
 			var c = REMIX_TYPE_COLORS[t];
 			$("<div class='ce-item' role='option'></div>").attr({ "data-k": t, "aria-selected": String(t === sel) })
 				.toggleClass("ch", c !== REMIX_TYPE_COLORS_SAVED[t])
@@ -132,12 +149,14 @@
 		box.find(".ce-dot").css({ left: (50 + Math.cos(a) * hsv[1] * 50) + "%", top: (50 + Math.sin(a) * hsv[1] * 50) + "%", background: c });
 		var val = box.find(".ce-val").val(Math.round(hsv[2] * 100));
 		val.css("background", "linear-gradient(to right,#000," + rgbToHex(hsvToRgb(hsv[0], hsv[1], 1)) + ")");
-		box.find(".ce-name").text(tab === "types" ? sel : "Stats " + statLabel(selStat)).css("color", c);
+		box.find(".ce-name").text(tab === "types" ? sel : tab === "text" ? sel + " move text" : "Stats " + statLabel(selStat)).css("color", tab === "text" ? REMIX_TYPE_COLORS[sel] : c);
+		// a real move box (the site's own .bg-t-<Type> style): its text on its background
+		box.find(".ce-move").toggle(tab !== "stats").attr("class", "ce-move bg-t-" + sel);
 		var hx = box.find(".ce-hex")[0]; if (document.activeElement !== hx) hx.value = c;
 		box.find(".ce-saved").css("background", s).text("saved " + s);
 		box.find(".ce-now").css("background", c).text(c === s ? "same" : "new " + c);
 		box.find(".ce-revert1").prop("disabled", c === s);
-		var ch = changes(), n = ch.nt + ch.ns;
+		var ch = changes(), n = ch.nt + ch.ns + ch.nx;
 		box.find(".ce-count").text(n ? n + " unsaved change" + (n > 1 ? "s" : "") : "No unsaved changes");
 		btn.toggleClass("has", n > 0).text(n ? "Colors (" + n + ")" : "Colors");
 	}
@@ -145,7 +164,7 @@
 	btn.on("click", function () { box.toggleClass("open"); if (box.hasClass("open")) render(); });
 	box.on("click", ".ce-x", function () { box.removeClass("open"); });
 	box.on("click", "[data-tab]", function () { tab = this.dataset.tab; render(); });
-	box.on("click", ".ce-item", function () { var k = this.dataset.k; if (tab === "types") sel = k; else selStat = +k; render(); });
+	box.on("click", ".ce-item", function () { var k = this.dataset.k; if (tab === "types" || tab === "text") sel = k; else selStat = +k; render(); });
 	box.on("click", ".ce-revert1, .ce-saved", function () { setColor(saved()); });
 	var undoArmed = null;
 	box.on("click", ".ce-revert", function () {
@@ -153,6 +172,7 @@
 		if (!undoArmed) { b.text("Click again"); undoArmed = setTimeout(function () { undoArmed = null; b.text("Undo all"); }, 3000); return; }
 		clearTimeout(undoArmed); undoArmed = null; b.text("Undo all");
 		TYPES.forEach(function (t) { REMIX_TYPE_COLORS[t] = REMIX_TYPE_COLORS_SAVED[t]; });
+		TYPES.forEach(function (t) { if (REMIX_TYPE_TEXT_SAVED[t]) REMIX_TYPE_TEXT_COLORS[t] = REMIX_TYPE_TEXT_SAVED[t]; else delete REMIX_TYPE_TEXT_COLORS[t]; });
 		REMIX_STAT_COLORS_SAVED.forEach(function (c, i) { REMIX_STAT_COLORS[i] = c; });
 		persist(); refreshPage(); render();
 	});

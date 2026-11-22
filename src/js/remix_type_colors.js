@@ -31,7 +31,18 @@ function remixTypeTop(hex) { return remixMixHex(hex, "#ffffff", 0.3); }
    more saturated, so it reads on its own color. HSL: lightness x0.36, saturation x1.25 + 10 points. */
 // Types whose dark text needs to be lighter to read well on their own color (lightness factor)
 var REMIX_TYPE_TEXT_LIGHT = { Flying: 0.5, Dragon: 0.56 };
+/* Move text colours picked by hand (Colors editor, "Move text" tab): type -> hex. A type not listed
+   uses the automatic dark shade below. Keep this one line of plain JSON. */
+var REMIX_TYPE_TEXT_COLORS = {};
+var REMIX_TYPE_TEXT_SAVED = JSON.parse(JSON.stringify(REMIX_TYPE_TEXT_COLORS));
+(function () {
+	var p = REMIX_COLOR_PREVIEW && REMIX_COLOR_PREVIEW.text;
+	if (p) for (var t in p) if (t in REMIX_TYPE_COLORS && /^#[0-9a-f]{6}$/i.test(p[t])) REMIX_TYPE_TEXT_COLORS[t] = p[t];
+})();
 function remixTypeText(hex, type) {
+	return REMIX_TYPE_TEXT_COLORS[type] || remixTypeTextAuto(hex, type);
+}
+function remixTypeTextAuto(hex, type) {
 	var n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
 	var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn, h = 0, s = 0;
 	if (d) {

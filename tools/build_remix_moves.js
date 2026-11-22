@@ -18,7 +18,7 @@ const OUT = path.join(ROOT, "calc", "src", "data", "remix_moves.ts");
 const TYPES = ["Normal", "Fighting", "Flying", "Poison", "Ground", "Rock", "Bug", "Ghost", "Steel",
 	"Fire", "Water", "Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark", "Fairy"];
 const CATEGORIES = ["Status", "Physical", "Special"];
-const TARGETS = {4: "allAdjacent", 5: "allAdjacentFoes"}; // anything else is single-target for damage
+const TARGETS = {4: "allAdjacent", 5: "allAdjacentFoes"}; // anything else is single-target (status moves too: Battle Cry, Growl)
 const isZ = n => (n >= 622 && n <= 658) || (n >= 695 && n <= 703) || n === 719 || (n >= 723 && n <= 728);
 
 const read = f => JSON.parse(fs.readFileSync(path.join(DATA, f), "utf8"));
@@ -39,7 +39,7 @@ for (const m of moves) {
 	if (damaging && x.drainRecoil > 0) d.drain = [x.drainRecoil, 100];
 	if (damaging && x.drainRecoil < 0) d.recoil = [-x.drainRecoil, 100];
 	if (damaging && x.crit >= 6) d.willCrit = true;
-	if (damaging && TARGETS[x.target]) d.target = TARGETS[x.target];
+	if (TARGETS[x.target]) d.target = TARGETS[x.target];
 	if (x.contact) d.makesContact = true;
 	// move flags from the game (tools/refresh_move_extras.py): ability move lists
 	const FLAG_FIELDS = {punch: "isPunch", sound: "isSound", bite: "isBite", bullet: "isBullet",

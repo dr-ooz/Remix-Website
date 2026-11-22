@@ -157,7 +157,7 @@ var Pokemon = (function () {
         return this.remixItemFx().abilities.some(function (a) { return abilities.includes(a); });
     };
     Pokemon.prototype.remixItemFx = function () {
-        var e_3, _a, _b, _c, _d, _e, _f, _g;
+        var e_3, _a, _b, _c, _d, _e, _f, _g, _h;
         var _this = this;
         var key = this.gen.num + '|' + this.name + '|' + (this.item || '') + '|' + (this.ability || '');
         var cached = REMIX_FX_CACHE.get(key);
@@ -168,13 +168,13 @@ var Pokemon = (function () {
             moveBoost: {}, stats: [], critImmune: false, alwaysCrit: false, weatherHeal: {}, metronomeStep: 0,
             weatherItems: [], drainPct: 0, drainIfAsleep: false, selfDamagePct: 0,
             drainType: '', healPct: 0, appetiteDoubles: false,
-            immune: [], trifecta: false, statusImmune: [], weatherNeutral: false
+            immune: [], trifecta: false, statusImmune: [], weatherNeutral: false, powerMult: []
         };
         var rules = this.gen.num === 7 && this.item && !['Klutz', 'Disgusted'].includes(this.ability)
             ? remix_items_1.REMIX_ITEM_EFFECTS[this.item] : undefined;
         try {
-            for (var _h = __values(rules || []), _j = _h.next(); !_j.done; _j = _h.next()) {
-                var r = _j.value;
+            for (var _j = __values(rules || []), _k = _j.next(); !_k.done; _k = _j.next()) {
+                var r = _k.value;
                 if (r.species && !r.species.some(function (sp) { return sp.endsWith('*')
                     ? _this.name.startsWith(sp.slice(0, -1)) : sp === _this.name; }))
                     continue;
@@ -212,8 +212,9 @@ var Pokemon = (function () {
                     fx.appetiteDoubles = true;
                 if (r.selfDamagePct)
                     fx.selfDamagePct = r.selfDamagePct;
-                (_f = fx.immune).push.apply(_f, __spreadArray([], __read((r.immune || [])), false));
-                (_g = fx.statusImmune).push.apply(_g, __spreadArray([], __read((r.statusImmune || [])), false));
+                (_f = fx.powerMult).push.apply(_f, __spreadArray([], __read((r.powerMult || [])), false));
+                (_g = fx.immune).push.apply(_g, __spreadArray([], __read((r.immune || [])), false));
+                (_h = fx.statusImmune).push.apply(_h, __spreadArray([], __read((r.statusImmune || [])), false));
                 if (r.trifecta)
                     fx.trifecta = true;
                 if (r.weatherNeutral)
@@ -223,7 +224,7 @@ var Pokemon = (function () {
         catch (e_3_1) { e_3 = { error: e_3_1 }; }
         finally {
             try {
-                if (_j && !_j.done && (_a = _h["return"])) _a.call(_h);
+                if (_k && !_k.done && (_a = _j["return"])) _a.call(_j);
             }
             finally { if (e_3) throw e_3.error; }
         }
@@ -242,6 +243,9 @@ var Pokemon = (function () {
             case 'Appetite': return ['Ripen'];
             case 'Disgusted': return ['Klutz'];
             case 'Climate Cloak': return ['Shield Dust'];
+            case 'Purification': return ['Magic Guard'];
+            case 'Rise and Shine': return ['Solar Power'];
+            case 'Stance Change': return this.name === 'Aegislash-Blade' ? ['Sharpness', 'Levitate'] : ['Battle Armor', 'Levitate'];
             case 'Star Power':
                 return form === 'Meteor' || !form ? ['Levitate'] : ['Levitate', 'Dazzling'];
             case 'Zen Mode': return this.name === 'Darmanitan-Zen' ? ['Unaware'] : [];

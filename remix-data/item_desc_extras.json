@@ -1,0 +1,4 @@
+{
+"_readme": "Website-only item notes for the Boss Guide: effects the game text doesn't say (AI-only or totem-only effects). Each note is added to the end of the item's game description in the Boss Guide hover text. Rebuild: npm run compile.",
+"Kaleidoscope": "Totem Lurantis is also immune to Bug-type moves."
+}

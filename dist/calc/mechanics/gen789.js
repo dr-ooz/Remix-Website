@@ -117,7 +117,7 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
             defender.ability = "";
         }
     }
-    var remixCritImmune = gen.num === 7 && (defender.hasAbility("Oblivious", "Scribble", "Schooling", "Good Fortune") ||
+    var remixCritImmune = gen.num === 7 && (defender.hasAbility("Oblivious", "Scribble", "Schooling") ||
         defender.remixItemFx().critImmune ||
         defender.named("Darmanitan-Zen"));
     var isCritical = !defender.hasAbility("Battle Armor", "Shell Armor") &&
@@ -370,6 +370,7 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
             (move.hasType("Fire") && defender.hasAbility("Unmeltable")) ||
             (move.hasType("Water") && defender.hasAbility("Hydration")) ||
             (move.hasType("Fire", "Ice", "Electric") && defender.hasAbility("Trifecta")) ||
+            (move.hasType("Poison") && defender.hasAbility("Purification")) ||
             (move.priority > 0 && defender.hasAbility("Swiftness", "Elegance"))))) {
         desc.defenderAbility = defender.ability;
         return result;
@@ -1002,6 +1003,7 @@ function calculateBasePowerSMSSSV(gen, attacker, defender, move, field, hasAteAb
 }
 exports.calculateBasePowerSMSSSV = calculateBasePowerSMSSSV;
 function calculateBPModsSMSSSV(gen, attacker, defender, move, field, desc, basePower, hasAteAbilityTypeChange, turnOrder) {
+    var e_4, _a;
     var bpMods = [];
     var resistedKnockOffDamage = !defender.item ||
         (defender.named("Dialga-Origin") && defender.hasItem("Adamant Crystal")) ||
@@ -1218,8 +1220,28 @@ function calculateBPModsSMSSSV(gen, attacker, defender, move, field, desc, baseP
         bpMods.push(6144);
         desc.attackerAbility = attacker.ability;
     }
+    if (gen.num === 7 && attacker.hasAbility("Seaweed") && move.hasType("Grass")) {
+        bpMods.push(6144);
+        desc.attackerAbility = attacker.ability;
+    }
     {
         var fx = attacker.remixItemFx();
+        try {
+            for (var _b = __values(fx.powerMult), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var pm = _c.value;
+                if (!pm.weather || field.hasWeather.apply(field, __spreadArray([], __read(pm.weather), false))) {
+                    bpMods.push(Math.round(4096 * pm.mult));
+                    desc.attackerItem = attacker.item;
+                }
+            }
+        }
+        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b["return"])) _a.call(_b);
+            }
+            finally { if (e_4) throw e_4.error; }
+        }
         var pow = (fx.boost[move.type] || 1) * (fx.moveBoost[move.name] || 1);
         if (pow !== 1) {
             bpMods.push(Math.round(4096 * pow));
@@ -1337,22 +1359,16 @@ function calculateAttackSMSSSV(gen, attacker, defender, move, field, desc, isCri
 }
 exports.calculateAttackSMSSSV = calculateAttackSMSSSV;
 function calculateAtModsSMSSSV(gen, attacker, defender, move, field, desc) {
-    var e_4, _a;
+    var e_5, _a;
     var atMods = [];
     if (gen.num === 7 && move.category !== "Status") {
         var phys = move.category === "Physical";
         if ((attacker.hasAbility("Guts") && attacker.status) ||
             (attacker.hasAbility("Flare Boost") && attacker.hasStatus("brn")) ||
             (attacker.hasAbility("Solar Power") && field.hasWeather("Sun", "Harsh Sunshine")) ||
-            (phys && attacker.hasAbility("Toxic Boost") && attacker.hasStatus("psn", "tox")) ||
-            (!phys && attacker.named("Cherrim") && attacker.hasAbility("Flower Gift") &&
-                field.hasWeather("Sun", "Harsh Sunshine"))) {
+            (phys && attacker.hasAbility("Toxic Boost") && attacker.hasStatus("psn", "tox"))) {
             atMods.push(6144);
             desc.attackerAbility = attacker.ability;
-        }
-        else if (!phys && field.attackerSide.isFlowerGift && field.hasWeather("Sun", "Harsh Sunshine")) {
-            atMods.push(6144);
-            desc.isFlowerGiftAttacker = true;
         }
         try {
             for (var _b = __values(attacker.remixItemFx().stats), _c = _b.next(); !_c.done; _c = _b.next()) {
@@ -1363,12 +1379,12 @@ function calculateAtModsSMSSSV(gen, attacker, defender, move, field, desc) {
                 }
             }
         }
-        catch (e_4_1) { e_4 = { error: e_4_1 }; }
+        catch (e_5_1) { e_5 = { error: e_5_1 }; }
         finally {
             try {
                 if (_c && !_c.done && (_a = _b["return"])) _a.call(_b);
             }
-            finally { if (e_4) throw e_4.error; }
+            finally { if (e_5) throw e_5.error; }
         }
         if (attacker.hasAbility("Infected") && attacker.curHP() <= attacker.maxHP() / 2) {
             atMods.push(2048);
@@ -1550,7 +1566,7 @@ function calculateDefenseSMSSSV(gen, attacker, defender, move, field, desc, isCr
 }
 exports.calculateDefenseSMSSSV = calculateDefenseSMSSSV;
 function calculateDfModsSMSSSV(gen, attacker, defender, move, field, desc, isCritical, hitsPhysical) {
-    var e_5, _a;
+    var e_6, _a;
     var _b;
     if (isCritical === void 0) { isCritical = false; }
     if (hitsPhysical === void 0) { hitsPhysical = false; }
@@ -1565,12 +1581,12 @@ function calculateDfModsSMSSSV(gen, attacker, defender, move, field, desc, isCri
                 }
             }
         }
-        catch (e_5_1) { e_5 = { error: e_5_1 }; }
+        catch (e_6_1) { e_6 = { error: e_6_1 }; }
         finally {
             try {
                 if (_d && !_d.done && (_a = _c["return"])) _a.call(_c);
             }
-            finally { if (e_5) throw e_5.error; }
+            finally { if (e_6) throw e_6.error; }
         }
         var cloak = defender.hasAbility("Climate Cloak") && /^(Burmy|Wormadam)/.test(defender.name)
             ? (/-Sandy$/.test(defender.name) ? "Sand" : /-(Trash|Snow)$/.test(defender.name) ? "Hail" : "Grassy")
@@ -1592,7 +1608,8 @@ function calculateDfModsSMSSSV(gen, attacker, defender, move, field, desc, isCri
         dfMods.push(6144);
         desc.defenderAbility = defender.ability;
     }
-    else if (defender.named("Cherrim") &&
+    else if (gen.num !== 7 &&
+        defender.named("Cherrim") &&
         defender.hasAbility("Flower Gift") &&
         field.hasWeather("Sun", "Harsh Sunshine") &&
         !hitsPhysical) {
@@ -1600,7 +1617,8 @@ function calculateDfModsSMSSSV(gen, attacker, defender, move, field, desc, isCri
         desc.defenderAbility = defender.ability;
         desc.weather = field.weather;
     }
-    else if (field.defenderSide.isFlowerGift &&
+    else if (gen.num !== 7 &&
+        field.defenderSide.isFlowerGift &&
         field.hasWeather("Sun", "Harsh Sunshine") &&
         !hitsPhysical) {
         dfMods.push(6144);
@@ -1801,7 +1819,7 @@ function remixHasTrifecta(p) {
 exports.remixHasTrifecta = remixHasTrifecta;
 var REMIX_TRIFECTA_PROBES = [["Fire", "Flamethrower"], ["Ice", "Ice Beam"], ["Electric", "Thunderbolt"]];
 function remixTrifectaPick(gen, attacker, foes, field) {
-    var e_6, _a, e_7, _b;
+    var e_7, _a, e_8, _b;
     var best = "Fire", bestSum = -1;
     var typeless = function (p) {
         var c = p.clone();
@@ -1814,7 +1832,7 @@ function remixTrifectaPick(gen, attacker, foes, field) {
             var _c = __read(REMIX_TRIFECTA_PROBES_1_1.value, 2), type = _c[0], probe = _c[1];
             var sum = 0;
             try {
-                for (var foes_1 = (e_7 = void 0, __values(foes)), foes_1_1 = foes_1.next(); !foes_1_1.done; foes_1_1 = foes_1.next()) {
+                for (var foes_1 = (e_8 = void 0, __values(foes)), foes_1_1 = foes_1.next(); !foes_1_1.done; foes_1_1 = foes_1.next()) {
                     var foe = foes_1_1.value;
                     if (!foe)
                         continue;
@@ -1826,12 +1844,12 @@ function remixTrifectaPick(gen, attacker, foes, field) {
                     catch (e) { }
                 }
             }
-            catch (e_7_1) { e_7 = { error: e_7_1 }; }
+            catch (e_8_1) { e_8 = { error: e_8_1 }; }
             finally {
                 try {
                     if (foes_1_1 && !foes_1_1.done && (_b = foes_1["return"])) _b.call(foes_1);
                 }
-                finally { if (e_7) throw e_7.error; }
+                finally { if (e_8) throw e_8.error; }
             }
             if (sum > bestSum) {
                 best = type;
@@ -1839,12 +1857,12 @@ function remixTrifectaPick(gen, attacker, foes, field) {
             }
         }
     }
-    catch (e_6_1) { e_6 = { error: e_6_1 }; }
+    catch (e_7_1) { e_7 = { error: e_7_1 }; }
     finally {
         try {
             if (REMIX_TRIFECTA_PROBES_1_1 && !REMIX_TRIFECTA_PROBES_1_1.done && (_a = REMIX_TRIFECTA_PROBES_1["return"])) _a.call(REMIX_TRIFECTA_PROBES_1);
         }
-        finally { if (e_6) throw e_6.error; }
+        finally { if (e_7) throw e_7.error; }
     }
     return best;
 }

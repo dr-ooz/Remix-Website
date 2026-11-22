@@ -322,7 +322,7 @@ Sandygast, Palossand
 Komala
 Mimikyu
 Wimpod, Golisopod
-Minior, Minior-Red, Minior-Fire, Minior-Electric, Minior-Grass, Minior-Water, Minior-Ice, Minior-Dragon
+Minior, Minior-Red, Minior-Blaze, Minior-Surge, Minior-Verdant, Minior-Tidal, Minior-Frost, Minior-Draco
 Torkoal, Turtonator
 Dunsparce, Drampa
 Dhelmise

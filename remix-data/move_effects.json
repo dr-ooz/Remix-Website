@@ -359,7 +359,8 @@
         "Flame Orb": 60,
         "Toxic Orb": 60,
         "Light Ball": 60,
-        "Lagging Tail": 100
+        "Lagging Tail": 100,
+        "Coconut": 100
       }
     },
     "priority": 4
@@ -714,6 +715,16 @@
         "spa": 1
       },
       "chargeTurn": true
+    }
+  },
+  "Fusion Flare": {
+    "remix": {
+      "useHigherStat": true
+    }
+  },
+  "Fusion Bolt": {
+    "remix": {
+      "useHigherStat": true
     }
   }
 }

@@ -681,6 +681,9 @@ table.field {
 }
 /* ===== Remix dark mode (body.dark; toggled by #theme-toggle) ===== */
 body.dark { background-color: #17141c; color: #fff; }
+/* the page colour fills the window even when every section is hidden */
+html:has(body.dark) { background-color: #17141c; }
+body { min-height: 100vh; }
 body.dark a { color: #c9a6ef; }
 body.dark a:visited { color: #b48be0; }
 body.dark hr { border-color: #3a3344; }
@@ -1053,7 +1056,7 @@ body.dark .poke-info .remix-item-status.off { color: #9a90a8; }
 .tc-val.tc-r2 { background: #9a2e2e !important; color: #fff; }
 .tc-val.tc-r3 { background: #6b1717 !important; color: #fff; }
 .tc-val.tc-r4 { background: #3a0606 !important; color: #f3c9c9; }
-.tc-val.tc-immune { background: #1b1820 !important; color: #a9a2b3; }
+.tc-val.tc-immune { background: #000 !important; color: #8f879b; box-shadow: inset 0 0 0 1px #3a3342; }
 /* changed by the ability or item: italics + a small mark */
 .tc-val.tc-from { font-style: italic; }
 .tc-val.tc-from::after { content: "*"; font-size: 0.85em; margin-left: 1px; opacity: 0.85; }
@@ -1249,3 +1252,21 @@ body:not(.dark) .dai-t-yellow { color: #b8960a; }
 body.dark .remix-apply.heals { border-color: #4fb56b; color: #c9f3d4; }
 /* type chart: neutral (1x) cells show the panel's own background instead of a dark tint */
 .tc-val:not([class*="tc-w"]):not([class*="tc-r"]):not(.tc-immune), body:not(.dark) .tc-val:not([class*="tc-w"]):not([class*="tc-r"]):not(.tc-immune) { background: transparent; }
+
+/* ---- Pokemon Ultra Remix: page title + section headers with Hide buttons (js/remix_sections.js) ---- */
+.rx-hero { text-align: center; margin: 4px 0 10px; }
+.rx-hero-title { font-size: 2em; font-weight: bold; line-height: 1.15; }
+.rx-hero-sub { font-size: 13px; font-style: italic; opacity: 0.85; margin-top: 2px; }
+.rx-sec { display: flex; align-items: center; gap: 8px; margin: 10px 0 18px; padding: 4px 6px 4px 12px; border-radius: 8px;
+	background: #221d2a; border: 1px solid #4a4256; color: #fff; }
+.rx-sec .rx-sec-title { font-weight: bold; font-size: 1.3em; }
+.rx-sec .title-hint { order: 3; margin-left: 2px; }
+.rx-sec .rx-sec-hide { order: 2; margin-left: 4px; cursor: pointer; padding: 3px 16px; border-radius: 6px; font-weight: bold; font-size: 12px;
+	background: #2e2837; color: #c9a6ef; border: 1.5px solid #8a5ab8; }
+.rx-sec .rx-sec-hide:hover { background: #3a2f55; }
+.rx-sec.rx-sec-closed { opacity: 0.8; }
+.rx-sec-off { display: none !important; }
+#bg-row .bg-mine-bar.rx-sec { text-align: left; margin: 14px 0 8px; }
+#bg-row .bg-mine-bar.rx-sec .rx-sec-hide { width: auto; font-size: 12px; padding: 3px 16px; }
+
+.rx-sec .rx-sec-blurb { order: 3; font-size: 12px; font-style: italic; opacity: 0.85; margin-left: 4px; }

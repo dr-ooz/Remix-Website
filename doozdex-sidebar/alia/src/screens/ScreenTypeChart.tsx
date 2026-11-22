@@ -5,7 +5,7 @@ const COLOURS = {
   2: "#4E9A06",
   1.5: "#4E9A06", // bad
   // neutral: the sidebar background, nudged slightly lighter (dark mode) / darker (light mode)
-  1: "color-mix(in srgb, var(--color-white) 7%, var(--color-black))",
+  1: "color-mix(in srgb, var(--color-white) 13%, var(--color-black))", // Remix: lighter so 0x (solid black) stands out
   0.5: "#A40000",
   0.25: "#7C0000",
   0.125: "#3d0a00",

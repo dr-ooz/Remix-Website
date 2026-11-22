@@ -14,6 +14,7 @@ export interface RemixItemFx {
   drainPct: number; drainIfAsleep: boolean; selfDamagePct: number;
   drainType: string; healPct: number; appetiteDoubles: boolean;
   immune: string[]; trifecta: boolean; statusImmune: string[]; weatherNeutral: boolean;
+  powerMult: Array<{mult: number; weather?: string[]}>;
 }
 const REMIX_FX_CACHE = new Map<string, RemixItemFx>();
 
@@ -163,7 +164,7 @@ export class Pokemon implements State.Pokemon {
       moveBoost: {}, stats: [], critImmune: false, alwaysCrit: false, weatherHeal: {}, metronomeStep: 0,
       weatherItems: [], drainPct: 0, drainIfAsleep: false, selfDamagePct: 0,
       drainType: '', healPct: 0, appetiteDoubles: false,
-      immune: [], trifecta: false, statusImmune: [], weatherNeutral: false,
+      immune: [], trifecta: false, statusImmune: [], weatherNeutral: false, powerMult: [],
     };
     const rules = this.gen.num === 7 && this.item && !['Klutz', 'Disgusted'].includes(this.ability as string)
       ? REMIX_ITEM_EFFECTS[this.item] : undefined;
@@ -189,6 +190,7 @@ export class Pokemon implements State.Pokemon {
       if (r.healPct) fx.healPct = r.healPct;
       if (r.appetiteDoubles) fx.appetiteDoubles = true;
       if (r.selfDamagePct) fx.selfDamagePct = r.selfDamagePct;
+      fx.powerMult.push(...(r.powerMult || []));
       fx.immune.push(...(r.immune || []));
       fx.statusImmune.push(...(r.statusImmune || []));
       if (r.trifecta) fx.trifecta = true;
@@ -210,6 +212,10 @@ export class Pokemon implements State.Pokemon {
     case 'Appetite': return ['Ripen'];
     case 'Disgusted': return ['Klutz'];
     case 'Climate Cloak': return ['Shield Dust'];
+    case 'Purification': return ['Magic Guard'];
+    case 'Rise and Shine': return ['Solar Power'];
+    // Remix: Stance Change = Blade form gets Sharpness, Shield form Battle Armor, both float (Levitate)
+    case 'Stance Change': return this.name === 'Aegislash-Blade' ? ['Sharpness', 'Levitate'] : ['Battle Armor', 'Levitate'];
     case 'Star Power':
       // Shell (Meteor) form floats; core forms also get Dazzling
       return form === 'Meteor' || !form ? ['Levitate'] : ['Levitate', 'Dazzling'];

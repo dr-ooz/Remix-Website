@@ -251,6 +251,11 @@ $(".ability").bind("keyup change", function () {
 	}
 });
 
+$("#p1 .item").bind("keyup change", function () {
+	var pokeInfo = $(this).closest(".poke-info");
+	remixAutoSide(pokeInfo, pokeInfo.find(".ability").val(), 0);
+});
+
 $("#p1 .ability").bind("keyup change", function () {
 	var pokeInfo = $(this).closest(".poke-info");
 	autosetWeather(remixFieldAbility(pokeInfo, $(this).val()), 0);
@@ -1579,14 +1584,24 @@ function remixFieldAbility(pokeInfo, ability, terrain) {
 	}
 	return ability;
 }
-// Good Fortune / Parental Bond turn on Lucky Chant for their side; Lunar Aura turns on Lunar Aura.
-// Only undoes what it turned on itself.
+// Good Fortune / Parental Bond / Purification (also when an item grants it) turn on Lucky Chant for their side; Lunar Aura turns on
+// Lunar Aura. Only undoes what it turned on itself, so the box can be unticked by hand (or by swapping the ability).
+function remixHeldAbilities(pokeInfo, ability) {
+	var out = [ability], item = pokeInfo.find(".item").val(), name = remixPokeName(pokeInfo) || "";
+	var rules = (typeof REMIX_ITEM_EFFECTS !== "undefined" && REMIX_ITEM_EFFECTS[item]) || [];
+	rules.forEach(function (r) {
+		if (r.species && !r.species.some(function (sp) { return sp.slice(-1) === "*" ? name.indexOf(sp.slice(0, -1)) === 0 : sp === name; })) return;
+		(r.abilities || []).forEach(function (a) { out.push(a); });
+	});
+	return out;
+}
 var remixAutoOn = [{}, {}];
 function remixAutoSide(pokeInfo, ability, i) {
 	var side = i === 0 ? "L" : "R";
+	var held = remixHeldAbilities(pokeInfo, ability);
 	var wanted = {
-		luckyChant: ability === "Good Fortune" || ability === "Parental Bond",
-		lunarAura: ability === "Lunar Aura"
+		luckyChant: held.indexOf("Good Fortune") >= 0 || held.indexOf("Parental Bond") >= 0 || held.indexOf("Purification") >= 0,
+		lunarAura: held.indexOf("Lunar Aura") >= 0
 	};
 	for (var key in wanted) {
 		var box = $("#" + key + side);

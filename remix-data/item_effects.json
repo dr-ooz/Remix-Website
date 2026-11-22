@@ -42,11 +42,14 @@
     "Bounsour"
    ],
    "abilities": [
-    "Filter",
     "Regenerator"
    ],
    "items": [
     "Big Root"
+   ],
+   "immune": [
+    "Bug",
+    "Poison"
    ],
    "appetiteDoubles": true
   }
@@ -611,7 +614,7 @@
     "Manaphy"
    ],
    "abilities": [
-    "Refraction"
+    "Rain Dish"
    ],
    "items": [
     "Covert Cloak"
@@ -694,16 +697,20 @@
     "Lurantis",
     "Lurantis-Totem"
    ],
-   "stab": [
-    "Bug"
-   ],
    "abilities": [
     "Tangled Feet",
-    "Filter",
     "Tinted Lens"
    ],
    "items": [
     "Scope Lens"
+   ]
+  },
+  {
+   "species": [
+    "Lurantis-Totem"
+   ],
+   "immune": [
+    "Bug"
    ]
   }
  ],
@@ -1231,6 +1238,7 @@
     "Cradily"
    ],
    "abilities": [
+    "Seaweed",
     "Rain Dish",
     "Suction Cups"
    ],
@@ -1817,10 +1825,9 @@
     "Carracosta"
    ],
    "abilities": [
-    "Solid Rock"
+    "Bulletproof"
    ],
    "items": [
-    "Rocky Helmet",
     "Covert Cloak"
    ]
   }
@@ -1897,7 +1904,7 @@
     "Ribombee"
    ],
    "abilities": [
-    "Regenerator"
+    "Sap Sipper"
    ],
    "items": [
     "Big Root"
@@ -2056,6 +2063,25 @@
      "weather": [
       "Sun",
       "Harsh Sunshine"
+     ]
+    }
+   ]
+  },
+  {
+   "species": [
+    "Clauncher",
+    "Clawitzer"
+   ],
+   "abilities": [
+    "Turboblaze"
+   ],
+   "weatherNeutral": true,
+   "powerMult": [
+    {
+     "mult": 1.5,
+     "weather": [
+      "Rain",
+      "Heavy Rain"
      ]
     }
    ]
