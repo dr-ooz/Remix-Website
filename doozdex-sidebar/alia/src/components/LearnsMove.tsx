@@ -4,7 +4,7 @@ type How = number | "tm" | "tutor";
 type Learner = [PokemonData, How];
 // Remix: one row per family (the dex order board's families), members side by side in dex order.
 // The row shows the first member's (the pre-evo's) way of learning it - when a family differs it's just a typo.
-type FamilyRow = { members: Learner[]; how: How; label: string };
+type FamilyRow = { members: Learner[]; how: How; label: string[] };
 
 const howRank = (h: How) => (typeof h === "number" ? h : h === "tm" ? 1000 : 1001);
 const howLabel = (how: How) =>
@@ -104,17 +104,39 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   });
   createEffect(() => { fullText(); requestAnimationFrame(refit); });
 
+  // hide a " · " when the part after it wrapped to the next line (no dot hanging at a line end)
+  let listEl: HTMLDivElement | undefined;
+  const fixDots = () => {
+    if (!listEl) return;
+    const dots = [...listEl.querySelectorAll<HTMLElement>(".dz-dot")];
+    for (const d of dots) d.style.visibility = "";
+    for (const d of dots) {
+      const next = d.nextElementSibling as HTMLElement | null;
+      const nr = next?.getClientRects()[0];
+      if (nr && nr.top > d.getBoundingClientRect().top + 3) d.style.visibility = "hidden";
+    }
+  };
+  onMount(() => {
+    const ro = new ResizeObserver(() => requestAnimationFrame(fixDots));
+    if (listEl) ro.observe(listEl);
+    onCleanup(() => ro.disconnect());
+  });
+
   const learnsIt = createMemo(() => {
     const pd = pokedex();
     if (!pd) return [] as FamilyRow[];
     const learners: Learner[] = Object.values(pd)
       .filter((p) => p.learntMoves.find((i) => !p.unusable && nameToId(i[0]) === mid))
       .map((p) => [p, p.learntMoves.find((i) => nameToId(i[0]) === mid)![1]] as Learner);
-    // group by family (Pokemon without one stand alone)
+    // group by family (Pokemon without one stand alone); forms of one species always share a row, even when the
+    // dex board puts them in different families (Georupt-Magma + Georupt-Steam)
     const groups = new Map<string, Learner[]>();
+    const speciesRow = new Map<string, string>();
     for (const l of learners) {
       const fam = (l[0] as any).family;
-      const key = fam != null ? "f" + fam : "p" + l[0].name;
+      const sp = (l[0] as any).baseSpecies || l[0].name;
+      const key = speciesRow.get(sp) ?? (fam != null ? "f" + fam : "p" + l[0].name);
+      if (!speciesRow.has(sp)) speciesRow.set(sp, key);
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(l);
     }
@@ -143,20 +165,38 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
     };
     const joinNames = (names: string[]) =>
       names.length <= 1 ? names.join("") : names.length === 2 ? names.join(" & ") : names.slice(0, -1).join(", ") + " & " + names[names.length - 1];
+    // the label, as parts (one per evolution line): "Turtwig line" when the whole line learns it, else the names;
+    // a species whose every form learns it is just its name ("Oricorio", "Georupt"), else the forms that do
+    const spKey = (n: string) => ((byName[n] as any)?.baseSpecies as string) || n;
+    const formsOf = (k: string) =>
+      Object.values(pd).filter((q) => !q.unusable && spKey(q.name) === k && baseOf(q.name) === q.name).map((q) => q.name);
     const rowLabel = (ms: PokemonData[]) => {
+      const names = [...new Set(ms.map((m) => baseOf(m.name)))];
+      const token = (n: string) => {
+        const k = spKey(n), f = formsOf(k);
+        return f.length > 1 && f.every((x) => names.includes(x)) ? k : n;
+      };
       const lines = new Map<string, string[]>();
-      for (const m of ms) {
-        const r = rootOf(m.name);
+      for (const n of names) {
+        const r = rootOf(n);
         if (!lines.has(r)) lines.set(r, []);
-        const b = baseOf(m.name);
-        if (!lines.get(r)!.includes(b)) lines.get(r)!.push(b);
+        lines.get(r)!.push(n);
       }
-      return [...lines.entries()]
-        .map(([root, have]) => {
-          const full = lineOf(root);
-          return full.length > 1 && full.every((n) => have.includes(n)) ? root + " line" : joinNames(have);
-        })
-        .join(" · ");
+      const used = new Set<string>(), parts: string[] = [];
+      for (const [root, have] of lines) {
+        const full = lineOf(root);
+        if (full.length > 1 && full.every((n) => have.includes(n))) {
+          parts.push(root + " line");
+          continue;
+        }
+        const toks: string[] = [];
+        for (const n of have) {
+          const t = token(n);
+          if (!used.has(t)) { used.add(t); toks.push(t); }
+        }
+        if (toks.length) parts.push(joinNames(toks));
+      }
+      return parts;
     };
     const rows: FamilyRow[] = [...groups.values()].map((members) => {
       members.sort((a, b) => ((a[0] as any).dexOrder ?? 0) - ((b[0] as any).dexOrder ?? 0));
@@ -169,7 +209,7 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
     const lvlKey = (r: FamilyRow) => (typeof r.how === "number" ? r.how : null);
     const dexKey = (r: FamilyRow) => (r.members[0]![0] as any).dexOrder ?? 0;
     const by = sortBy();
-    if (by === "name") return rows.toSorted((a, b) => a.label.localeCompare(b.label));
+    if (by === "name") return rows.toSorted((a, b) => a.label.join(" ").localeCompare(b.label.join(" ")));
     if (by === "dex") return rows.toSorted((a, b) => dexKey(a) - dexKey(b));
     if (by === "lvlDesc")
       return rows.toSorted((a, b) => {
@@ -181,6 +221,7 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
       });
     return rows.toSorted((a, b) => howRank(a.how) - howRank(b.how) || dexKey(a) - dexKey(b));
   });
+  createEffect(() => { learnsIt(); requestAnimationFrame(fixDots); });
 
   // a plain list (a move has a few hundred learners at most): every row is as tall as its content, so rows never overlap
   return (
@@ -228,7 +269,7 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
           </div>
         </div>
 
-        <div class="relative flex-auto overflow-auto">
+        <div ref={listEl} class="relative flex-auto overflow-auto">
           <For each={learnsIt()}>
             {(row) => (
               <div class="flex border-b" style={{ "min-height": `${LINE_H}px` }}>
@@ -266,7 +307,16 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
                     )}
                   </For>
                   </div>
-                  <div class="min-w-0 pl-2.5 text-[13px] leading-tight opacity-90">{row.label}</div>
+                  <div class="min-w-0 pl-2.5 text-[13px] leading-tight opacity-90">
+                    <For each={row.label}>
+                      {(t, i) => (
+                        <>
+                          <span>{t}</span>
+                          {i() < row.label.length - 1 && <span class="dz-dot"> · </span>}
+                        </>
+                      )}
+                    </For>
+                  </div>
                   </div>
                 </div>
               </div>
