@@ -199,3 +199,22 @@ body.rse-on .mg-bar { top: var(--rse-h, 44px); }
 #rse-bar .rse-bdbox .rse-b, #rse-bar .rse-wide > .rse-b { display: inline-block; width: auto; border: 1px solid #ddd; margin: 2px; }
 /* one table per section; sections off screen aren't drawn (keeps editing quick) */
 .mg-chunk { content-visibility: auto; contain-intrinsic-size: auto 700px; }
+/* cell formatting set in the editor: classes + css variables on the cell itself (rowHtml stAttr) */
+table.mg td.rse-st-bg { background-color: var(--rse-bg) !important; }
+table.mg td.rse-st-al { text-align: var(--rse-al) !important; }
+table.mg td.rse-st-va { vertical-align: var(--rse-va) !important; }
+table.mg td.rse-st-color, table.mg td.rse-st-color * { color: var(--rse-color) !important; }
+table.mg td.rse-st-ff, table.mg td.rse-st-ff * { font-family: var(--rse-ff) !important; }
+table.mg td.rse-st-fs, table.mg td.rse-st-fs * { font-size: var(--rse-fs) !important; line-height: 1.15 !important; }
+table.mg td.rse-st-b1, table.mg td.rse-st-b1 * { font-weight: bold !important; }
+table.mg td.rse-st-b0, table.mg td.rse-st-b0 * { font-weight: normal !important; }
+table.mg td.rse-st-i1, table.mg td.rse-st-i1 * { font-style: italic !important; }
+table.mg td.rse-st-i0, table.mg td.rse-st-i0 * { font-style: normal !important; }
+table.mg td.rse-st-deco, table.mg td.rse-st-deco * { text-decoration: var(--rse-deco) !important; }
+table.mg td.rse-st-w-wrap { white-space: normal !important; }
+table.mg td.rse-st-w-clip { white-space: nowrap !important; overflow: hidden !important; }
+table.mg td.rse-st-w-overflow { white-space: nowrap !important; overflow: visible !important; }
+table.mg td.rse-st-bdt { border-top: var(--rse-bdt) !important; }
+table.mg td.rse-st-bdr { border-right: var(--rse-bdr) !important; }
+table.mg td.rse-st-bdb { border-bottom: var(--rse-bdb) !important; }
+table.mg td.rse-st-bdl { border-left: var(--rse-bdl) !important; }

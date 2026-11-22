@@ -96,11 +96,29 @@
 		links.forEach(function (a) { a.style.fontSize = Math.max(10, Math.min(40, size)) + "px"; });
 	}
 
+	function stAttr(c) {
+		var st = c[4] && c[4].st, cls = "", sty = "";
+		if (!st) return ["", ""];
+		var v = function (name, val) { cls += " rse-st-" + name; sty += "--rse-" + name + ":" + val + ";"; };
+		if (st.bg) v("bg", st.bg);
+		if (st.color) v("color", st.color);
+		if (st.ff) v("ff", "'" + st.ff + "',Arial,sans-serif");
+		if (st.fs) v("fs", st.fs + "pt");
+		if (st.al) v("al", st.al);
+		if (st.va) v("va", st.va);
+		if (st.b != null) cls += " rse-st-b" + (st.b ? 1 : 0);
+		if (st.i != null) cls += " rse-st-i" + (st.i ? 1 : 0);
+		if (st.u != null || st.s != null) v("deco", (st.u ? "underline " : "") + (st.s ? "line-through" : "") || "none");
+		if (st.wrap) cls += " rse-st-w-" + st.wrap;
+		if (st.bd) ["t", "r", "b", "l"].forEach(function (k) { if (st.bd[k]) v("bd" + k, st.bd[k]); });
+		return [cls, sty];
+	}
 	function rowHtml(r, i) {
 		var head = HEADS[r.k];
 		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" +
 			(editing ? "<th class='rse-rn'>" + (i + 1) + "<span class='rse-rowgrip' title='Drag to resize the row'></span></th>" : "") + r.c.map(function (c, j) {
-			return "<td class='" + c[0] + cellExtra(c, r) + (head && j === 0 ? " mg-hd" : "") + "'" + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
+			var sa = stAttr(c);
+			return "<td class='" + c[0] + cellExtra(c, r) + sa[0] + (head && j === 0 ? " mg-hd" : "") + "'" + (sa[1] ? " style=\"" + sa[1] + "\"" : "") + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
 				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'>" +
 				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : cellHtml(c, r)) + "</td>";
 		}).join("") + "</tr>";
@@ -116,6 +134,7 @@
 
 	function render(only) {
 		if (only && only.length && document.querySelector(".mg-page tr[data-i]")) {
+			var fresh = [];
 			only.forEach(function (i) {
 				var tr = document.querySelector(".mg-page tr[data-i='" + i + "']");
 				if (!tr || !data.rows[i]) return;
@@ -125,9 +144,9 @@
 				n.style.display = tr.style.display;
 				if (tr.classList.contains("mg-shut")) n.classList.add("mg-shut");
 				tr.parentNode.replaceChild(n, tr);
+				fresh.push(n);
 			});
-			applyColors();
-			fitMoves();
+			fitMoves(fresh);
 			if (editor && editor.on) editor.mark();
 			return;
 		}
@@ -239,10 +258,10 @@
 	// Move rows: one fixed height, at most two lines. A cell with two written lines never wraps further; a one-line
 	// cell may wrap to two. Anything that still doesn't fit shrinks (the whole cell, evenly) until it does.
 	var FIT = {};
-	function fitMoves() {
+	function fitMoves(only) {
 		// batched: write all, then read all, then write all (measuring cell by cell made the page crawl)
 		var todo = [], colsKey = data.cols.join(",");
-		$$("#mg-guide tr.mg-mv").forEach(function (tr) {
+		(only ? only.filter(function (tr) { return tr.classList.contains("mg-mv"); }) : $$("#mg-guide tr.mg-mv")).forEach(function (tr) {
 			if (tr.style.display === "none") return;
 			var r = data.rows[+tr.getAttribute("data-i")];
 			Array.prototype.forEach.call(tr.children, function (td) {
@@ -392,7 +411,8 @@
 	}
 	function applyColors() {
 		var st = document.getElementById("mg-colors") || document.head.appendChild(Object.assign(document.createElement("style"), {id: "mg-colors"}));
-		st.textContent = themeCss() /* the guide keeps the sheet's own type colors (user 2026-11-22); typeColorCss() unused */ + cellCss();
+		var css = themeCss(); /* the guide keeps the sheet's own type colors (user 2026-11-22); cell formatting is on the cells */
+		if (st.textContent !== css) st.textContent = css;
 	}
 	// the editor's cell formatting, for viewers (the editor itself isn't loaded for them)
 	function cellCss() { return typeof RemixSheetEditor !== "undefined" ? RemixSheetEditor.css(data) : ""; }
@@ -577,7 +597,8 @@
 	});
 	window.addEventListener("resize", function () { if (data) scale(); });
 	// opening / closing / resizing the DoozDex sidebar narrows the page: re-fit the sheet to it
-	if (window.ResizeObserver) new ResizeObserver(function () { if (data) scale(); }).observe(document.querySelector(".mg-page"));
+	var lastW = 0; // only when the width changes (not every time a cell grows while you type)
+	if (window.ResizeObserver) new ResizeObserver(function (en) { var w = Math.round(en[0].contentRect.width); if (data && w !== lastW) { lastW = w; scale(); } }).observe(document.querySelector(".mg-page"));
 
 	var draft = CAN_EDIT ? load(K_DRAFT, null) : null;
 	fetch("./moveguide/move_guide.json", {cache: "no-cache"}).then(function (r) { return r.json(); }).then(function (d) {
