@@ -49,10 +49,13 @@ const outlineFilter = (type: string, colour: string) => {
   return `url(#${id})`;
 };
 
-export const Type = (props: { type: string }) => {
+// muted: the box takes its row's blended color (the moves list), instead of the full type color (the type chart)
+export const Type = (props: { type: string; muted?: boolean }) => {
   const colour = () => TYPE_COLOURS[props.type] ?? "#999";
+  const fill = () =>
+    props.muted ? `color-mix(in srgb, ${colour()} var(--dz-info-mix), var(--dz-mix-base))` : colour();
   return (
-    <div class="relative h-full min-h-0 w-full" style={{ "background-color": colour() }}>
+    <div class="relative h-full min-h-0 w-full" style={{ "background-color": fill() }}>
       <div
         class="absolute inset-[1px] bg-contain bg-center bg-no-repeat"
         style={{ "background-image": `url(/icons/${props.type}.svg?v=2)`, filter: outlineFilter(props.type, colour()) }}

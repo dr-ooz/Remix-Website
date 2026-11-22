@@ -376,6 +376,11 @@
 			var i = +tr.getAttribute("data-i");
 			tr.classList.toggle("mg-allopen", inside(i).every(isOpen));
 		});
+		var eb = $(".mg-allbtn");
+		if (eb) {
+			var shut = data.rows.some(function (r, i) { return HEADS[r.k] && zone(r) === "body" && !isOpen(i); });
+			eb.innerHTML = shut ? "▾▾ Open everything" : "▴▴ Close everything";
+		}
 		$$("#mg-guide .mg-chunk").forEach(function (ch) {
 			ch.classList.toggle("mg-chunk-empty", !Array.prototype.some.call(ch.querySelectorAll("tr[data-i]"), function (tr) { return tr.style.display !== "none"; }));
 		});
@@ -430,7 +435,8 @@
 		if (!groups.length) return "";
 		var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/'/g, "&#39;"); };
 		var main = groups[0], rest = groups.slice(1);
-		var h = "<div class='tocx'><div class='tocx-tools'><button type='button' class='mg-btn' data-act='startopen' title='How the dropdowns start when you open the guide (remembered on this device)'></button></div>";
+		var h = "<div class='tocx'><div class='tocx-tools'><button type='button' class='mg-btn mg-allbtn' data-act='everything' title='Open (or close) every dropdown in the whole guide, to scroll straight through it'></button>" +
+			"<button type='button' class='mg-btn' data-act='startopen' title='How the dropdowns start when you open the guide (remembered on this device)'></button></div>";
 		// the three main categories: big cards, all one style
 		h += main.cats.map(function (c) {
 			var L = TOC_LOOK[c] || {};
@@ -885,6 +891,12 @@
 		if (!b) return;
 		var act = b.getAttribute("data-act");
 		if (act === "info" || act === "toc") { hide[act] = hide[act] ? 0 : 1; save(K_HIDE, hide); applyHide(); }
+		else if (act === "everything") {
+			var anyShut = data.rows.some(function (r, i) { return HEADS[r.k] && zone(r) === "body" && !isOpen(i); });
+			if (anyShut) data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; });
+			else { open = {}; data.rows.forEach(function (r) { if (zone(r) === "toc" && HEADS[r.k]) open[headKey(r)] = 1; }); }
+			applyCollapse();
+		}
 		else if (act === "startopen") {
 			startOpen = !startOpen;
 			try { localStorage.setItem("remixMoveGuideStartOpen", startOpen ? "1" : ""); } catch (e5) {}

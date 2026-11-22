@@ -425,3 +425,6 @@ body:not(.dz-open) .mg-bar.mg-devbar { padding-left: 8px; }
 .tocx-tools .mg-btn { font-size: 12px; padding: 4px 10px; opacity: .85; }
 .tocx-tools .mg-btn:hover { opacity: 1; }
 body.rse-on .mg-bar.mg-devbar { top: auto; }
+
+.tocx-tools { gap: 6px; }
+.tocx-tools .mg-allbtn { background: #3d2440; border-color: #ef1c7b; color: #ffd1e8; }
