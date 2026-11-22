@@ -19,7 +19,7 @@ const howLabel = (how: How) =>
     <img src={`/icons/${how}.webp`} class="mx-auto h-full max-h-7 py-0.5" />
   );
 
-const LINE_H = 36;
+const LINE_H = 50;
 // a family's sprites go together (up to 3); bigger families in pairs
 const bundles = (m: Learner[]) => {
   const size = m.length <= 3 ? m.length : 2;
@@ -99,7 +99,7 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
                                 class={clsx("aspect-square shrink-0", p.range && "cursor-pointer hover:brightness-125")}
                                 style={{
                                   height: `${LINE_H}px`,
-                                  "margin-right": "-4px",
+                                  "margin-right": "-6px",
                                   "background-image": `url(/calcsprites/${nameToId(p.name)}.png), url(/sprites/${nameToId(p.name)}.png)`,
                                   "background-size": "contain",
                                   "background-repeat": "no-repeat",
