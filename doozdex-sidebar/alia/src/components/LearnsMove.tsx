@@ -4,7 +4,7 @@ type How = number | "tm" | "tutor";
 type Learner = [PokemonData, How];
 // Remix: one row per family (the dex order board's families), members side by side in dex order.
 // The row shows the first member's (the pre-evo's) way of learning it - when a family differs it's just a typo.
-type FamilyRow = { members: Learner[]; how: How };
+type FamilyRow = { members: Learner[]; how: How; label: string };
 
 const howRank = (h: How) => (typeof h === "number" ? h : h === "tm" ? 1000 : 1001);
 const howLabel = (how: How) =>
@@ -51,12 +51,47 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
     const byName: Record<string, PokemonData> = {};
     for (const p of Object.values(pd)) byName[p.name] = p;
     const fromLevel = (p: PokemonData) => ((p as any).prevo && (byName[(p as any).prevo] as any)?.evoAt) || 0;
+    // evolution lines from the evo data (prevo / evos); Megas / Primals count as their base Pokemon
+    const baseOf = (name: string) => (/-(Mega|Primal)(-[XY])?$/.test(name) && byName[name.replace(/-(Mega|Primal)(-[XY])?$/, "")] ? name.replace(/-(Mega|Primal)(-[XY])?$/, "") : name);
+    const rootOf = (name: string) => {
+      let n = baseOf(name), guard = 0;
+      while ((byName[n] as any)?.prevo && byName[(byName[n] as any).prevo] && guard++ < 6) n = (byName[n] as any).prevo;
+      return n;
+    };
+    const lineOf = (root: string) => {
+      const out: string[] = [], todo = [root];
+      while (todo.length) {
+        const n = todo.shift()!;
+        const q = byName[n];
+        if (!q || out.includes(n)) continue;
+        if (!(q as any).unusable) out.push(n);
+        for (const e of ((q as any).evos || []) as string[]) todo.push(e);
+      }
+      return out;
+    };
+    const joinNames = (names: string[]) =>
+      names.length <= 1 ? names.join("") : names.length === 2 ? names.join(" & ") : names.slice(0, -1).join(", ") + " & " + names[names.length - 1];
+    const rowLabel = (ms: PokemonData[]) => {
+      const lines = new Map<string, string[]>();
+      for (const m of ms) {
+        const r = rootOf(m.name);
+        if (!lines.has(r)) lines.set(r, []);
+        const b = baseOf(m.name);
+        if (!lines.get(r)!.includes(b)) lines.get(r)!.push(b);
+      }
+      return [...lines.entries()]
+        .map(([root, have]) => {
+          const full = lineOf(root);
+          return full.length > 1 && full.every((n) => have.includes(n)) ? root + " line" : joinNames(have);
+        })
+        .join(" · ");
+    };
     const rows: FamilyRow[] = [...groups.values()].map((members) => {
       members.sort((a, b) => ((a[0] as any).dexOrder ?? 0) - ((b[0] as any).dexOrder ?? 0));
       const current = members.find(
         ([p, how]) => typeof how === "number" && how >= fromLevel(p) && ((p as any).evoAt == null || how < (p as any).evoAt),
       );
-      return { members, how: (current ?? members[0]!)[1] };
+      return { members, how: (current ?? members[0]!)[1], label: rowLabel(members.map((m) => m[0])) };
     });
     // level 1, 2, ... first, then TM, then tutor (like before)
     return rows.toSorted((a, b) => howRank(a.how) - howRank(b.how));
@@ -89,6 +124,8 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
                 <div class="flex w-11 shrink-0 items-center justify-center border-r text-center">{howLabel(row.how)}</div>
                 <div class="flex min-w-0 flex-auto flex-wrap items-center">
                   {/* the sprites sit together, then their names; families of 4+ go in pairs (2 sprites + their 2 names) */}
+                  <div class="flex min-w-0 flex-auto items-center">
+                  <div class="flex shrink-0 flex-col">
                   <For each={bundles(row.members)}>
                     {(bundle) => (
                       <div class="flex min-w-0 max-w-full items-center pr-3" style={{ "min-height": `${LINE_H}px` }}>
@@ -113,19 +150,13 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
                             )}
                           </For>
                         </div>
-                        <div class="min-w-0 pl-2 text-[12px] leading-tight opacity-90">
-                          <For each={bundle}>
-                            {([p], k) => (
-                              <span class={clsx(p.range && "cursor-pointer hover:underline")} onClick={() => p.range && openRange(p.range)}>
-                                {p.name}
-                                {k() < bundle.length - 1 ? " / " : ""}
-                              </span>
-                            )}
-                          </For>
-                        </div>
+
                       </div>
                     )}
                   </For>
+                  </div>
+                  <div class="min-w-0 pl-2.5 text-[13px] leading-tight opacity-90">{row.label}</div>
+                  </div>
                 </div>
               </div>
             )}
