@@ -243,7 +243,7 @@
 
 	function rowHtml(r, i) {
 		var head = HEADS[r.k];
-		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + (isBlankRow(r) && !r.hSet ? " mg-blank" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" +
+		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + (isBlankRow(r) && !r.hSet ? " mg-blank" : "") + (HEADS[r.k] && rowH(r) < 70 ? " mg-shortrow" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" +
 			(editing ? "<th class='rse-rn'>" + (i + 1) + "<span class='rse-rowgrip' title='Drag to resize the row'></span></th>" : "") + r.c.map(function (c, j) {
 			var sa = stAttr(c);
 			return "<td class='" + c[0] + cellExtra(c, r) + sa[0] + (head && j === 0 ? " mg-hd" : "") + "'" + (sa[1] ? " style=\"" + sa[1] + "\"" : "") + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
