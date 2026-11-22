@@ -3,7 +3,7 @@
 var REMIX_NAV = [
 	{label: "Battle HQ", href: "./", live: true, tip: "Damage calc, Trainer Rosters (boss guide), Trainer AI guides and player team layouts"},
 	{label: "Move Guide", href: "./moveguide.html", live: true, tip: "Every move change, by type and by category"},
-	{label: "Pokémon Changes", tip: "Coming soon"},
+	{label: "PokéDex", tip: "Coming soon: every Pokémon change"},
 	{label: "AbilityDex", tip: "Coming soon"},
 	{label: "ItemDex", tip: "Coming soon"},
 	{label: "Adventure HQ", tip: "Coming soon: walkthrough, progression, level caps, TM and item locations"},

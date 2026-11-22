@@ -15,6 +15,29 @@ MOVES = json.load(open(os.path.join(ROOT, "remix-data", "moves.json"), encoding=
 CATS = {m["name"].lower(): ["status", "physical", "special"][m["category"]] for m in MOVES}
 CAT_ICON = "https://img.pokemondb.net/images/icons/move-%s.png"  # the icons the sheet's =image() uses
 
+# Table of contents groups (from the sheet's own contents). Each name is a top-level category; the
+# headers inside it become its sub-categories. CAT_MATCH = how the header itself starts, when it differs.
+TOC_GROUPS = [
+    ("Main Categories", ["Priority Attacking Moves", "Debuffing Moves", "Setup Moves"]),
+    ("Attacking Moves With Drawbacks", ["Draco Meteor Variants", "Inaccurate Moves", "Recoil Moves",
+        "Negative Priority Attacks", "Moves That Can't Be Used 2x in a Row"]),
+    ("Other Damaging Moves", ["50% Critical Hit Rate Moves", "Multi-Hit Moves", "HP Draining Attacks", "Trapping Moves",
+        "Generic Drawback Free Attacks", "Hex & Venoshock Variants", "Freeze-Dry Variants", "Changes Type", "Uses Higher Stat"]),
+    ("Status Inflicting Moves", ["Sleep Inducing Moves", "Paralysis Inducing Moves", "Burn Inducing Moves", "Poison Inducing Moves"]),
+    ("Other Miscellaneous Utility Moves", ["Pivot Moves", "Protect Variants", "Soak Variants", "Entry Hazards",
+        "New Recovery Moves", "Weather & Terrain Interactions", "Move Choice Related", "Screens & Protective Effects",
+        "Retaliation & Sacrificial Moves", "Misc. Field Moves", "Ability Changing", "Weather & Terrain Setting",
+        "Redirection & Doubles Only Moves", "Assorted Status Moves", "AI / Trainer Only Moves", "Unused Moves/Animations"]),
+]
+CAT_MATCH = {"Inaccurate Moves": "Inaccurate Damaging Moves", "Negative Priority Attacks": "Negative Priority Moves",
+    "50% Critical Hit Rate Moves": "50% Crit Rate Moves", "Changes Type": "Moves That Change Type",
+    "Uses Higher Stat": "Moves That Use The Higher Stat", "Sleep Inducing Moves": "Sleep Moves",
+    "Paralysis Inducing Moves": "Reliable Paralyzing Moves", "Burn Inducing Moves": "Reliable Burning Moves",
+    "Poison Inducing Moves": "Reliable Poisoning Moves", "New Recovery Moves": "Recovery Moves",
+    "Weather & Terrain Interactions": "Weather Interactions & Terrain Interactions", "Move Choice Related": "Move Choice Related Moves",
+    "Retaliation & Sacrificial Moves": "Retaliation and Sacrificial Moves", "Misc. Field Moves": "Misc. Field Effects",
+    "Ability Changing": "Ability Changing Moves", "Debuffing Moves": "\x00", "Setup Moves": "\x00"}
+
 
 def font_pt(style):
     m = re.search(r"font-size:(\d+(?:\.\d+)?)pt", style or "")
@@ -101,12 +124,43 @@ def main(src):
         r["k"] = "intro" if i < toc_at else "toc" if i < body_at else kind(r)
     rows = [r for r in rows if r["k"] != "toc"]  # the site draws its own table of contents
 
+    # ---- categories (after the 18 types): each sheet table-of-contents entry is its own top-level category,
+    # every other header inside it is a sub-category; long "headers" are really notes.
+    def title(r): return re.split(r"\n", text(r["c"][0][3].replace("<br>", "\n")))[0].strip()
+    first_cat = next(i for i, r in enumerate(rows) if r["k"] in ("h1", "h2") and title(r).startswith("Priority Attacking Moves"))
+    cat_names = [n for g in TOC_GROUPS for n in g[1]]
+    def cat_of(t):
+        for n in cat_names:
+            if t.lower().startswith(CAT_MATCH.get(n, n).lower()):
+                return n
+    for i, r in enumerate(rows):
+        if r["k"] not in ("h1", "h2"):
+            continue
+        t = title(r)
+        if not t or len(t) > 60 or t.startswith("Misc. Status Moves"):
+            r["k"] = "row"  # an empty spacer / a note set in header-sized text / a banner with nothing of its own under it
+        elif i >= first_cat:
+            r["k"] = "h1" if cat_of(t) else "h2"
+            if cat_of(t):
+                r["cat"] = cat_of(t)  # its name in the table of contents
+    # Debuffing Moves / Setup Moves had no header of their own in the sheet: add one above their first part
+    tpl = rows[first_cat]
+    for name, before in (("Debuffing Moves", "Stat Debuffing Attacking Moves"), ("Setup Moves", "Stat Boosting Attacking Moves")):
+        at = next(i for i, r in enumerate(rows) if r["k"] in ("h1", "h2") and title(r).startswith(before))
+        rows.insert(at, {"k": "h1", "cat": name, "h": tpl["h"], "c": [[tpl["c"][0][0], tpl["c"][0][1], 1, name]]})
+    toc = [{"name": g[0], "cats": g[1]} for g in TOC_GROUPS]
+
     css = "".join(".mg .%s{%s}" % (k, v) for k, v in classes.items()) + \
           "".join(".mg .%s{%s}" % (k, st) for st, k in span_cls.items())
     os.makedirs(os.path.join(OUT_DIR, "img"), exist_ok=True)
     for name in set(imgs):
         shutil.copy(os.path.join(src, "resources", name), os.path.join(OUT_DIR, "img", name))
-    out = {"cols": cols, "css": css, "defs": defs, "rows": rows}
+    # the sheet's old logo -> the new full Ultra Remix logo
+    shutil.copy(os.path.join(src, "RemixLogoFull.png"), os.path.join(OUT_DIR, "img", "RemixLogoFull.png"))
+    for r in rows:
+        for c in r["c"]:
+            c[3] = c[3].replace("./moveguide/img/cellImage_2078001082_0.jpg", "./moveguide/img/RemixLogoFull.png")
+    out = {"cols": cols, "css": css, "defs": defs, "rows": rows, "toc": toc, "theme": {}}
     json.dump(out, open(os.path.join(OUT_DIR, "move_guide.json"), "w", encoding="utf8"), ensure_ascii=False, separators=(",", ":"))
     kinds = {}
     for r in rows:

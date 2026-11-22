@@ -21,12 +21,38 @@
 		return (d.textContent || "").split("\n")[0].replace(/[-–—]{4,}.*/, "").replace(/\s+/g, " ").trim();
 	}
 
+	// A cell that is only rich-text spans (like "Acid > Caustic Acid" + a small second line): the cell's own
+	// font size would add a tall empty strut to every line (the sheet sizes each line by its own text), so
+	// the cell itself gets size 0 and each span keeps its own size.
+	var noSizeSpan = null;
+	function richOnly(h) {
+		if (!noSizeSpan) {
+			noSizeSpan = {};
+			data.css.replace(/\.mg \.(r\d+)\{([^}]*)\}/g, function (a, k, b) { if (b.indexOf("font-size") < 0) noSizeSpan[k] = 1; });
+		}
+		if (h.indexOf("<span") !== 0) return false;
+		var spans = h.match(/<span class="(r\d+)">/g) || [];
+		if (spans.some(function (s) { return noSizeSpan[s.slice(13, -2)]; })) return false;
+		return !h.replace(/<br\s*\/?>/g, "").replace(/<span[^>]*>[^<]*<\/span>/g, "").trim();
+	}
+	function cellExtra(c, r) {
+		var cls = "", t = c[3].replace(/<[^>]+>/g, "").trim();
+		if (richOnly(c[3])) cls += " mg-rich";
+		if (c[3].indexOf("<span") >= 0) cls += " mg-runs"; // rich text: each part has its own strike/underline
+		if (/^(?:[-—–]{2,}|—)$/.test(t)) cls += " mg-dash"; // "----" accuracy / power: never bold
+		return cls;
+	}
+	function cellHtml(c, r) {
+		// category icons fill the cell's height like the sheet's =image() does
+		return c[3].replace(/<img class="mg-cat"/g, "<img class=\"mg-cat\" style=\"height:" + Math.max(18, Math.min(r.h - 8, 46)) + "px\"");
+	}
+
 	function rowHtml(r, i) {
 		var head = r.k === "h1" || r.k === "h2";
 		return "<tr data-i='" + i + "' class='mg-" + r.k + "' style='height:" + r.h + "px'>" + r.c.map(function (c, j) {
-			return "<td class='" + c[0] + (head && j === 0 ? " mg-hd" : "") + "'" + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
+			return "<td class='" + c[0] + cellExtra(c, r) + (head && j === 0 ? " mg-hd" : "") + "'" + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
 				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'" + (editing ? " contenteditable='true'" : "") + ">" +
-				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + c[3] + "</td>";
+				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + cellHtml(c, r) + "</td>";
 		}).join("") + "</tr>";
 	}
 	function tableHtml(rows) {
@@ -40,6 +66,7 @@
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
 		$("#mg-guide").innerHTML = tableHtml(body);
 		renderToc();
+		applyColors();
 		applyCollapse();
 		applyHide();
 		scale();
@@ -76,22 +103,144 @@
 	}
 	function isColumnHead(r) { return /^Move Name$/i.test(plain(r.c[0][3])); }
 
+	// "All Fire Type Moves" -> "Fire"
+	function typeOf(r) { var m = /^All (\w+) Type Moves/.exec(headTitle(r)); return m && TYPE_COLORS[m[1]] ? m[1] : null; }
+
+	// Table of contents: the 18 types link straight to their header; the categories are grouped like the
+	// sheet's contents (data.toc), each with its sub-categories. Big headers not in any group go under "Other".
 	function renderToc() {
-		var types = [], cats = [], cur = null;
+		var types = [], byCat = {}, extra = [], cur = null;
 		data.rows.forEach(function (r, i) {
-			if (r.k === "h1") { cur = {i: i, t: headTitle(r), kids: []}; (/^All \w+ Type Moves/.test(cur.t) ? types : cats).push(cur); }
-			else if (r.k === "h2" && cur && headTitle(r).length <= 60) cur.kids.push({i: i, t: headTitle(r)}); // long ones are notes, not names
+			if (r.k === "h1") {
+				cur = {i: i, t: r.cat || headTitle(r), kids: [], type: typeOf(r)};
+				if (cur.type) { types.push(cur); cur = null; }
+				else if (r.cat && !byCat[r.cat]) byCat[r.cat] = cur; else extra.push(cur);
+			} else if (r.k === "h2" && cur) cur.kids.push({i: i, t: headTitle(r)});
 		});
-		var list = function (arr) {
-			return "<ul>" + arr.map(function (h) {
-				return "<li><a href='#' data-go='" + h.i + "'>" + h.t + "</a>" + (h.kids.length ? "<ul>" + h.kids.map(function (k) {
-					return "<li><a href='#' data-go='" + k.i + "'>" + k.t + "</a></li>";
-				}).join("") + "</ul>" : "") + "</li>";
-			}).join("") + "</ul>";
+		var item = function (h) {
+			return "<li><a href='#' data-go='" + h.i + "'>" + h.t + "</a>" + (h.kids.length ? "<ul>" + h.kids.map(function (k) {
+				return "<li><a href='#' data-go='" + k.i + "'>" + k.t + "</a></li>";
+			}).join("") + "</ul>" : "") + "</li>";
 		};
+		var groups = (data.toc || []).map(function (g) {
+			var items = g.cats.map(function (c) { return byCat[c]; }).filter(Boolean);
+			return items.length ? "<div class='mg-toc-group'><div class='mg-toc-g'>" + g.name + "</div><ul>" + items.map(item).join("") + "</ul></div>" : "";
+		}).join("") + (extra.length ? "<div class='mg-toc-group'><div class='mg-toc-g'>Other</div><ul>" + extra.map(item).join("") + "</ul></div>" : "");
 		$("#mg-toc").innerHTML = "<div class='mg-toc-title'>Table of Contents</div><div class='mg-toc-cols'>" +
-			"<div><div class='mg-toc-h'>All Moves by Type</div>" + list(types) + "</div>" +
-			"<div><div class='mg-toc-h'>Moves by Category</div>" + list(cats) + "</div></div>";
+			"<div><div class='mg-toc-h'>All Moves by Type</div><ul class='mg-toc-types'>" + types.map(function (h) {
+				return "<li><a href='#' data-go='" + h.i + "' class='mg-toc-type' style='background:" + TYPE_COLORS[h.type] + ";color:" + typeText(h.type) + "'>" + h.type + "</a></li>";
+			}).join("") + "</ul></div>" +
+			"<div><div class='mg-toc-h'>Moves by Category</div><div class='mg-toc-groups'>" + groups + "</div></div></div>";
+	}
+
+	// ---- colors ----
+	var TYPE_COLORS = typeof REMIX_TYPE_COLORS !== "undefined" ? REMIX_TYPE_COLORS : {};
+	function typeText(t) { return typeof remixTypeText === "function" ? remixTypeText(TYPE_COLORS[t], t) : "#000"; }
+	function hsl(hex) {
+		var n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255;
+		var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn, h = 0, s = 0;
+		if (d) { s = d / (1 - Math.abs(2 * l - 1)); h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h = (h * 60 + 360) % 360; }
+		return [h, s, l];
+	}
+	function hex(h, s, l) {
+		var c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2;
+		var rgb = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+		return "#" + rgb.map(function (v) { return ("0" + Math.round(Math.max(0, Math.min(1, v + m)) * 255).toString(16)).slice(-2); }).join("");
+	}
+	// each class's own text / fill color, from the sheet's css
+	var clsColor = {};
+	function readClassColors() {
+		data.css.replace(/\.mg \.([a-z]\d+)\{([^}]*)\}/g, function (a, k, body) {
+			var c = /(?:^|;)color:(#[0-9a-f]{6})/i.exec(body), b = /background-color:(#[0-9a-f]{6})/i.exec(body);
+			clsColor[k] = {color: c && c[1].toLowerCase(), bg: b && b[1].toLowerCase()};
+		});
+	}
+	// Type sections take the website's type color. In the sheet a type's color is its header's TEXT (the bars are
+	// black): that text becomes the website color, and every fill in the section keeps the sheet's own lightness
+	// with the website type's hue (light rows stay light). Greys, white and black stay as they are.
+	function spanClasses(h) { return (h.match(/class="(r\d+)"/g) || []).map(function (x) { return x.slice(7, -1); }); }
+	function typeColorCss() {
+		var css = "", type = null, main = null;
+		data.rows.forEach(function (r, i) {
+			if (r.k === "h1") {
+				type = typeOf(r); main = null;
+				if (type) {
+					var c0 = r.c[0], cc = clsColor[c0[0]] || {};
+					main = cc.color;
+					spanClasses(c0[3]).forEach(function (k) { var sc = clsColor[k]; if (sc && sc.color && hsl(sc.color)[1] > 0.15) main = main && hsl(main)[1] > 0.15 ? main : sc.color; });
+				}
+			}
+			if (!type || !main) return;
+			var t = hsl(TYPE_COLORS[type]), m = hsl(main), sel = "#mg-guide tr[data-i='" + i + "'] ";
+			var recolor = function (col) {
+				var o = hsl(col);
+				if (col === main) return TYPE_COLORS[type];
+				if (o[1] < 0.12 || o[2] > 0.97 || o[2] < 0.04) return null;
+				return hex(t[0], Math.min(1, t[1] * (m[1] ? o[1] / m[1] : 1)), o[2]);
+			};
+			r.c.forEach(function (c, j) {
+				var cc = clsColor[c[0]] || {}, cell = sel + "td[data-j='" + j + "']";
+				if (cc.bg) { var nb = recolor(cc.bg); if (nb) css += cell + "{background-color:" + nb + " !important}"; }
+				if (cc.color === main) css += cell + "{color:" + TYPE_COLORS[type] + " !important}";
+				spanClasses(c[3]).forEach(function (k) { var sc = clsColor[k]; if (sc && sc.color === main) css += cell + " ." + k + "{color:" + TYPE_COLORS[type] + " !important}"; });
+			});
+		});
+		return css;
+	}
+
+	// Colors you pick for the intro and the table of contents (localhost Colors panel), saved in data.theme
+	var TOC_PARTS = [["tocBg", "Contents background", "#120f16"], ["tocBorder", "Contents border", "#3a3246"], ["tocTitle", "Contents title", "#ffffff"],
+		["tocHead", "Column headings", "#ffe599"], ["tocGroup", "Group names", "#c9a6ef"], ["tocLink", "Category links", "#f6b26b"], ["tocSub", "Sub-category links", "#ffe599"]];
+	var LOGO_SWATCHES = ["#7d1bc0", "#7f72c8", "#c9a6ef", "#7bc0dc", "#16698b", "#3769a8", "#0f4469", "#facc17", "#e3e0ac", "#dab578", "#ef1c7b", "#ffffff"];
+	function introColors() {
+		var seen = {};
+		data.rows.forEach(function (r) {
+			if (r.k !== "intro") return;
+			r.c.forEach(function (c) {
+				[c[0]].concat((c[3].match(/class="(r\d+)"/g) || []).map(function (x) { return x.slice(7, -1); })).forEach(function (k) {
+					var cc = clsColor[k]; if (cc && cc.color) seen[cc.color] = 1;
+				});
+			});
+		});
+		return Object.keys(seen);
+	}
+	function themeCss() {
+		var th = data.theme || {}, map = th.intro || {}, css = "#mg-toc{";
+		TOC_PARTS.forEach(function (p) { css += "--" + p[0] + ":" + ((th.toc || {})[p[0]] || p[2]) + ";"; });
+		css += "}";
+		Object.keys(clsColor).forEach(function (k) {
+			var c = clsColor[k].color;
+			if (c && map[c]) css += "#mg-info ." + k + "{color:" + map[c] + " !important}";
+		});
+		return css;
+	}
+	function applyColors() {
+		var st = document.getElementById("mg-colors") || document.head.appendChild(Object.assign(document.createElement("style"), {id: "mg-colors"}));
+		st.textContent = typeColorCss() + themeCss();
+	}
+	function colorPanel() {
+		var p = document.getElementById("mg-colorpanel");
+		if (p) { p.remove(); return; }
+		var th = data.theme = data.theme || {}, row = function (key, label, val, kind) {
+			return "<label class='mg-cp-row'><input type='color' value='" + val + "' data-cp='" + kind + "' data-key='" + key + "'><span>" + label + "</span>" +
+				"<span class='mg-cp-sw'>" + LOGO_SWATCHES.map(function (s) { return "<i style='background:" + s + "' data-sw='" + s + "'></i>"; }).join("") + "</span></label>";
+		};
+		p = document.createElement("div");
+		p.id = "mg-colorpanel";
+		p.innerHTML = "<div class='mg-cp-top'><b>Move Guide colors</b><button type='button' class='mg-btn' data-cp-close>✕</button></div>" +
+			"<div class='mg-cp-note'>Swatches are the new Remix logo's colors. Changes show live; 💾 Save to file keeps them.</div>" +
+			"<div class='mg-cp-h'>Info blurb text (each sheet color)</div>" +
+			introColors().map(function (c) { return row(c, "<code>" + c + "</code>", (th.intro || {})[c] || c, "intro"); }).join("") +
+			"<div class='mg-cp-h'>Table of contents</div>" +
+			TOC_PARTS.map(function (q) { return row(q[0], q[1], (th.toc || {})[q[0]] || q[2], "toc"); }).join("") +
+			"<button type='button' class='mg-btn' data-cp-reset>Reset to the sheet's colors</button>";
+		document.body.appendChild(p);
+	}
+	function setColor(input, val) {
+		var th = data.theme = data.theme || {}, kind = input.getAttribute("data-cp"), key = input.getAttribute("data-key");
+		th[kind] = th[kind] || {};
+		th[kind][key] = val; input.value = val;
+		applyColors(); markDirty();
 	}
 	function goTo(i) {
 		var sec = sections()[i];
@@ -123,6 +272,7 @@
 		var el = $(".mg-edit-tools");
 		if (!CAN_EDIT) { el.innerHTML = ""; return; }
 		el.innerHTML = "<button type='button' class='mg-btn mg-edit'>" + (editing ? "✓ Done editing" : "✏️ Edit guide") + "</button>" +
+			"<button type='button' class='mg-btn mg-colors' title='Change the info blurb and table of contents colors'>🎨 Colors</button>" +
 			(editing || dirty ? "<button type='button' class='mg-btn mg-save' title='Download move_guide.json: put it in src/moveguide/ and rebuild'>💾 Save to file</button>" +
 				"<button type='button' class='mg-btn mg-discard' title='Throw away your unsaved edits'>Discard edits</button>" : "") +
 			(editing ? "<span class='mg-hint'>Click any cell to type. Hover a row for ＋ Header / ＋ Row / Level / ✕. Edits are kept in this browser until you save.</span>" : "");
@@ -164,6 +314,13 @@
 	}
 
 	document.addEventListener("click", function (e) {
+		if (e.target.closest(".mg-colors") || e.target.closest("[data-cp-close]")) { colorPanel(); return; }
+		var sw = e.target.closest("[data-sw]");
+		if (sw) { e.preventDefault(); setColor(sw.closest(".mg-cp-row").querySelector("input"), sw.getAttribute("data-sw")); return; }
+		if (e.target.closest("[data-cp-reset]")) {
+			if (!confirm("Put the info blurb and contents back to the sheet's colors?")) return;
+			data.theme = {}; applyColors(); markDirty(); colorPanel(); colorPanel(); return;
+		}
 		var go = e.target.closest("[data-go]");
 		if (go) { e.preventDefault(); goTo(+go.getAttribute("data-go")); return; }
 		var top = e.target.closest("a[href='#mg-toc']");
@@ -193,6 +350,7 @@
 	});
 	document.addEventListener("input", function (e) {
 		if (e.target.classList && e.target.classList.contains("mg-search")) { applyCollapse(); return; }
+		if (e.target.hasAttribute && e.target.hasAttribute("data-cp")) { setColor(e.target, e.target.value); return; }
 		var td = e.target.closest && e.target.closest("td[contenteditable]");
 		if (!td) return;
 		var i = +td.parentNode.getAttribute("data-i"), j = +td.getAttribute("data-j");
@@ -207,12 +365,15 @@
 		if (tr) showRowTools(tr);
 	});
 	window.addEventListener("resize", function () { if (data) scale(); });
+	// opening / closing / resizing the DoozDex sidebar narrows the page: re-fit the sheet to it
+	if (window.ResizeObserver) new ResizeObserver(function () { if (data) scale(); }).observe(document.querySelector(".mg-page"));
 
 	var draft = CAN_EDIT ? load(K_DRAFT, null) : null;
 	fetch("./moveguide/move_guide.json").then(function (r) { return r.json(); }).then(function (d) {
 		data = draft && draft.rows ? draft : d;
 		dirty = !!(draft && draft.rows);
 		var st = document.createElement("style"); st.textContent = data.css; document.head.appendChild(st);
+		readClassColors();
 		var defs = document.createElement("div"); defs.innerHTML = data.defs; document.body.appendChild(defs.firstChild);
 		editTools();
 		render();

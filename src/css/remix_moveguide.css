@@ -30,19 +30,38 @@ tr.mg-h2 .mg-caret { border-width: 7px; border-top-width: 10px; border-bottom-wi
 tr.mg-shut .mg-caret { transform: translateY(-50%) rotate(-90deg); }
 table.mg td.mg-hd:hover .mg-caret { opacity: 1; }
 
-/* table of contents (the site's own, from the headers) */
-#mg-toc { background: #120f16; border: 2px solid #3a3246; border-radius: 10px; padding: 10px 16px 14px; }
-.mg-toc-title { font-size: 34px; font-weight: bold; text-align: center; margin-bottom: 6px; }
-.mg-toc-cols { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 28px; }
-.mg-toc-h { font-size: 19px; font-weight: bold; color: #ffe599; margin: 4px 0; }
+/* table of contents (the site's own, from the headers); colors are variables the Colors panel sets */
+#mg-toc { background: var(--tocBg, #120f16); border: 2px solid var(--tocBorder, #3a3246); border-radius: 10px; padding: 10px 16px 14px; }
+.mg-toc-title { font-size: 34px; font-weight: bold; text-align: center; margin-bottom: 6px; color: var(--tocTitle, #fff); }
+.mg-toc-cols { display: grid; grid-template-columns: 210px 1fr; gap: 6px 28px; }
+.mg-toc-h { font-size: 19px; font-weight: bold; color: var(--tocHead, #ffe599); margin: 4px 0 8px; }
 #mg-toc ul { list-style: none; margin: 0; padding: 0; }
-#mg-toc .mg-toc-cols > div:last-child > ul { columns: 2; column-gap: 26px; }
+.mg-toc-types { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+#mg-toc a.mg-toc-type { display: block; text-align: center; padding: 4px 0; border-radius: 5px; font-size: 14px; font-weight: bold; text-decoration: none; }
+#mg-toc a.mg-toc-type:hover { filter: brightness(1.12); text-decoration: none; }
+.mg-toc-groups { columns: 2; column-gap: 26px; }
+.mg-toc-group { break-inside: avoid; margin-bottom: 12px; }
+.mg-toc-g { font-size: 15px; font-weight: bold; color: var(--tocGroup, #c9a6ef); border-bottom: 1px solid var(--tocBorder, #3a3246); margin-bottom: 4px; padding-bottom: 2px; }
 #mg-toc li { break-inside: avoid; margin: 2px 0; }
-#mg-toc li ul { margin: 1px 0 6px 14px; }
-#mg-toc a { color: #f6b26b; text-decoration: none; font-weight: bold; font-size: 14px; }
-#mg-toc li ul a { color: #ffe599; font-weight: normal; font-size: 13px; }
+#mg-toc li ul { margin: 1px 0 5px 14px; }
+#mg-toc a { color: var(--tocLink, #f6b26b); text-decoration: none; font-weight: bold; font-size: 14px; }
+#mg-toc li ul a { color: var(--tocSub, #ffe599); font-weight: normal; font-size: 13px; }
 #mg-toc a:hover { text-decoration: underline; }
-@media (max-width: 800px) { .mg-toc-cols { grid-template-columns: 1fr; } #mg-toc .mg-toc-cols > div:last-child > ul { columns: 1; } }
+@media (max-width: 800px) { .mg-toc-cols { grid-template-columns: 1fr; } .mg-toc-groups { columns: 1; } }
+
+/* Colors panel (localhost) */
+#mg-colorpanel { position: fixed; right: 12px; top: 60px; z-index: 3000; width: 400px; max-height: calc(100vh - 80px); overflow: auto; background: #1d1924;
+	border: 2px solid #8a5ab8; border-radius: 10px; padding: 10px 12px; font: 13px Comfortaa, Arial, sans-serif; color: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.6); }
+.mg-cp-top { display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+.mg-cp-note { color: #a59cb3; font-size: 11px; margin: 4px 0 6px; }
+.mg-cp-h { font-weight: bold; color: #c9a6ef; margin: 10px 0 4px; }
+.mg-cp-row { display: flex; align-items: center; gap: 6px; margin: 3px 0; cursor: default; }
+.mg-cp-row input { width: 34px; height: 24px; padding: 0; border: 0; background: none; cursor: pointer; }
+.mg-cp-row > span:first-of-type { flex: 1; }
+.mg-cp-sw { display: flex; gap: 2px; }
+.mg-cp-sw i { width: 13px; height: 13px; border-radius: 3px; border: 1px solid #000; cursor: pointer; }
+.mg-cp-sw i:hover { outline: 2px solid #fff; }
+#mg-colorpanel > .mg-btn { margin-top: 10px; }
 
 /* edit mode */
 .mg-page td[contenteditable] { cursor: text; outline: none; }
@@ -51,3 +70,9 @@ table.mg td.mg-hd:hover .mg-caret { opacity: 1; }
 .mg-rowtools button { font: bold 11px sans-serif; background: #2e2837; color: #fff; border: 1px solid #8a5ab8; border-radius: 4px; padding: 2px 6px; cursor: pointer; white-space: nowrap; }
 .mg-rowtools button:hover { background: #4a3a66; }
 body:not(.dz-open) .mg-bar { padding-left: 96px; }
+/* rich-text-only cells: each line as tall as its own text (see richOnly in remix_moveguide.js) */
+table.mg td.mg-rich { font-size: 0 !important; line-height: 0; }
+table.mg td.mg-rich span { line-height: 1.12; }
+table.mg td.mg-dash, table.mg td.mg-dash * { font-weight: normal !important; }
+table.mg img.mg-cat { width: auto; max-width: 100%; object-fit: contain; }
+table.mg td.mg-runs { text-decoration: none !important; }
