@@ -15,7 +15,9 @@
 	var load = function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
 	var save = function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 	var plain = function (h) { var d = document.createElement("div"); d.innerHTML = h; return (d.textContent || "").replace(/\s+/g, " ").trim(); };
-	var open = load(K_OPEN, {}), hide = load(K_HIDE, {});
+	// every dropdown starts closed on each visit (nothing remembered); clicks and links open what's needed
+	var open = {}, hide = load(K_HIDE, {});
+	try { localStorage.removeItem(K_OPEN); } catch (e) {}
 	var HEADS = {h0: 1, h1: 1, h2: 1};
 
 	function headKey(r) { return plain(r.c[0][3].split(/<br>|\n/)[0]).slice(0, 80); }
@@ -150,11 +152,11 @@
 			if (editor && editor.on) editor.mark();
 			return;
 		}
-		var intro = [], toc = [], chunks = [[]];
+		var intro = [], toc = [], chunks = [[]], tocDone = false;
 		data.rows.forEach(function (r, i) {
 			var z = zone(r), h = rowHtml(r, i);
 			if (z === "intro") intro.push(h);
-			else if (z === "toc") toc.push(h);
+			else if (z === "toc") { if (r.endSection) tocDone = true; if (!tocDone) toc.push(h); } // the category links below are drawn as cards (tocCards)
 			else {
 				// the guide is one table per section (each type / category): a change only re-lays out its own section,
 				// and sections off screen aren't drawn at all (content-visibility), so editing stays quick
@@ -163,7 +165,7 @@
 			}
 		});
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
-		$("#mg-toc").innerHTML = "<div class='mg-scroll'>" + tableHtml(toc) + "</div>";
+		$("#mg-toc").innerHTML = "<div class='mg-scroll'>" + tableHtml(toc) + "</div>" + tocCards();
 		$("#mg-guide").innerHTML = chunks.map(function (c) { return "<div class='mg-chunk'>" + tableHtml(c) + "</div>"; }).join("");
 		placeLogo();
 		applyColors();
@@ -248,6 +250,52 @@
 	}
 	function openAll(i) { inside(i).forEach(function (h) { open[headKey(data.rows[h])] = 1; }); }
 	function closeAll(i) { inside(i).forEach(function (h) { delete open[headKey(data.rows[h])]; }); }
+	// ---- the table of contents as cards and pills (layout + colors from Dooz's mockup) ----
+	var ICON_URL = "https://img.pokemondb.net/images/icons/move-%s.png";
+	var TOC_LOOK = {
+		"Priority Attacking Moves": {icon: "prio", sub: "(Includes regular offensive priority moves, First Impression variants &amp; Fake Out variants)"},
+		"Debuffing Moves": {icon: "down", sub: "(Includes all moves ~both status and offensive~ that <u>lower the opponent's</u> offensive stats, defensive stats, or Speed)"},
+		"Setup Moves": {icon: "up", sub: "(Includes all moves ~both status and offensive~ that <u>boost the user's</u> offensive stats, defensive stats, or Speed)"},
+		"Attacking Moves With Drawbacks": {icon: "physical", cols: 1},
+		"Other Damaging Moves": {icon: "special", cols: 2},
+		"Status Inflicting Moves": {icon: "status", cols: 1},
+		"Other Miscellaneous Utility Moves": {icon: "gear", cols: 3, title: "Other Miscellaneous Utility Move Categories"}
+	};
+	function tocIcon(kind) {
+		if (kind === "physical" || kind === "special" || kind === "status") return "<img class='tocx-ico' src='" + ICON_URL.replace("%s", kind) + "' alt=''>";
+		if (kind === "down") return "<svg class='tocx-arrow' viewBox='0 0 24 24'><path d='M9 3h6v9h5l-8 9-8-9h5z' fill='#b78bee'/></svg>";
+		if (kind === "up") return "<svg class='tocx-arrow' viewBox='0 0 24 24'><path d='M9 21h6v-9h5l-8-9-8 9h5z' fill='#6fe3ff'/></svg>";
+		if (kind === "prio") return "<svg class='tocx-arrow' viewBox='0 0 24 24'><path d='M3 5l7 7-7 7M11 5l7 7-7 7' fill='none' stroke='#8fd3ff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/></svg>";
+		return "<svg class='tocx-ico' viewBox='0 0 24 24'><path fill='#8fd3ff' d='M19.4 13a7.6 7.6 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7.4 7.4 0 0 0-1.7-1L15 3h-4l-.4 2.9a7.4 7.4 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.6 7.6 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7.4 7.4 0 0 0 1.7 1L11 21h4l.4-2.9a7.4 7.4 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5A3.5 3.5 0 1 1 13 8.5a3.5 3.5 0 0 1 0 7z'/></svg>";
+	}
+	function tocCards() {
+		var groups = data.toc || [];
+		if (!groups.length) return "";
+		var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/'/g, "&#39;"); };
+		var main = groups[0], rest = groups.slice(1);
+		var h = "<div class='tocx'>";
+		// the three main categories: big cards, all one style
+		h += main.cats.map(function (c) {
+			var L = TOC_LOOK[c] || {};
+			return "<a href='#' class='tocx-main' data-cat='" + esc(c) + "'><div class='tocx-main-t'>" + tocIcon(L.icon) + "<span>" + esc(c) + "</span>" + tocIcon(L.icon) + "</div>" +
+				(L.sub ? "<div class='tocx-main-s'>" + L.sub + "</div>" : "") + "</a>";
+		}).join("");
+		// the groups: windows with a header bar and pill rows
+		var win = function (g) {
+			var L = TOC_LOOK[g.name] || {cols: 1}, n = g.cats.length, cols = L.cols || 1, rows = Math.ceil(n / cols);
+			return "<div class='tocx-win'><div class='tocx-head'>" + tocIcon(L.icon) + "<span>" + esc(L.title || g.name) + "</span></div>" +
+				"<div class='tocx-items' style='grid-template-columns:repeat(" + cols + ",auto);grid-template-rows:repeat(" + rows + ",auto)'>" +
+				g.cats.map(function (c, k) {
+					return "<a href='#' class='tocx-item" + (k % 2 ? " tocx-alt" : "") + "' data-cat='" + esc(c) + "'><span class='tocx-arr'>→</span>" + esc(c) + "</a>";
+				}).join("") + "</div></div>";
+		};
+		for (var k = 0; k < rest.length; k += 2) {
+			var a = rest[k], b = rest[k + 1];
+			var wa = (TOC_LOOK[a.name] || {}).cols || 1, wb = b ? (TOC_LOOK[b.name] || {}).cols || 1 : 0;
+			h += "<div class='tocx-pair' style='grid-template-columns:" + (b ? wa + "fr " + wb + "fr" : "1fr") + "'>" + win(a) + (b ? win(b) : "") + "</div>";
+		}
+		return h + "</div>";
+	}
 	function goToCat(name) {
 		for (var i = 0; i < data.rows.length; i++) if (data.rows[i].k === "h1" && data.rows[i].cat === name) return goTo(i);
 	}
@@ -554,6 +602,8 @@
 			if (!rb.classList.contains("sure")) { rb.classList.add("sure"); rb.textContent = "Click again to reset"; return; }
 			var logo = (data.theme || {}).logo; data.theme = logo ? {logo: logo} : {}; applyColors(); markDirty(); colorPanel(); colorPanel(); return;
 		}
+		var tx = e.target.closest(".tocx [data-cat]");
+		if (tx) { e.preventDefault(); goToCat(tx.getAttribute("data-cat")); return; }
 		if (editing) { var b0 = e.target.closest(".mg-btn"); if (!b0 && !e.target.classList.contains("mg-caret")) return; }
 		var go = e.target.closest("td.mg-go");
 		if (go) {
