@@ -122,7 +122,7 @@ def main(src):
     body_at = next(i for i, r in enumerate(rows) if r["c"] and re.match(r"All Normal Type Moves", text(r["c"][0][3])))
     for i, r in enumerate(rows):
         r["k"] = "intro" if i < toc_at else "toc" if i < body_at else kind(r)
-    rows = [r for r in rows if r["k"] != "toc"]  # the site draws its own table of contents
+    # the sheet's own table of contents stays (its cells link to their category, matched by text below)
 
     # ---- categories (after the 18 types): each sheet table-of-contents entry is its own top-level category,
     # every other header inside it is a sub-category; long "headers" are really notes.
@@ -149,6 +149,19 @@ def main(src):
         at = next(i for i, r in enumerate(rows) if r["k"] in ("h1", "h2") and title(r).startswith(before))
         rows.insert(at, {"k": "h1", "cat": name, "h": tpl["h"], "c": [[tpl["c"][0][0], tpl["c"][0][1], 1, name]]})
     toc = [{"name": g[0], "cats": g[1]} for g in TOC_GROUPS]
+    norm = lambda t: re.sub(r"[^a-z0-9%&']+", " ", t.lower()).strip()
+    for r in rows:
+        if r["k"] != "toc":
+            continue
+        for c in r["c"]:
+            c[3] = re.sub(r"<a [^>]*>(.*?)</a>", lambda m: m.group(1), c[3], flags=re.S)
+            t = norm(text(c[3].replace("<br>", " ")).replace("->", ""))
+            hit = next((n for n in cat_names if t.startswith(norm(n))), None)
+            if hit:
+                c.append({"go": hit})
+    # one big dropdown around the 18 type sections
+    at = next(i for i, r in enumerate(rows) if r["k"] == "h1" and title(r).startswith("All Normal Type Moves"))
+    rows.insert(at, {"k": "h0", "h": tpl["h"], "c": [[tpl["c"][0][0], tpl["c"][0][1], 1, "All Moves Organized by Type"]]})
 
     css = "".join(".mg .%s{%s}" % (k, v) for k, v in classes.items()) + \
           "".join(".mg .%s{%s}" % (k, st) for st, k in span_cls.items())
@@ -161,6 +174,14 @@ def main(src):
         for c in r["c"]:
             c[3] = c[3].replace("./moveguide/img/cellImage_2078001082_0.jpg", "./moveguide/img/RemixLogoFull.png")
     out = {"cols": cols, "css": css, "defs": defs, "rows": rows, "toc": toc, "theme": {}}
+    # keep what was already edited on the site: the intro rows and the colors
+    old_path = os.path.join(OUT_DIR, "move_guide.json")
+    if os.path.exists(old_path):
+        old = json.load(open(old_path, encoding="utf8"))
+        old_intro = [r for r in old["rows"] if r["k"] == "intro"]
+        if old_intro and len(old_intro) == len([r for r in rows if r["k"] == "intro"]):
+            out["rows"] = old_intro + [r for r in rows if r["k"] != "intro"]
+        out["theme"] = old.get("theme") or {}
     json.dump(out, open(os.path.join(OUT_DIR, "move_guide.json"), "w", encoding="utf8"), ensure_ascii=False, separators=(",", ":"))
     kinds = {}
     for r in rows:
