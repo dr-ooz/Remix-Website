@@ -132,7 +132,7 @@
 		"Negative Priority Attacks": [["turtle"], ["phys", "spec"]],
 		"Inaccurate Moves": [["target"], ["phys", "spec"]],
 		"Recoil Moves": [["heart-minus"], ["phys", "spec"]],
-		"Moves That Can't Be Used 2x in a Row": [["repeat+ban"], ["phys", "spec"]],
+		"Moves That Can't Be Used 2x in a Row": [["repeat-off"], ["phys", "spec"]],
 		"50% Critical Hit Rate Moves": [["swords"], ["phys", "spec"]],
 		"Multi-Hit Moves": [["dices"], ["phys", "spec"]],
 		"HP Draining Attacks": [["heart-plus"], ["phys", "spec"]],
@@ -153,7 +153,7 @@
 		"Retaliation & Sacrificial Moves": [["heart-off"], ["status", "settings"]],
 		"Weather & Terrain Interactions": [["weather-ground"], ["status", "settings"]],
 		"Weather & Terrain Setting": [["weather-ground"], ["status", "settings"]],
-		"Move Choice Related": [["circle-help+slash"], ["status", "settings"]],
+		"Move Choice Related": [["help-off"], ["status", "settings"]],
 		"Entry Hazards": [["spikes"], ["status", "settings"]],
 		"Screens & Protective Effects": [["app-window"], ["status", "settings"]],
 		"Misc. Field Moves": [["globe"], ["status", "settings"]],
@@ -170,12 +170,29 @@
 		return "<span class='ci'>" + n.split("+").map(function (k, z) { return "<i class='ci-l" + (z ? " ci-over" : "") + "' style='--ci:url(" + new URL("./img/cat-icons/" + k + ".svg", location.href).href + ")'></i>"; }).join("") + "</span>";
 	}
 	function iconGroup(list) { return list && list.length ? "<span class='ci-grp'>" + list.map(oneIcon).join("") + "</span>" : ""; }
+	function trimHtml(h) {
+		var box = document.createElement("div"); box.innerHTML = h;
+		var walk = document.createTreeWalker(box, NodeFilter.SHOW_TEXT), texts = [], n;
+		while ((n = walk.nextNode())) texts.push(n);
+		texts = texts.filter(function (x) { return x.nodeValue.replace(/\u00a0/g, " ").trim(); });
+		if (texts.length) { texts[0].nodeValue = texts[0].nodeValue.replace(/^[\s\u00a0]+/, ""); var last = texts[texts.length - 1]; last.nodeValue = last.nodeValue.replace(/[\s\u00a0]+$/, ""); }
+		box.querySelectorAll("br").forEach(function (b) { b.remove(); });
+		return box.innerHTML;
+	}
 	function typeHeadHtml(r, c) {
 		if (r.k !== "h1" || zone(r) !== "body") return "";
 		var t = typeOf(r); if (!t) return "";
 		if (!Object.keys(sheetMain).length) learnSheetColors();
-		var pill = "<span class='mg-tpill' style='background:" + (sheetMain[t] || TYPE_COLORS[t]) + "'><img src='./doozdex-sidebar/icons/" + t + ".svg?v=2' alt=''></span>";
-		return "<div class='mg-typehead'>" + pill + "<span class='mg-typehead-t'>" + c[3] + "</span>" + pill + "</div>";
+		var pill = "<span class='mg-tpill' style='background:" + (sheetMain[t] || TYPE_COLORS[t]) + "'><img src='./doozdex-sidebar/icons/" + t + ".svg?v=2' alt=''></span>"; // the pill in the type's color
+		return "<div class='mg-typehead'>" + pill + "<span class='mg-typehead-t'>" + trimHtml(c[3]) + "</span>" + pill + "</div>";
+	}
+	// a faint gradient through the category pills: the contents' blue to its muted purple and back, ~2.5 times over the list
+	var catOrder = null;
+	function pillTint(cat) {
+		if (!catOrder) { catOrder = {}; var n = 0; data.rows.forEach(function (r) { if (r.k === "h1" && r.cat && !(r.cat in catOrder)) catOrder[r.cat] = n++; }); catOrder._n = n; }
+		var i = catOrder[cat] || 0, cycles = 2.5, t = (1 - Math.cos(2 * Math.PI * cycles * i / Math.max(1, catOrder._n - 1))) / 2; // 0 = blue, 1 = purple
+		var mix = function (a, b) { return "#" + [0, 2, 4].map(function (k) { var x = parseInt(a.substr(k + 1, 2), 16), y = parseInt(b.substr(k + 1, 2), 16); return ("0" + Math.round(x + (y - x) * t).toString(16)).slice(-2); }).join(""); };
+		return "background:linear-gradient(" + mix("#21588a", "#4a3576") + "," + mix("#173f66", "#33245a") + ");border-color:" + mix("#8fc8ff", "#b9a3f0");
 	}
 	function pillHead(r, i) {
 		if (zone(r) !== "body" || i < catStart || !(r.k === "h1" || r.k === "h2") || r.c.length !== 1) return "";
@@ -187,15 +204,25 @@
 		}
 		if (r.cat === "Unused Moves/Animations") return "<div class='mg-hmini'>" + t + " <small>(for Dooz)</small></div>"; // just a small note at the bottom
 		var ic = CAT_ICONS[r.cat] || [[], []];
-		return "<div class='mg-hpill mg-hpill-1'>" + iconGroup(ic[0]) + "<span class='mg-hpill-t'>" + t + "</span>" + iconGroup(ic[1]) + "</div>";
+		return "<div class='mg-hpill mg-hpill-1' style='" + pillTint(r.cat) + "'>" + iconGroup(ic[0]) + "<span class='mg-hpill-t'>" + t + "</span>" + iconGroup(ic[1]) + "</div>";
+	}
+	// contents pills: a name that doesn't fit its pill shrinks just enough (instead of being cut off)
+	function fitToc() {
+		var items = $$("#mg-toc .tocx-item .tocx-lbl").filter(function (l) { return l.offsetParent; });
+		items.forEach(function (l) { l.style.fontSize = ""; });
+		items.forEach(function (l) { l._room = l.parentNode.clientWidth - l.previousElementSibling.offsetWidth - 34; l._w = l.scrollWidth; });
+		items.forEach(function (l) { if (l._w > l._room) l.style.fontSize = (parseFloat(getComputedStyle(l).fontSize) * l._room / l._w) + "px"; });
 	}
 	// pills keep one size and only shrink when a name needs more room than its row
 	function fitHeads(scope) {
 		var list = scope ? scope.reduce(function (a, tr) { return a.concat($$(".mg-hpill", tr)); }, []) : $$("#mg-guide .mg-hpill");
 		var todo = list.filter(function (p) { return p.offsetParent; });
 		todo.forEach(function (p) { p.style.fontSize = ""; });
-		todo.forEach(function (p) { p._w = p.offsetWidth; p._room = p.parentNode.clientWidth - 70; });
-		todo.forEach(function (p) { if (p._w > p._room) p.style.fontSize = (parseFloat(getComputedStyle(p).fontSize) * p._room / p._w) + "px"; });
+		todo.forEach(function (p) { p._w = p.scrollWidth; p._room = p.parentNode.clientWidth - 170; }); // room for the dropdown arrow, the glow + breathing space
+		for (var round = 0; round < 4 && todo.length; round++) {
+			todo.forEach(function (p) { if (p._w > p._room) p.style.fontSize = (parseFloat(getComputedStyle(p).fontSize) * Math.max(0.5, p._room / p._w) * 0.98) + "px"; });
+			todo = todo.filter(function (p) { p._w = p.scrollWidth; return p._w > p._room; }); // check again: icons and padding don't shrink exactly with the text
+		}
 	}
 
 	function rowHtml(r, i) {
@@ -260,6 +287,7 @@
 		fitMoves();
 		fitTypeGrid();
 		fitHeads();
+		fitToc();
 		if (editor && editor.on) editor.mark();
 	}
 
@@ -865,7 +893,8 @@
 		data.rows[i].c[j][3] = (inn || clone).innerHTML;
 		clearTimeout(markDirty.t); markDirty.t = setTimeout(markDirty, 400);
 	});
-	window.addEventListener("resize", function () { if (data) scale(); });
+	window.addEventListener("resize", function () { if (data) { scale(); fitHeads(); fitToc(); } });
+	if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (data) { fitHeads(); fitTypeGrid(); fitToc(); } });
 	// opening / closing / resizing the DoozDex sidebar narrows the page: re-fit the sheet to it
 	var lastW = 0; // only when the width changes (not every time a cell grows while you type)
 	if (window.ResizeObserver) new ResizeObserver(function (en) { var w = Math.round(en[0].contentRect.width); if (data && w !== lastW) { lastW = w; scale(); } }).observe(document.querySelector(".mg-page"));

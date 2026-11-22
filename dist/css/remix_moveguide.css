@@ -343,3 +343,22 @@ body.mg-sitebg #mg-toc > .mg-scroll { margin-bottom: 8px; }
 /* the windowed look: dark gray inside (halfway between black and the site color) */
 body.mg-sitebg #mg-info, body.mg-sitebg #mg-toc > .mg-scroll, body.mg-sitebg #mg-guide { background: #0c0a0e; }
 #mg-guide .mg-group { background: #0c0a0e; }
+/* icons: one color for every icon in a pill (the move-category icons used to be white next to light-blue ones) */
+.mg-hpill-1 .ci-grp { color: #f2f8ff; }
+.mg-hpill-1 .ci-img { filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+/* type pills: the symbol fills the pill (the icon files have a lot of empty space around the symbol) */
+.mg-tpill { width: 1.55em; height: 1em; border: 0; overflow: hidden; box-shadow: inset 0 0 0 3px rgba(0,0,0,.25), 0 0 8px rgba(255,255,255,.12); }
+.mg-tpill img { height: 1.45em; width: 1.45em; }
+.mg-typehead { gap: 0; }
+.mg-typehead-t { margin: 0 0.3em; white-space: nowrap; }
+
+/* contents: bigger text (there's room); long names shrink to fit instead of being cut off (fitToc) */
+#mg-toc .tocx a.tocx-item { font-size: 1.6cqi; padding: 0.35cqi 0.9cqi; }
+#mg-toc .tocx a.tocx-item .tocx-lbl { white-space: nowrap; text-overflow: clip; }
+.tocx-main-s { font-size: 1.32cqi; }
+.tocx-main-t { font-size: 2.3cqi; }
+.tocx-head { font-size: 2.05cqi; }
+/* pill names never squeeze (so the fit check sees their real width and shrinks the font instead) */
+.mg-hpill { max-width: none; }
+.mg-hpill-t { flex: none; white-space: nowrap; }
+.mg-typehead-t { margin: 0 22px; } /* a fixed gap (some headers are the sheet's mixed-size text, where an em gap came out as 0) */
