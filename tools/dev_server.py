@@ -23,7 +23,8 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_POST(self):
-        if self.path.split("?")[0] != "/__save" or self.client_address[0] not in ("127.0.0.1", "::1"):
+        route = self.path.split("?")[0]
+        if route not in ("/__save", "/__backup") or self.client_address[0] not in ("127.0.0.1", "::1"):
             return self.send_error(404)
         try:
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))).decode("utf8"))
@@ -32,6 +33,24 @@ class Handler(SimpleHTTPRequestHandler):
                 return self.send_error(403, "not a savable file")
             text = body["content"]
             json.loads(text)  # must be valid JSON
+            if route == "/__backup":
+                # a dated copy in "Remix Website/Saved from the site/auto-backups" (the newest 40 are kept)
+                import time, glob
+                folder = os.path.join(ROOT, "..", "Saved from the site", "auto-backups")
+                os.makedirs(folder, exist_ok=True)
+                name = os.path.splitext(os.path.basename(rel))[0]
+                why = "".join(ch for ch in str(body.get("why", "auto")) if ch.isalnum() or ch in "-_ ")[:20]
+                dest = os.path.join(folder, "%s %s (%s).json" % (name, time.strftime("%Y-%m-%d %H%M%S"), why))
+                with open(dest, "w", encoding="utf8") as f:
+                    f.write(text)
+                for old in sorted(glob.glob(os.path.join(folder, name + " *.json")))[:-40]:
+                    os.remove(old)
+                out = json.dumps({"ok": True, "backup": os.path.basename(dest)}).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(out)))
+                self.end_headers()
+                return self.wfile.write(out)
             for base in (os.path.join(ROOT, "src"), DIST):
                 dest = os.path.join(base, *rel.split("/"))
                 tmp = dest + ".tmp"

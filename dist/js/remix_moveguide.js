@@ -634,6 +634,16 @@
 	}
 	var undo = [], redo = [];
 	function snap() { return JSON.stringify({rows: data.rows, cols: data.cols, theme: data.theme, moveH: data.moveH}); }
+	// a dated copy of the guide in "Saved from the site/auto-backups" (via tools/dev_server.py): on Save, before Discard,
+	// and every 3 minutes while there are unsaved edits. Never blocks anything if the server isn't there.
+	var lastBackup = "";
+	function backup(why) {
+		var text = JSON.stringify(data);
+		if (text === lastBackup) return Promise.resolve();
+		return fetch("/__backup", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({path: "moveguide/move_guide.json", content: text, why: why})})
+			.then(function (r) { if (r.ok) lastBackup = text; }, function () {});
+	}
+	setInterval(function () { if (CAN_EDIT && data && dirty) backup("auto"); }, 180000);
 	function toast(msg) {
 		var t = document.getElementById("mg-toast") || document.body.appendChild(Object.assign(document.createElement("div"), {id: "mg-toast"}));
 		t.textContent = msg; t.style.display = "block";
@@ -727,6 +737,7 @@
 		else if (b.classList.contains("mg-sitebg-b")) { var on = document.body.classList.toggle("mg-sitebg"); try { localStorage.setItem("remixMoveGuideSiteBg", on ? "1" : ""); } catch (e4) {} editTools(); }
 		else if (b.classList.contains("mg-save")) {
 			var text = JSON.stringify(data);
+			backup("save");
 			b.textContent = "Saving…";
 			fetch("/__save", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({path: "moveguide/move_guide.json", content: text})})
 				.then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
@@ -743,9 +754,21 @@
 					editTools(); toast("The save server isn't running, so it downloaded instead. Put move_guide.json in src/moveguide/.");
 				});
 		} else if (b.classList.contains("mg-discard")) {
-			if (!b.classList.contains("sure")) { b.classList.add("sure"); b.textContent = "Click again to discard"; setTimeout(function () { b.classList.remove("sure"); editTools(); }, 4000); return; }
-			try { localStorage.removeItem(K_DRAFT); } catch (e2) {}
-			location.reload();
+			// a deliberate step (a double-click once threw away hours of work): type DISCARD; a backup is kept anyway
+			var box = document.getElementById("mg-discardbox");
+			if (box) { box.remove(); return; }
+			box = document.createElement("div"); box.id = "mg-discardbox";
+			box.innerHTML = "Throw away ALL unsaved edits? (A backup copy is kept in Saved from the site/auto-backups.) Type <b>DISCARD</b>: <input> <button type='button' class='mg-btn' data-x='go'>Discard</button> <button type='button' class='mg-btn' data-x='no'>Cancel</button>";
+			document.body.appendChild(box);
+			var inp = box.querySelector("input"); inp.focus();
+			box.onclick = function (ev) {
+				var x = ev.target.getAttribute("data-x");
+				if (x === "no") box.remove();
+				if (x === "go") {
+					if (inp.value.trim().toUpperCase() !== "DISCARD") { inp.style.outline = "2px solid #ff6b6b"; return; }
+					backup("discard").then(function () { try { localStorage.removeItem(K_DRAFT); } catch (e2) {} dirty = false; saveDraftSoon.t = null; location.reload(); });
+				}
+			};
 		}
 	});
 	document.addEventListener("input", function (e) {

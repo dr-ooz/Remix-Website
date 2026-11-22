@@ -315,3 +315,6 @@ body.mg-sitebg #mg-toc > .mg-scroll { margin-bottom: 8px; }
 #mg-guide .mg-group-cat { border-color: #8fc8ff; box-shadow: 0 0 12px rgba(120, 190, 255, .22); }
 #mg-guide .mg-group-type { border-color: #4a4256; }
 #mg-guide .mg-group table.mg { margin: 0 auto; }
+#mg-discardbox { position: fixed; top: 60px; left: 50%; transform: translateX(-50%); z-index: 4600; background: #2a1414; color: #fff; border: 2px solid #ff6b6b; border-radius: 8px;
+	padding: 10px 14px; font: 13px Comfortaa, Arial, sans-serif; box-shadow: 0 6px 20px rgba(0,0,0,.5); }
+#mg-discardbox input { width: 90px; background: #17141c; color: #fff; border: 1px solid #666; border-radius: 4px; padding: 3px 6px; }
