@@ -64,6 +64,8 @@
 		if (isMoveRow(r)) {
 			// the sheet pushed a second sentence onto line 2 with a run of spaces: make that a real line break
 			h = h.replace(/(\S)[  ]{4,}(?=\S)/g, "$1<br>");
+			// a blank line between two lines (tiny in the sheet, full height on a page): just one break
+			for (var k = 0; k < 3; k++) h = h.replace(/(<br\s*\/?>)((?:<\/span>|<span[^>]*>|\s)*)<br\s*\/?>/g, "$1$2");
 			// category icons: one size in every move row
 			h = h.replace(/<img class="mg-cat"( style="[^"]*")?/g, "<img class=\"mg-cat\" style=\"height:" + Math.max(18, rowH(r) - 12) + "px\"");
 			return "<div class='mg-in'>" + h + "</div>";
@@ -71,12 +73,24 @@
 		return h;
 	}
 
+	// which table a row is in: the info blurb, the table of contents, or the guide
+	function zone(r) { return r.zone || (r.k === "intro" || r.k === "toc" ? r.k : "body"); }
+	// the type grid in the contents: 2 rows of 9 clickable types, in the guide's own order
+	function typeGridHtml() {
+		if (!Object.keys(sheetMain).length) learnSheetColors();
+		var types = data.rows.map(typeHead).filter(Boolean);
+		return "<div class='mg-typegrid'>" + types.map(function (t) {
+			return "<a href='#' class='mg-tg' data-type='" + t + "' style='background:" + (sheetMain[t] || TYPE_COLORS[t]) + ";color:#000'>" + t + "</a>";
+		}).join("") + "</div>";
+	}
+	function typeHead(r) { return r.k === "h1" ? typeOf(r) : null; }
+
 	function rowHtml(r, i) {
 		var head = HEADS[r.k];
 		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" + r.c.map(function (c, j) {
 			return "<td class='" + c[0] + cellExtra(c, r) + (head && j === 0 ? " mg-hd" : "") + "'" + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
-				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'" + (editing ? " contenteditable='true'" : "") + ">" +
-				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + cellHtml(c, r) + "</td>";
+				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'" + (editing && r.special !== "types" ? " contenteditable='true'" : "") + ">" +
+				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : cellHtml(c, r)) + "</td>";
 		}).join("") + "</tr>";
 	}
 	function tableHtml(rows) {
@@ -86,11 +100,10 @@
 
 	function render() {
 		var intro = [], toc = [], body = [];
-		data.rows.forEach(function (r, i) { (r.k === "intro" ? intro : r.k === "toc" ? toc : body).push(rowHtml(r, i)); });
+		data.rows.forEach(function (r, i) { var z = zone(r); (z === "intro" ? intro : z === "toc" ? toc : body).push(rowHtml(r, i)); });
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
 		$("#mg-toc").innerHTML = "<div class='mg-scroll'>" + tableHtml(toc) + "</div>";
 		$("#mg-guide").innerHTML = tableHtml(body);
-		if (!editing) linkTypeNames();
 		placeLogo();
 		applyColors();
 		applyCollapse();
@@ -118,8 +131,9 @@
 
 	// sections: each row belongs to the h0 / h1 / h2 above it. A category h1 ends the "by type" h0.
 	function sections() {
-		var h0 = -1, h1 = -1, h2 = -1, out = [];
+		var h0 = -1, h1 = -1, h2 = -1, out = [], z = null;
 		data.rows.forEach(function (r, i) {
+			if (zone(r) !== z || r.endSection) { z = zone(r); h0 = h1 = h2 = -1; } // endSection: this row is outside the dropdown above it
 			if (r.k === "h0") { h0 = i; h1 = -1; h2 = -1; }
 			else if (r.k === "h1") { if (r.cat) h0 = -1; h1 = i; h2 = -1; }
 			else if (r.k === "h2") h2 = i;
@@ -135,9 +149,10 @@
 				match[i] = 1; ["h0", "h1", "h2"].forEach(function (k) { if (sec[i][k] >= 0) match[sec[i][k]] = 1; });
 			}
 		});
-		$$("#mg-guide tr[data-i]").forEach(function (tr) {
+		$$(".mg-page tr[data-i]").forEach(function (tr) {
 			var i = +tr.getAttribute("data-i"), r = data.rows[i], s = sec[i], show;
-			if (q) show = match[i] || (isColumnHead(r) && match[s.h2 >= 0 ? s.h2 : s.h1]);
+			if (q && zone(r) === "body") show = match[i] || (isColumnHead(r) && match[s.h2 >= 0 ? s.h2 : s.h1]);
+			else if (q) show = true;
 			else show = ["h0", "h1", "h2"].every(function (k) {
 				var h = s[k];
 				if (h < 0 || h === i) return true;
@@ -146,7 +161,7 @@
 				return isOpen(h);
 			});
 			tr.style.display = show ? "" : "none";
-			if (HEADS[r.k]) tr.classList.toggle("mg-shut", !q && !isOpen(i));
+			if (HEADS[r.k]) tr.classList.toggle("mg-shut", !(q && zone(r) === "body") && !isOpen(i));
 		});
 		fitMoves();
 	}
@@ -155,14 +170,26 @@
 		[sec.h0, sec.h1, sec.h2, i].forEach(function (h) { if (h >= 0) open[headKey(data.rows[h])] = 1; });
 		save(K_OPEN, open);
 		applyCollapse();
-		var tr = $("#mg-guide tr[data-i='" + i + "']");
+		var tr = $(".mg-page tr[data-i='" + i + "']");
 		if (tr) tr.scrollIntoView({block: "start"});
 	}
+	// open (or close) a header and every header inside it
+	function inside(i) {
+		var sec = sections(), out = [i], k = data.rows[i].k;
+		for (var x = i + 1; x < data.rows.length; x++) {
+			var s = sec[x], r = data.rows[x];
+			if (!(s[k] === i || (k === "h0" && s.h0 === i) || (k === "h1" && s.h1 === i))) break;
+			if (HEADS[r.k]) out.push(x);
+		}
+		return out;
+	}
+	function openAll(i) { inside(i).forEach(function (h) { open[headKey(data.rows[h])] = 1; }); }
+	function closeAll(i) { inside(i).forEach(function (h) { delete open[headKey(data.rows[h])]; }); }
 	function goToCat(name) {
 		for (var i = 0; i < data.rows.length; i++) if (data.rows[i].k === "h1" && data.rows[i].cat === name) return goTo(i);
 	}
 	function goToType(t) {
-		for (var i = 0; i < data.rows.length; i++) if (data.rows[i].k === "h1" && typeOf(data.rows[i]) === t) return goTo(i);
+		for (var i = 0; i < data.rows.length; i++) if (data.rows[i].k === "h1" && typeOf(data.rows[i]) === t) { openAll(i); return goTo(i); }
 	}
 
 	// Move rows: one fixed height, at most two lines. A cell with two written lines never wraps further; a one-line
@@ -220,32 +247,65 @@
 	// that color becomes the website color, and each lighter fill becomes the website color lightened by the SAME
 	// formula the sheet used (the same share of the way to white, the same saturation ratio), so every type's
 	// light rows are as much lighter than its base as in the sheet. Greys, white and black stay.
-	function typeColorCss() {
-		var css = "", type = null, main = null;
-		data.rows.forEach(function (r, i) {
+	// Every type has two fills: its base (the website type color) and a lighter secondary. The secondary is the website
+	// color lightened by the same formula the sheet used for that type (same share of the way to white, same saturation
+	// ratio), unless one is set by hand in data.theme.secondary (Fire: #ff9554).
+	// Which type a cell belongs to: in a type section, that type; in ANY move row (the categories too), the move's own
+	// Type cell. A move whose Type isn't a real type ("User Type") keeps the sheet's colors.
+	var SECONDARY = {Fire: "#ff9554"};
+	var sheetMain = {}, sheetSecond = {};
+	function learnSheetColors() {
+		var type = null, counts = {};
+		data.rows.forEach(function (r) {
 			if (r.k === "h1") {
-				type = typeOf(r); main = null;
-				if (type) {
-					var c0 = r.c[0], cc = clsColor[c0[0]] || {};
-					main = cc.color && hsl(cc.color)[1] > 0.15 ? cc.color : null;
+				type = typeOf(r);
+				if (type && !sheetMain[type]) {
+					var c0 = r.c[0], cc = clsColor[c0[0]] || {}, main = cc.color && hsl(cc.color)[1] > 0.15 ? cc.color : null;
 					spanClasses(c0[3]).forEach(function (k) { var sc = clsColor[k]; if (!main && sc && sc.color && hsl(sc.color)[1] > 0.15) main = sc.color; });
+					if (main) sheetMain[type] = main;
 				}
 			} else if (r.k === "h0" || r.cat) type = null;
-			if (!type || !main) return;
-			var t = hsl(TYPE_COLORS[type]), m = hsl(main), sel = "#mg-guide tr[data-i='" + i + "'] ";
-			var recolor = function (col) {
-				if (col === main) return TYPE_COLORS[type];
-				var o = hsl(col);
-				if (o[1] < 0.12 || o[2] > 0.985 || o[2] < 0.04) return null;
-				var toWhite = m[2] < 1 ? (o[2] - m[2]) / (1 - m[2]) : 0;
-				var l = toWhite >= 0 ? t[2] + toWhite * (1 - t[2]) : t[2] * (o[2] / (m[2] || 1));
-				return hex(t[0], Math.min(1, t[1] * (m[1] ? o[1] / m[1] : 1)), l);
-			};
+			if (!type || !isMoveRow(r) || !sheetMain[type]) return;
+			r.c.forEach(function (c) {
+				var bg = (clsColor[c[0]] || {}).bg;
+				if (!bg || bg === sheetMain[type] || !colorful(bg)) return;
+				counts[type] = counts[type] || {}; counts[type][bg] = (counts[type][bg] || 0) + 1;
+			});
+		});
+		Object.keys(counts).forEach(function (t) { sheetSecond[t] = Object.keys(counts[t]).sort(function (x, y) { return counts[t][y] - counts[t][x]; })[0]; });
+	}
+	function colorful(c) { var o = hsl(c); return o[1] >= 0.12 && o[2] <= 0.985 && o[2] >= 0.04; }
+	function secondary(t) {
+		var own = (data.theme && data.theme.secondary || {})[t] || SECONDARY[t];
+		if (own) return own;
+		var m = sheetMain[t], s2 = sheetSecond[t], w = hsl(TYPE_COLORS[t]);
+		if (!m || !s2) return hex(w[0], w[1] * 0.6, w[2] + 0.6 * (1 - w[2]));
+		var M = hsl(m), S = hsl(s2), toWhite = M[2] < 1 ? (S[2] - M[2]) / (1 - M[2]) : 0;
+		return hex(w[0], Math.min(1, w[1] * (M[1] ? S[1] / M[1] : 1)), toWhite >= 0 ? w[2] + toWhite * (1 - w[2]) : w[2] * (S[2] / (M[2] || 1)));
+	}
+	function fillFor(t, bg) {
+		if (!bg || !colorful(bg)) return null;
+		return bg === sheetMain[t] ? TYPE_COLORS[t] : secondary(t);
+	}
+	function rowType(r) {
+		for (var j = 0; j < r.c.length; j++) { var t = plain(r.c[j][3]); if (TYPE_COLORS[t]) return t; }
+		return null;
+	}
+	function typeColorCss() {
+		if (!Object.keys(sheetMain).length) learnSheetColors();
+		var css = "", section = null;
+		data.rows.forEach(function (r, i) {
+			if (r.k === "h1") section = typeOf(r);
+			else if (r.k === "h0" || r.cat) section = null;
+			var t = isMoveRow(r) ? rowType(r) : section;
+			if (!t || !sheetMain[t]) return;
+			var main = sheetMain[t], sel = "tr[data-i='" + i + "'] > td[data-j='";
 			r.c.forEach(function (c, j) {
-				var cc = clsColor[c[0]] || {}, cell = sel + "> td[data-j='" + j + "']";
-				if (cc.bg) { var nb = recolor(cc.bg); if (nb) css += cell + "{background-color:" + nb + " !important}"; }
-				if (cc.color === main) css += cell + "{color:" + TYPE_COLORS[type] + " !important}";
-				spanClasses(c[3]).forEach(function (k) { var sc = clsColor[k]; if (sc && sc.color === main) css += cell + " ." + k + "{color:" + TYPE_COLORS[type] + " !important}"; });
+				var cc = clsColor[c[0]] || {}, cell = sel + j + "']";
+				var nb = fillFor(t, cc.bg);
+				if (nb) css += cell + "{background-color:" + nb + " !important}";
+				if (cc.color === main) css += cell + "{color:" + TYPE_COLORS[t] + " !important}";
+				spanClasses(c[3]).forEach(function (k) { var sc = clsColor[k]; if (sc && sc.color === main) css += cell + " ." + k + "{color:" + TYPE_COLORS[t] + " !important}"; });
 			});
 		});
 		return css;
@@ -281,7 +341,7 @@
 	}
 	function applyColors() {
 		var st = document.getElementById("mg-colors") || document.head.appendChild(Object.assign(document.createElement("style"), {id: "mg-colors"}));
-		st.textContent = typeColorCss() + themeCss() + (editor ? editor.css() : cellCss());
+		st.textContent = themeCss() /* the guide keeps the sheet's own type colors (user 2026-11-22); typeColorCss() unused */ + (editor ? editor.css() : cellCss());
 	}
 	// the editor's cell formatting, for viewers (the editor itself isn't loaded for them)
 	function cellCss() { return typeof RemixSheetEditor !== "undefined" ? RemixSheetEditor.create({data: function () { return data; }}).css() : ""; }
@@ -290,9 +350,8 @@
 		if (p) { p.remove(); return; }
 		var th = data.theme = data.theme || {}, row = function (key, kind) {
 			var val = (th[kind] || {})[key] || key.slice(1), what = key[0] === "t" ? "Text" : "Fill";
-			return "<label class='mg-cp-row'><input type='color' value='" + val + "' data-cp='" + kind + "' data-key='" + key + "'><span>" + what +
-				" <code>" + key.slice(1) + "</code></span><span class='mg-cp-sw'>" + LOGO_SWATCHES.map(function (s) {
-					return "<i style='background:" + s + "' data-sw='" + s + "'></i>"; }).join("") + "</span></label>";
+			return "<div class='mg-cp-row'><input type='color' value='" + val + "' data-cp='" + kind + "' data-key='" + key + "'><span>" + what +
+				" <code>" + key.slice(1) + "</code></span></div>" + RemixSheetEditor.swatchHtml("data-sw");
 		};
 		p = document.createElement("div");
 		p.id = "mg-colorpanel";
@@ -360,11 +419,31 @@
 		var el = $(".mg-edit-tools");
 		if (!CAN_EDIT) { el.innerHTML = ""; return; }
 		el.innerHTML = "<button type='button' class='mg-btn mg-edit'>" + (editing ? "✓ Done editing" : "✏️ Edit guide") + "</button>" +
+			(editing ? "<button type='button' class='mg-btn mg-undo' title='Undo (Ctrl+Z)'>↶ Undo</button><button type='button' class='mg-btn mg-redo' title='Redo (Ctrl+Y)'>↷ Redo</button>" : "") +
 			"<button type='button' class='mg-btn mg-colors' title='Change the info blurb and table of contents colors'>🎨 Colors</button>" +
 			(editing || dirty ? "<button type='button' class='mg-btn mg-save' title='Download move_guide.json: put it in src/moveguide/ and rebuild'>💾 Save to file</button>" +
 				"<button type='button' class='mg-btn mg-discard' title='Throw away your unsaved edits'>Discard edits</button>" : "");
 	}
-	function markDirty() { dirty = true; save(K_DRAFT, data); editTools(); }
+	var undo = [], redo = [];
+	function snap() { return JSON.stringify({rows: data.rows, cols: data.cols, theme: data.theme, moveH: data.moveH}); }
+	function markDirty() {
+		var now = snap();
+		if (undo[undo.length - 1] !== now) { undo.push(now); if (undo.length > 150) undo.shift(); redo = []; }
+		dirty = true; save(K_DRAFT, data); editTools();
+	}
+	function restore(from, to) {
+		if (from.length < 2 && from === undo) return;
+		if (from === undo) { to.push(from.pop()); var st = JSON.parse(undo[undo.length - 1]); }
+		else { if (!from.length) return; var x = from.pop(); undo.push(x); st = JSON.parse(x); }
+		data.rows = st.rows; data.cols = st.cols; data.theme = st.theme; data.moveH = st.moveH;
+		dirty = true; save(K_DRAFT, data); editTools(); render();
+	}
+	document.addEventListener("keydown", function (e) {
+		if (!editing || !(e.ctrlKey || e.metaKey)) return;
+		var k = e.key.toLowerCase();
+		if (k === "z" && !e.shiftKey) { e.preventDefault(); restore(undo, redo); }
+		else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); restore(redo, undo); }
+	});
 	function startEditor() {
 		if (!editor) editor = RemixSheetEditor.create({
 			data: function () { return data; },
@@ -381,14 +460,12 @@
 	document.addEventListener("click", function (e) {
 		if (e.target.closest(".mg-colors") || e.target.closest("[data-cp-close]")) { colorPanel(); return; }
 		var sw = e.target.closest("[data-sw]");
-		if (sw) { e.preventDefault(); setColor(sw.closest(".mg-cp-row").querySelector("input"), sw.getAttribute("data-sw")); return; }
+		if (sw) { e.preventDefault(); var row0 = sw.closest(".rse-sw").previousElementSibling; if (row0) setColor(row0.querySelector("input"), sw.getAttribute("data-sw")); return; }
 		if (e.target.closest("[data-cp-reset]")) {
 			if (!confirm("Put the info blurb and contents back to the sheet's colors?")) return;
 			var logo = (data.theme || {}).logo; data.theme = logo ? {logo: logo} : {}; applyColors(); markDirty(); colorPanel(); colorPanel(); return;
 		}
 		if (editing) { var b0 = e.target.closest(".mg-btn"); if (!b0 && !e.target.classList.contains("mg-caret")) return; }
-		var tl = e.target.closest(".mg-typelink");
-		if (tl) { e.preventDefault(); goToType(tl.getAttribute("data-type")); return; }
 		var go = e.target.closest("td.mg-go");
 		if (go) {
 			e.preventDefault();
@@ -397,10 +474,13 @@
 		}
 		var top = e.target.closest("a[href='#mg-toc']");
 		if (top) { e.preventDefault(); if (hide.toc) { hide.toc = 0; save(K_HIDE, hide); applyHide(); } $("#mg-toc").scrollIntoView(); return; }
-		var hd = e.target.closest("#mg-guide td.mg-hd");
+		var tg = e.target.closest(".mg-tg");
+		if (tg) { e.preventDefault(); goToType(tg.getAttribute("data-type")); return; }
+		var hd = e.target.closest(".mg-page td.mg-hd");
 		if (hd) {
-			var k = headKey(data.rows[+hd.parentNode.getAttribute("data-i")]);
-			if (open[k]) delete open[k]; else open[k] = 1;
+			var hi = +hd.parentNode.getAttribute("data-i"), k = headKey(data.rows[hi]);
+			if (data.rows[hi].k === "h0") { if (open[k]) closeAll(hi); else openAll(hi); }
+			else if (open[k]) delete open[k]; else open[k] = 1;
 			save(K_OPEN, open); applyCollapse(); return;
 		}
 		var b = e.target.closest(".mg-btn");
@@ -409,9 +489,11 @@
 		if (act === "info" || act === "toc") { hide[act] = hide[act] ? 0 : 1; save(K_HIDE, hide); applyHide(); }
 		else if (act === "collapse") { open = {}; save(K_OPEN, open); applyCollapse(); }
 		else if (act === "expand") { data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; }); save(K_OPEN, open); applyCollapse(); }
+		else if (b.classList.contains("mg-undo")) restore(undo, redo);
+		else if (b.classList.contains("mg-redo")) restore(redo, undo);
 		else if (b.classList.contains("mg-edit")) {
 			editing = !editing;
-			if (editing) startEditor(); else if (editor) editor.stop();
+			if (editing) { startEditor(); if (!undo.length) undo.push(snap()); } else if (editor) editor.stop();
 			editTools(); render();
 		} else if (b.classList.contains("mg-save")) {
 			var a = document.createElement("a");

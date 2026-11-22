@@ -8,7 +8,42 @@
 // Cell formatting lives in each cell's extra object: c[4].st = {bg, color, ff, fs, b, i, u, s, al, va}.
 var RemixSheetEditor = (function () {
 	var FONTS = ["Comfortaa", "Arial", "Verdana", "Trebuchet MS", "Georgia", "Times New Roman", "Courier New", "Impact"];
-	var SWATCHES = ["#000000", "#ffffff", "#7d1bc0", "#7f72c8", "#c9a6ef", "#7bc0dc", "#16698b", "#3769a8", "#0f4469", "#facc17", "#e3e0ac", "#dab578", "#ef1c7b", "#cc0000", "#00ff00"];
+	// Swatches: white, black, every type's site color, colors picked from the new Remix logo (no Pokemon-text yellow),
+	// then the colors you saved (＋ saves the picker's color, right-click a saved one to remove it). Shared by every
+	// sheet page on this browser.
+	var LOGO = ["#3163ad", "#2d6fa0", "#448fb3", "#6eb3da", "#7bd8e9", "#c3dff6", "#096f84", "#05586f", "#063e58", "#082949",
+		"#361b70", "#8c72c8", "#a096f9", "#981ee6", "#9f01be", "#7d1bc0", "#ef1c7b", "#c9a6ef"];
+	var K_SAVED = "remixSheetSwatches";
+	function savedColors() { try { return JSON.parse(localStorage.getItem(K_SAVED)) || []; } catch (e) { return []; } }
+	function setSaved(list) { try { localStorage.setItem(K_SAVED, JSON.stringify(list)); } catch (e) {} refreshSwatches(); }
+	function baseColors() {
+		var types = typeof REMIX_TYPE_COLORS !== "undefined" ? Object.keys(REMIX_TYPE_COLORS).map(function (t) { return [REMIX_TYPE_COLORS[t], t]; }) : [];
+		return [["#ffffff", "White"], ["#000000", "Black"]].concat(types, LOGO.map(function (c) { return [c, "Remix logo"]; }));
+	}
+	function swatchInner(attr) {
+		var dot = function (c, tip, saved) { return "<i style='background:" + c + "' " + attr + "='" + c + "' title='" + tip + " " + c + "'" + (saved ? " data-saved='1'" : "") + "></i>"; };
+		return baseColors().map(function (b) { return dot(b[0], b[1]); }).join("") +
+			savedColors().map(function (c) { return dot(c, "Saved (right-click to remove)", 1); }).join("") +
+			"<button type='button' class='rse-sw-add' title='Save the color in the picker above to this list'>＋</button>";
+	}
+	function swatchHtml(attr, act) { return "<span class='rse-sw' data-attr='" + attr + "'" + (act ? " data-act='" + act + "'" : "") + ">" + swatchInner(attr) + "</span>"; }
+	function refreshSwatches() { document.querySelectorAll(".rse-sw").forEach(function (s) { s.innerHTML = swatchInner(s.getAttribute("data-attr")); }); }
+	document.addEventListener("click", function (e) {
+		var add = e.target.closest && e.target.closest(".rse-sw-add");
+		if (!add) return;
+		e.preventDefault(); e.stopPropagation();
+		var box = add.closest(".rse-sw"), prev = box.previousElementSibling, inp = prev && (prev.matches("input[type=color]") ? prev : prev.querySelector("input[type=color]"));
+		if (!inp) return;
+		var list = savedColors();
+		if (list.indexOf(inp.value) < 0) { list.push(inp.value); setSaved(list); }
+	}, true);
+	document.addEventListener("contextmenu", function (e) {
+		var i = e.target.closest && e.target.closest(".rse-sw i[data-saved]");
+		if (!i) return;
+		e.preventDefault();
+		var c = i.getAttribute(i.closest(".rse-sw").getAttribute("data-attr"));
+		setSaved(savedColors().filter(function (x) { return x !== c; }));
+	});
 
 	function create(o) {
 		var api = {on: false}, sel = [], anchor = null, panel = null, savedRange = null;
@@ -182,8 +217,14 @@ var RemixSheetEditor = (function () {
 			else if (op === "above" || op === "below") {
 				var i = op === "above" ? rows[0] : rows[rows.length - 1], src = R[i];
 				var blank = {k: src.k === "intro" || src.k === "toc" ? src.k : "row", h: src.h, c: src.c.map(function (c) { return [c[0], c[1], 1, ""]; })};
+				if (src.zone) blank.zone = src.zone; // stays in the same table (info / contents / guide)
 				R.splice(op === "above" ? i : i + 1, 0, blank);
-			} else if (op === "kind") rows.forEach(function (i) { R[i].k = kind; });
+			} else if (op === "kind") rows.forEach(function (i) {
+				var r = R[i];
+				if (!r.zone && (r.k === "intro" || r.k === "toc")) r.zone = r.k; // a header in the info / contents stays there
+				r.k = kind;
+				if (kind === "intro" || kind === "toc") delete r.zone;
+			});
 			sel = []; o.changed(); o.rerender();
 		}
 
@@ -197,7 +238,7 @@ var RemixSheetEditor = (function () {
 
 		// ---- the panel ----
 		function btn(act, label, tip, val) { return "<button type='button' data-rse='" + act + "'" + (val != null ? " data-v='" + val + "'" : "") + " title='" + tip + "'>" + label + "</button>"; }
-		function sw(act) { return "<span class='rse-sw'>" + SWATCHES.map(function (c) { return "<i style='background:" + c + "' data-rse='" + act + "' data-v='" + c + "'></i>"; }).join("") + "</span>"; }
+		function sw(act) { return swatchHtml("data-rse-sw", act); }
 		function buildPanel() {
 			panel = document.createElement("div");
 			panel.id = "rse-panel";
@@ -224,6 +265,14 @@ var RemixSheetEditor = (function () {
 			document.body.appendChild(panel);
 			panel.addEventListener("mousedown", function (e) { if (e.target.tagName === "BUTTON" || e.target.tagName === "I" || e.target.closest("button")) e.preventDefault(); });
 			panel.addEventListener("click", function (e) {
+				var dot = e.target.closest("[data-rse-sw]");
+				if (dot) {
+					var act0 = dot.closest(".rse-sw").getAttribute("data-act"), c0 = dot.getAttribute("data-rse-sw");
+					var pick = dot.closest(".rse-sw").previousElementSibling.querySelector("input[type=color]");
+					if (pick) pick.value = c0;
+					if (act0 === "color") fmt("color", c0); else cellFmt("bg", c0);
+					return;
+				}
 				var b = e.target.closest("[data-rse]"); if (!b) return;
 				var a = b.getAttribute("data-rse"), v = b.getAttribute("data-v");
 				if (/^[bius]$/.test(a)) fmt(a);
@@ -277,5 +326,5 @@ var RemixSheetEditor = (function () {
 		});
 		return api;
 	}
-	return {create: create};
+	return {create: create, swatchHtml: swatchHtml};
 })();
