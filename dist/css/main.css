@@ -1295,3 +1295,13 @@ body:not(.dz-open) .rx-nav { padding-left: 104px; } /* room for the fixed "Open 
 .rx-tabcol { display: flex; flex-direction: column; align-items: center; }
 .rx-tab-blurb { font-size: 10px; line-height: 1.2; color: #a59cb3; text-align: center; margin-top: 3px; min-height: 12px; }
 .rx-tab-blurb:empty { min-height: 0; margin: 0; }
+
+/* pinned nav: always at the top; slides away while scrolling down, back (slim) when scrolling up (remix_nav.js) */
+#rx-nav { position: sticky; top: 0; z-index: 1900; transition: transform .22s ease; }
+#rx-nav.rx-nav-away { transform: translateY(-110%); }
+body.rx-nav-pinned #rx-nav { box-shadow: 0 2px 10px rgba(0,0,0,.45); }
+body.rx-nav-pinned .rx-nav { padding-top: 3px; padding-bottom: 3px; align-items: center; }
+body.rx-nav-pinned .rx-nav-logo img { height: 30px; }
+body.rx-nav-pinned .rx-tab-blurb { display: none; }
+body.rx-nav-pinned .rx-tab { padding: 3px 9px; font-size: 13px; }
+body.rse-on #rx-nav { position: static; } /* the sheet editor's toolbar owns the top while editing */

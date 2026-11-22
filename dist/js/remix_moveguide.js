@@ -16,7 +16,7 @@
 	var save = function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 	var plain = function (h) { var d = document.createElement("div"); d.innerHTML = h; return (d.textContent || "").replace(/\s+/g, " ").trim(); };
 	// every dropdown starts closed on each visit (nothing remembered); clicks and links open what's needed
-	var open = {}, hide = load(K_HIDE, {});
+	var open = {}, hide = {};
 	var startOpen = false; try { startOpen = localStorage.getItem("remixMoveGuideStartOpen") === "1"; } catch (e) {}
 	try { localStorage.removeItem(K_OPEN); } catch (e) {}
 	var HEADS = {h0: 1, h1: 1, h2: 1};
@@ -166,7 +166,7 @@
 	// sub-headers that get an icon (the weather / terrain ones)
 	var SUB_ICONS = {"Sun": "sun", "Rain": "cloud-rain", "Snow": "snowflake", "Sand": "wind", "Terrain": "mountain", "Lunar Aura": "moon-star", "Mud Sport": "droplets"};
 	function oneIcon(n) {
-		if (n === "phys" || n === "spec" || n === "status") return "<img class='ci-img' src='" + ICON_URL.replace("%s", {phys: "physical", spec: "special", status: "status"}[n]) + "' alt=''>";
+		if (n === "phys" || n === "spec" || n === "status") n = {phys: "cat-physical", spec: "cat-special", status: "cat-status"}[n]; // crisp line versions
 		// "a+b": b drawn over a (e.g. repeat with a ban sign over it)
 		return "<span class='ci'>" + n.split("+").map(function (k, z) { return "<i class='ci-l" + (z ? " ci-over" : "") + "' style='--ci:url(" + new URL("./img/cat-icons/" + k + ".svg", location.href).href + ")'></i>"; }).join("") + "</span>";
 	}
@@ -295,6 +295,7 @@
 		});
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
 		$("#mg-toc").innerHTML = "<div class='mg-scroll'>" + tableHtml(toc) + "</div>" + tocCards();
+		startOpenLabel();
 		$("#mg-guide").innerHTML = chunks.map(function (c) { return "<div class='mg-chunk" + (c.group ? " mg-group mg-group-" + c.group : "") + (c.unused ? " mg-group-unused" : "") + "'>" + tableHtml(c) + "</div>"; }).join("");
 		placeLogo();
 		applyColors();
@@ -338,7 +339,7 @@
 	}
 	function isOpen(i) { return !!open[headKey(data.rows[i])]; }
 	function applyCollapse() {
-		var sec = sections(), q = ($(".mg-search").value || "").trim().toLowerCase(), match = {};
+		var sec = sections(), q = (($(".mg-search") || {}).value || "").trim().toLowerCase(), match = {};
 		if (q) data.rows.forEach(function (r, i) {
 			if (isMoveRow(r) && plain(r.c[0][3]).toLowerCase().indexOf(q) !== -1) {
 				match[i] = 1; ["h0", "h1", "h2"].forEach(function (k) { if (sec[i][k] >= 0) match[sec[i][k]] = 1; });
@@ -418,7 +419,7 @@
 		if (!groups.length) return "";
 		var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/'/g, "&#39;"); };
 		var main = groups[0], rest = groups.slice(1);
-		var h = "<div class='tocx'>";
+		var h = "<div class='tocx'><div class='tocx-tools'><button type='button' class='mg-btn' data-act='startopen' title='How the dropdowns start when you open the guide (remembered on this device)'></button></div>";
 		// the three main categories: big cards, all one style
 		h += main.cats.map(function (c) {
 			var L = TOC_LOOK[c] || {};
@@ -746,10 +747,7 @@
 	}
 	function applyHide() {
 		startOpenLabel();
-		$("#mg-info").style.display = hide.info ? "none" : "";
-		$("#mg-toc").style.display = hide.toc ? "none" : "";
-		$(".mg-btn[data-act=info]").textContent = hide.info ? "Show info" : "Hide info";
-		$(".mg-btn[data-act=toc]").textContent = hide.toc ? "Show contents" : "Hide contents";
+		// (the hide info / contents buttons are gone; both always show)
 	}
 
 	// the sheet's own width, scaled down to fit (never up); very narrow screens scroll sideways instead

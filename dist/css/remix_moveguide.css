@@ -415,3 +415,13 @@ tr.mg-h0 .mg-lbl1.mg-lbl-shift { left: 62px; }
 tr.mg-shortrow .mg-lbl { top: 50%; transform: translateY(-50%); text-align: left; }
 tr.mg-shortrow .mg-lbl1 { left: 34px; } tr.mg-shortrow .mg-lbl1.mg-lbl-shift { left: 74px; }
 tr.mg-shortrow .mg-lbl2 { display: none; }
+
+/* no public toolbar: the dev tools (localhost) float bottom-right */
+.mg-bar.mg-devbar { position: fixed; top: auto; bottom: 12px; right: 12px; left: auto; z-index: 3500; padding: 6px 8px; border-radius: 10px; background: rgba(23, 20, 28, .92);
+	border: 1px solid #3a3246; box-shadow: 0 4px 14px rgba(0,0,0,.45); }
+.mg-bar.mg-devbar:empty, .mg-bar.mg-devbar:has(.mg-edit-tools:empty) { display: none; }
+body:not(.dz-open) .mg-bar.mg-devbar { padding-left: 8px; }
+.tocx-tools { display: flex; justify-content: flex-end; margin: -0.4cqi 0 -0.2cqi; }
+.tocx-tools .mg-btn { font-size: 12px; padding: 4px 10px; opacity: .85; }
+.tocx-tools .mg-btn:hover { opacity: 1; }
+body.rse-on .mg-bar.mg-devbar { top: auto; }

@@ -23,15 +23,8 @@
 <script src="./js/remix_nav.js?"></script>
 
 <div class="mg-page">
-    <div class="mg-bar">
-        <button type="button" class="mg-btn" data-act="info">Hide info</button>
-        <button type="button" class="mg-btn" data-act="toc">Hide contents</button>
-        <button type="button" class="mg-btn" data-act="collapse">Collapse all</button>
-        <button type="button" class="mg-btn" data-act="expand">Expand all</button>
-        <button type="button" class="mg-btn" data-act="startopen" title="How the dropdowns start when you open the guide (remembered on this device)">▸ Dropdowns start: Collapsed</button>
-        <input type="search" class="mg-search" placeholder="Find a move (or Ctrl+F)" />
-        <span class="mg-edit-tools"></span>
-    </div>
+    <!-- the guide has no toolbar for visitors (the DoozDex sidebar is the quick move search); dev tools only show on localhost -->
+    <div class="mg-bar mg-devbar"><span class="mg-edit-tools"></span></div>
     <div id="mg-info" class="mg-box"></div>
     <div id="mg-toc" class="mg-box"></div>
     <div id="mg-guide" class="mg-scroll"><div class="mg-loading">Loading the move guide…</div></div>

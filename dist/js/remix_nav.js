@@ -27,3 +27,20 @@ var REMIX_NAV = [
 		}).join("") + "</div>" +
 		"<a class='rx-nav-logo rx-nav-right' href='./' title='Pokémon Ultra Remix'><img src='./img/UltraRemixLogo.png' alt='Pokémon Ultra Remix'></a></div>";
 })();
+
+// The bar stays reachable: it slides away while you scroll down (reading) and comes back, slimmer, as soon as you scroll up.
+(function () {
+	var nav = document.getElementById("rx-nav");
+	if (!nav) return;
+	var lastY = window.scrollY, ticking = false;
+	function update() {
+		ticking = false;
+		var y = window.scrollY, past = y > nav.offsetHeight + 40;
+		document.body.classList.toggle("rx-nav-pinned", past);
+		if (!past) nav.classList.remove("rx-nav-away");
+		else if (y > lastY + 4) nav.classList.add("rx-nav-away");     // scrolling down: out of the way
+		else if (y < lastY - 4) nav.classList.remove("rx-nav-away");  // scrolling up: back
+		lastY = y;
+	}
+	window.addEventListener("scroll", update, {passive: true}); // cheap: a couple of class toggles
+})();

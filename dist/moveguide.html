@@ -7,8 +7,8 @@
     <title>Remix DoozDex: Move Guide</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" />
-    <link type="text/css" rel="stylesheet" href="./css/main.css?97ceaa22" />
-    <link type="text/css" rel="stylesheet" href="./css/remix_moveguide.css?1b699352" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?9ad23f93" />
+    <link type="text/css" rel="stylesheet" href="./css/remix_moveguide.css?05e62226" />
 </head>
 
 <body>
@@ -20,18 +20,11 @@
 })();
 </script>
 <nav id="rx-nav"></nav>
-<script src="./js/remix_nav.js?d6da5834"></script>
+<script src="./js/remix_nav.js?3412db54"></script>
 
 <div class="mg-page">
-    <div class="mg-bar">
-        <button type="button" class="mg-btn" data-act="info">Hide info</button>
-        <button type="button" class="mg-btn" data-act="toc">Hide contents</button>
-        <button type="button" class="mg-btn" data-act="collapse">Collapse all</button>
-        <button type="button" class="mg-btn" data-act="expand">Expand all</button>
-        <button type="button" class="mg-btn" data-act="startopen" title="How the dropdowns start when you open the guide (remembered on this device)">▸ Dropdowns start: Collapsed</button>
-        <input type="search" class="mg-search" placeholder="Find a move (or Ctrl+F)" />
-        <span class="mg-edit-tools"></span>
-    </div>
+    <!-- the guide has no toolbar for visitors (the DoozDex sidebar is the quick move search); dev tools only show on localhost -->
+    <div class="mg-bar mg-devbar"><span class="mg-edit-tools"></span></div>
     <div id="mg-info" class="mg-box"></div>
     <div id="mg-toc" class="mg-box"></div>
     <div id="mg-guide" class="mg-scroll"><div class="mg-loading">Loading the move guide…</div></div>
@@ -39,7 +32,7 @@
 
 <script src="./js/remix_type_colors.js?b98ab375"></script>
 <script src="./js/remix_sheet_editor.js?bf8c0fda"></script>
-<script src="./js/remix_moveguide.js?a3f2fa9d"></script>
+<script src="./js/remix_moveguide.js?3b0683f5"></script>
 <script src="./js/remix_doozdex_sidebar.js?e296b649"></script>
 </body>
 </html>
