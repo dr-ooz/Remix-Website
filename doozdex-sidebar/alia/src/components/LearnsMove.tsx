@@ -32,7 +32,7 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   const pokedex = usePokedex();
   const mid = nameToId(props.move);
   const SORTS: [string, string][] = [["lvl", "Level ↑"], ["lvlDesc", "Level ↓"], ["name", "Name A–Z"], ["dex", "Dex order"]];
-  const [sortBy, setSortBy] = createSignal<string>((() => { try { return localStorage.getItem("dzLearnSort") || "lvl"; } catch { return "lvl"; } })());
+  const [sortBy, setSortBy] = createSignal<string>((() => { try { return localStorage.getItem("dzLearnSort") === "lvlDesc" ? "lvlDesc" : "lvl"; } catch { return "lvl"; } })());
   const chooseSort = (v: string) => { setSortBy(v); try { localStorage.setItem("dzLearnSort", v); } catch { /* private mode */ } };
 
   const learnsIt = createMemo(() => {
@@ -125,14 +125,14 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
       >
         <div class="flex h-8 shrink-0 border-b">
           <div class="flex flex-auto items-center px-2 font-bold">{props.move}</div>
-          <select
-            class="my-1 mr-1 cursor-pointer rounded border bg-black px-1 text-[12px]"
-            title="Sort the list"
-            value={sortBy()}
-            onChange={(e) => chooseSort(e.currentTarget.value)}
+          <button
+            type="button"
+            class="my-1 mr-1 cursor-pointer rounded border px-2 text-[13px] font-bold hover:bg-white/10"
+            title={sortBy() === "lvlDesc" ? "Highest level first (click for lowest first)" : "Lowest level first (click for highest first)"}
+            onClick={() => chooseSort(sortBy() === "lvlDesc" ? "lvl" : "lvlDesc")}
           >
-            <For each={SORTS}>{([v, label]) => <option value={v}>Sort: {label}</option>}</For>
-          </select>
+            Sort: Lv {sortBy() === "lvlDesc" ? "▼" : "▲"}
+          </button>
           <div
             onClick={props.close}
             class="flex aspect-square cursor-pointer items-center justify-center border-l"
