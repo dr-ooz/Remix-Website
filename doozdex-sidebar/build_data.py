@@ -225,6 +225,16 @@ if os.path.exists(order_path):
             p["dexOrder"], p["family"] = 10000 + p["num"], 10000 + p["num"]
     if unplaced:
         print("not in dex order:", ", ".join(unplaced))
+# Evolution levels (remix-data/evo_levels.json, from the game's a/0/1/4 via tools/refresh_evo_levels.py):
+# evoAt = the level this Pokemon evolves at. "Who learns this move" uses it to show the level of whichever
+# family member you'd actually have at that level.
+evo_path = os.path.join(CALC, "remix-data", "evo_levels.json")
+if os.path.exists(evo_path):
+    with open(evo_path, encoding="utf8") as f:
+        evo_at = json.load(f)
+    for p in pokedex.values():
+        if str(p.get("num")) in evo_at:
+            p["evoAt"] = evo_at[str(p["num"])]
 with open(os.path.join(OUT, "data.json"), "w", encoding="utf8") as f:
     json.dump({"pokedex": pokedex, "moves": moves, "sheetId": ""}, f, ensure_ascii=False, separators=(",", ":"))
 

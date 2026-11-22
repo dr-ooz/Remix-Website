@@ -1,10 +1,10 @@
-import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 
 type How = number | "tm" | "tutor";
 type Learner = [PokemonData, How];
-// Remix: one row per family (the dex order board's families), its members side by side in dex order.
-type FamilyRow = { members: Learner[]; how: How | null }; // how: shared by every member, else null (each shows its own)
+// Remix: one row per family (the dex order board's families), members side by side in dex order.
+// The row shows the first member's (the pre-evo's) way of learning it - when a family differs it's just a typo.
+type FamilyRow = { members: Learner[]; how: How };
 
 const howRank = (h: How) => (typeof h === "number" ? h : h === "tm" ? 1000 : 1001);
 const howLabel = (how: How) =>
@@ -16,7 +16,7 @@ const howLabel = (how: How) =>
       {how}
     </span>
   ) : (
-    <img src={`/icons/${how}.webp`} class="mx-auto h-full py-0.5" />
+    <img src={`/icons/${how}.webp`} class="mx-auto h-full max-h-7 py-0.5" />
   );
 
 const LINE_H = 36;
@@ -39,38 +39,23 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(l);
     }
+    // which member's level the row shows: the one you'd have AT that level (level 13 Beldum, level 30 Metang,
+    // level 47 Metagross), using the game's evolution levels; otherwise the first (pre-evo) one
+    const byName: Record<string, PokemonData> = {};
+    for (const p of Object.values(pd)) byName[p.name] = p;
+    const fromLevel = (p: PokemonData) => ((p as any).prevo && (byName[(p as any).prevo] as any)?.evoAt) || 0;
     const rows: FamilyRow[] = [...groups.values()].map((members) => {
       members.sort((a, b) => ((a[0] as any).dexOrder ?? 0) - ((b[0] as any).dexOrder ?? 0));
-      const first = members[0]![1];
-      return { members, how: members.every((m) => m[1] === first) ? first : null };
+      const current = members.find(
+        ([p, how]) => typeof how === "number" && how >= fromLevel(p) && ((p as any).evoAt == null || how < (p as any).evoAt),
+      );
+      return { members, how: (current ?? members[0]!)[1] };
     });
-    // earliest way any member learns it first (level 1, 2, ... then TM, then tutor), like before
-    const best = (r: FamilyRow) => Math.min(...r.members.map((m) => howRank(m[1])));
-    return rows.toSorted((a, b) => best(a) - best(b));
+    // level 1, 2, ... first, then TM, then tutor (like before)
+    return rows.toSorted((a, b) => howRank(a.how) - howRank(b.how));
   });
 
-  let parentRef: HTMLDivElement;
-  // each member takes the width it needs (sprite + full name + its own Lv / TM); work out how many lines a row wraps to
-  const chipW = (p: PokemonData, own: boolean) => 48 + 6 + Math.ceil(p.name.length * 9.6) + (own ? 40 : 0) + 12;
-  const linesFor = (r: FamilyRow) => {
-    const room = Math.max(120, (parentRef?.clientWidth || 380) - 44);
-    let lines = 1, used = 0;
-    for (const [p] of r.members) {
-      const w = Math.min(room, chipW(p, r.how === null));
-      if (used && used + w > room) { lines++; used = 0; }
-      used += w;
-    }
-    return lines;
-  };
-
-  const virtualizer = createVirtualizer({
-    get count() {
-      return learnsIt().length;
-    },
-    getScrollElement: () => parentRef,
-    estimateSize: (i) => LINE_H * (learnsIt()[i] ? linesFor(learnsIt()[i]!) : 1),
-  });
-
+  // a plain list (a move has a few hundred learners at most): every row is as tall as its content, so rows never overlap
   return (
     <div
       class="absolute inset-0 z-10 backdrop-blur-md backdrop-brightness-80"
@@ -90,44 +75,39 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
           </div>
         </div>
 
-        <div ref={(el) => (parentRef = el)} class="relative flex-auto overflow-auto">
-          <RowVirtualizer virtualizer={virtualizer} items={learnsIt()}>
+        <div class="relative flex-auto overflow-auto">
+          <For each={learnsIt()}>
             {(row) => (
-              <div class="flex h-full border-b">
-                <div class="flex w-10 shrink-0 items-center justify-center border-r text-center">
-                  {row.how !== null ? howLabel(row.how) : <span class="text-[10px] opacity-60">varies</span>}
-                </div>
-                <div class="flex min-w-0 flex-auto flex-wrap content-start">
-                  {row.members.map(([p, how]) => (
-                    <div
-                      class={clsx("flex items-center gap-1 pr-2", p.range && "cursor-pointer hover:bg-white/10")}
-                      style={{ height: `${LINE_H}px`, "max-width": "100%" }}
-                      onClick={() => p.range && openRange(p.range)}
-                      title={p.name}
-                    >
+              <div class="flex border-b" style={{ "min-height": `${LINE_H}px` }}>
+                <div class="flex w-11 shrink-0 items-center justify-center border-r text-center">{howLabel(row.how)}</div>
+                <div class="flex min-w-0 flex-auto flex-wrap items-center">
+                  <For each={row.members}>
+                    {([p]) => (
                       <div
-                        class="aspect-4/3 h-full shrink-0"
-                        style={{
-                          "background-image": `url(/calcsprites/${nameToId(p.name)}.png), url(/sprites/${nameToId(p.name)}.png)`,
-                          "background-size": "auto 100%",
-                          "background-repeat": "no-repeat",
-                          "background-position": "right",
-                          "image-rendering": "pixelated",
-                          transform: "scaleX(-1)",
-                        }}
-                      />
-                      <div class="min-w-0 truncate text-[15px] font-semibold">{p.name}</div>
-                      {row.how === null && (
-                        <div class="shrink-0 pl-1 text-[12px] opacity-75">
-                          {typeof how === "number" ? (how === 0 ? "–" : "Lv" + how) : how === "tm" ? "TM" : "Tutor"}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        class={clsx("flex min-w-0 items-center gap-0.5 pr-2.5", p.range && "cursor-pointer hover:bg-white/10")}
+                        style={{ height: `${LINE_H}px`, "max-width": "100%" }}
+                        onClick={() => p.range && openRange(p.range)}
+                        title={p.name}
+                      >
+                        <div
+                          class="aspect-square h-full shrink-0"
+                          style={{
+                            "background-image": `url(/calcsprites/${nameToId(p.name)}.png), url(/sprites/${nameToId(p.name)}.png)`,
+                            "background-size": "contain",
+                            "background-repeat": "no-repeat",
+                            "background-position": "center",
+                            "image-rendering": "pixelated",
+                            transform: "scaleX(-1)",
+                          }}
+                        />
+                        <div class="min-w-0 truncate text-[15px] font-semibold">{p.name}</div>
+                      </div>
+                    )}
+                  </For>
                 </div>
               </div>
             )}
-          </RowVirtualizer>
+          </For>
         </div>
       </div>
     </div>
