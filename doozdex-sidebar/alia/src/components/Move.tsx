@@ -41,13 +41,8 @@ export const Move = (props: {
           {/* uses the higher attacking stat: a shuffle icon */}
           <div class="flex aspect-square h-full items-center justify-center" title="Uses the user's higher attacking stat (Physical or Special)">
             <svg viewBox="0 0 24 24" class="h-[82%] w-[82%]" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-              <defs>
-                <linearGradient id="dz-mixed" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0" stop-color="#ff8a4c" />
-                  <stop offset="1" stop-color="#6ea8ff" />
-                </linearGradient>
-              </defs>
-              <g stroke="url(#dz-mixed)">
+
+              <g stroke="#fff">
                 <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
                 <path d="m18 2 4 4-4 4" />
                 <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
