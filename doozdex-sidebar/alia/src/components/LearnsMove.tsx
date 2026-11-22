@@ -51,15 +51,18 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
     }
     return roots.size;
   });
-  // fewer than 5 lines: Signature Move; fewer than 10: Exclusive Distribution; fewer than 15: Limited Distribution
+  // fewer than 5 lines: Signature Move; fewer than 10: Exclusive Distribution; fewer than 20: Limited Distribution;
+  // over 50 Pokemon learn it: Widely Distributed
   // the second word ("Move" / "Distribution") drops off on its own when the header is too narrow for it
   const [short, setShort] = createSignal(false);
   let tagEl: HTMLSpanElement | undefined;
   const rarity = () => {
     const n = lineCount();
-    if (!n || n >= 15) return "";
-    const [a, b] = n < 5 ? ["Signature", "Move"] : n < 10 ? ["Exclusive", "Distribution"] : ["Limited", "Distribution"];
-    return short() ? a : a + " " + b;
+    if (!n) return "";
+    const wide = learnsIt().reduce((t, r) => t + r.members.length, 0) > 50;
+    if (n >= 20 && !wide) return "";
+    const [a, b] = n < 5 ? ["Signature", "Move"] : n < 10 ? ["Exclusive", "Distribution"] : n < 20 ? ["Limited", "Distribution"] : ["Widely", "Distributed"];
+    return short() ? (a === "Widely" ? "Widespread" : a) : a + " " + b;
   };
   const refit = () => {
     if (!tagEl) return;
