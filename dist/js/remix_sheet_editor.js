@@ -212,7 +212,7 @@ var RemixSheetEditor = (function () {
 			var rows = selRows();
 			if (!rows.length) return;
 			var R = data().rows;
-			if (op === "del") { if (!confirm("Delete " + rows.length + " row(s)?")) return; rows.reverse().forEach(function (i) { R.splice(i, 1); }); }
+			if (op === "del") rows.reverse().forEach(function (i) { R.splice(i, 1); }); // no "are you sure": Undo brings it back
 			else if (op === "dup") R.splice(rows[rows.length - 1] + 1, 0, JSON.parse(JSON.stringify(R[rows[rows.length - 1]])));
 			else if (op === "above" || op === "below") {
 				var i = op === "above" ? rows[0] : rows[rows.length - 1], src = R[i];

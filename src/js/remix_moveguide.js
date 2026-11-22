@@ -46,8 +46,10 @@
 			data.css.replace(/\.mg \.(r\d+)\{([^}]*)\}/g, function (a, k, b) { if (b.indexOf("font-size") < 0) noSizeSpan[k] = 1; });
 		}
 		if (h.indexOf("<span") !== 0) return false;
-		var spans = h.match(/<span class="(r\d+)">/g) || [];
-		if (spans.some(function (s) { return noSizeSpan[s.slice(13, -2)]; })) return false;
+		// every piece needs its own size (text typed or recolored in the editor has none: it'd vanish at size 0)
+		var all = h.match(/<span[^>]*>/g) || [], sized = h.match(/<span class="(r\d+)">/g) || [];
+		if (all.length !== sized.length) return false;
+		if (sized.some(function (s) { return noSizeSpan[s.slice(13, -2)]; })) return false;
 		return !h.replace(/<br\s*\/?>/g, "").replace(/<span[^>]*>[^<]*<\/span>/g, "").trim();
 	}
 	function cellExtra(c, r) {
@@ -84,6 +86,15 @@
 		}).join("") + "</div>";
 	}
 	function typeHead(r) { return r.k === "h1" ? typeOf(r) : null; }
+	// the type names fill their boxes: the longest one sets one size for all of them
+	function fitTypeGrid() {
+		var links = $$(".mg-tg");
+		if (!links.length) return;
+		links.forEach(function (a) { a.style.fontSize = "40px"; });
+		var widest = links.reduce(function (m, a) { return a.scrollWidth > m.scrollWidth ? a : m; }, links[0]);
+		var size = 40 * (widest.clientWidth - 10) / widest.scrollWidth;
+		links.forEach(function (a) { a.style.fontSize = Math.max(10, Math.min(40, size)) + "px"; });
+	}
 
 	function rowHtml(r, i) {
 		var head = HEADS[r.k];
@@ -110,6 +121,7 @@
 		applyHide();
 		scale();
 		fitMoves();
+		fitTypeGrid();
 		if (editor && editor.on) editor.mark();
 	}
 
@@ -164,6 +176,7 @@
 			if (HEADS[r.k]) tr.classList.toggle("mg-shut", !(q && zone(r) === "body") && !isOpen(i));
 		});
 		fitMoves();
+		fitTypeGrid();
 	}
 	function goTo(i) {
 		var sec = sections()[i];
