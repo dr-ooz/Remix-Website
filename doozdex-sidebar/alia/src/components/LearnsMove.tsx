@@ -31,6 +31,9 @@ const bundles = (m: Learner[]) => {
 export function LearnsMove(props: { move: string; close: () => void; datasetId: string }) {
   const pokedex = usePokedex();
   const mid = nameToId(props.move);
+  const SORTS: [string, string][] = [["lvl", "Level ↑"], ["lvlDesc", "Level ↓"], ["name", "Name A–Z"], ["dex", "Dex order"]];
+  const [sortBy, setSortBy] = createSignal<string>((() => { try { return localStorage.getItem("dzLearnSort") || "lvl"; } catch { return "lvl"; } })());
+  const chooseSort = (v: string) => { setSortBy(v); try { localStorage.setItem("dzLearnSort", v); } catch { /* private mode */ } };
 
   const learnsIt = createMemo(() => {
     const pd = pokedex();
@@ -93,8 +96,21 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
       );
       return { members, how: (current ?? members[0]!)[1], label: rowLabel(members.map((m) => m[0])) };
     });
-    // level 1, 2, ... first, then TM, then tutor (like before)
-    return rows.toSorted((a, b) => howRank(a.how) - howRank(b.how));
+    // level 1, 2, ... then TM, then tutor (default); or high -> low (TM / tutor still last); or by name; or by dex order
+    const lvlKey = (r: FamilyRow) => (typeof r.how === "number" ? r.how : null);
+    const dexKey = (r: FamilyRow) => (r.members[0]![0] as any).dexOrder ?? 0;
+    const by = sortBy();
+    if (by === "name") return rows.toSorted((a, b) => a.label.localeCompare(b.label));
+    if (by === "dex") return rows.toSorted((a, b) => dexKey(a) - dexKey(b));
+    if (by === "lvlDesc")
+      return rows.toSorted((a, b) => {
+        const x = lvlKey(a), y = lvlKey(b);
+        if (x != null && y != null) return y - x || dexKey(a) - dexKey(b);
+        if (x != null) return -1;
+        if (y != null) return 1;
+        return howRank(a.how) - howRank(b.how);
+      });
+    return rows.toSorted((a, b) => howRank(a.how) - howRank(b.how) || dexKey(a) - dexKey(b));
   });
 
   // a plain list (a move has a few hundred learners at most): every row is as tall as its content, so rows never overlap
@@ -109,6 +125,14 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
       >
         <div class="flex h-8 shrink-0 border-b">
           <div class="flex flex-auto items-center px-2 font-bold">{props.move}</div>
+          <select
+            class="my-1 mr-1 cursor-pointer rounded border bg-black px-1 text-[12px]"
+            title="Sort the list"
+            value={sortBy()}
+            onChange={(e) => chooseSort(e.currentTarget.value)}
+          >
+            <For each={SORTS}>{([v, label]) => <option value={v}>Sort: {label}</option>}</For>
+          </select>
           <div
             onClick={props.close}
             class="flex aspect-square cursor-pointer items-center justify-center border-l"
