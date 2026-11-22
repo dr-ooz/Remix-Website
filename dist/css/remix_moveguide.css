@@ -396,3 +396,17 @@ td.mg-hd:has(.mg-caret2) .mg-caret { left: 50px; }
 .mg-lbl2::after { content: "all"; }
 table.mg td.mg-hd:hover .mg-lbl { opacity: 1; color: #c9a6ef; }
 tr.mg-h0 .mg-lbl { top: calc(50% + 20px); }
+
+/* arrows: point DOWN while closed (click to open), UP while open (click to close) */
+.mg-caret { transform: translateY(-50%) rotate(180deg); transition: transform .15s; }
+tr.mg-shut .mg-caret { transform: translateY(-50%) rotate(0deg); }
+.mg-caret2::before, .mg-caret2::after { transition: transform .15s; }
+tr.mg-allopen .mg-caret2::before, tr.mg-allopen .mg-caret2::after { transform: translateX(-50%) rotate(225deg); }
+tr.mg-allopen .mg-caret2::before { top: 9px; } tr.mg-allopen .mg-caret2::after { top: 17px; }
+/* the hints sit centered under their arrows */
+.mg-lbl { transform: translateX(-50%); text-align: center; }
+.mg-lbl1 { left: 19px; } .mg-lbl1.mg-lbl-shift { left: 59px; }
+.mg-lbl2 { left: 23px; }
+tr.mg-h0 .mg-lbl1 { left: 26px; }
+.mg-lbl2::after { content: "all"; } tr.mg-allopen .mg-lbl2::after { content: "all"; }
+tr.mg-h0 .mg-lbl1.mg-lbl-shift { left: 62px; }

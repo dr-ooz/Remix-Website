@@ -358,6 +358,12 @@
 			tr.style.display = show ? "" : "none";
 			if (HEADS[r.k]) tr.classList.toggle("mg-shut", !(q && zone(r) === "body") && !isOpen(i));
 		});
+		// the "open everything" arrows point up once everything inside is open (click again to close it all)
+		$$(".mg-page tr[data-i]").forEach(function (tr) {
+			if (!tr.querySelector(".mg-caret2")) return;
+			var i = +tr.getAttribute("data-i");
+			tr.classList.toggle("mg-allopen", inside(i).every(isOpen));
+		});
 		$$("#mg-guide .mg-chunk").forEach(function (ch) {
 			ch.classList.toggle("mg-chunk-empty", !Array.prototype.some.call(ch.querySelectorAll("tr[data-i]"), function (tr) { return tr.style.display !== "none"; }));
 		});
