@@ -403,7 +403,7 @@
 	};
 	var TOC_ICONS = {
 		"Priority Attacking Moves": [["chevrons-right"], ["phys", "spec"]],
-		"Attacking Moves With Drawbacks": [["circle-alert", "phys"], ["circle-alert", "spec"]],
+		"Attacking Moves With Drawbacks": [["exclaim", "phys"], ["exclaim", "spec"]],
 		"Other Damaging Moves": [["sparkles", "phys"], ["sparkles", "spec"]]
 	};
 	function tocIcon(kind) {
