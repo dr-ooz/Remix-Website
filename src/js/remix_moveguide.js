@@ -403,8 +403,8 @@
 			var map = th[a[0]] || {};
 			Object.keys(clsColor).forEach(function (k) {
 				var c = clsColor[k];
-				if (c.color && map["t" + c.color]) css += a[1] + " ." + k + "{color:" + map["t" + c.color] + " !important}";
-				if (c.bg && map["f" + c.bg] && k[0] === "s") css += a[1] + " td." + k + "{background-color:" + map["f" + c.bg] + " !important}";
+				if (c.color && map["t" + c.color]) css += a[1] + " ." + k + "{color:" + map["t" + c.color] + "}";
+				if (c.bg && map["f" + c.bg] && k[0] === "s") css += a[1] + " td." + k + "{background-color:" + map["f" + c.bg] + "}";
 			});
 		});
 		return css;
@@ -435,6 +435,7 @@
 	}
 	function setColor(input, val) {
 		var th = data.theme = data.theme || {}, kind = input.getAttribute("data-cp"), key = input.getAttribute("data-key");
+		if (!kind || !key) return;
 		th[kind] = th[kind] || {};
 		th[kind][key] = val; input.value = val;
 		applyColors(); markDirty();
@@ -492,18 +493,23 @@
 		el.innerHTML = "<span class='mg-mode'><button type='button' class='mg-btn mg-mode-b" + (editing ? "" : " on") + "' data-mode='preview' title='Exactly what visitors see'>👁 Preview</button>" +
 			"<button type='button' class='mg-btn mg-mode-b" + (editing ? " on" : "") + "' data-mode='edit' title='The Sheets-style editor (only you see it)'>✏️ Edit</button></span>" +
 			"<button type='button' class='mg-btn mg-colors' title='Change the info blurb and table of contents colors'>🎨 Colors</button>" +
-			(editing || dirty ? "<button type='button' class='mg-btn mg-save' title='Download move_guide.json: put it in src/moveguide/ and rebuild'>💾 Save to file</button>" +
+			(editing || dirty ? "<button type='button' class='mg-btn mg-save' title='Save into the website folder (src/moveguide/move_guide.json)'>💾 Save" + (dirty ? " •" : "") + "</button>" +
 				"<button type='button' class='mg-btn mg-discard' title='Throw away your unsaved edits'>Discard edits</button>" : "");
 	}
 	var undo = [], redo = [];
 	function snap() { return JSON.stringify({rows: data.rows, cols: data.cols, theme: data.theme, moveH: data.moveH}); }
+	function toast(msg) {
+		var t = document.getElementById("mg-toast") || document.body.appendChild(Object.assign(document.createElement("div"), {id: "mg-toast"}));
+		t.textContent = msg; t.style.display = "block";
+		clearTimeout(toast.t); toast.t = setTimeout(function () { t.style.display = "none"; }, 4000);
+	}
 	function markDirty() {
 		var now = snap();
 		if (undo[undo.length - 1] !== now) { undo.push(now); if (undo.length > 150) undo.shift(); redo = []; }
 		dirty = true; saveDraftSoon(); editTools();
 	}
 	function saveDraftSoon() { clearTimeout(saveDraftSoon.t); saveDraftSoon.t = setTimeout(function () { save(K_DRAFT, data); }, 600); }
-	window.addEventListener("beforeunload", function () { if (saveDraftSoon.t) save(K_DRAFT, data); });
+	window.addEventListener("beforeunload", function () { if (saveDraftSoon.t && dirty) save(K_DRAFT, data); });
 	function restore(from, to) {
 		if (from.length < 2 && from === undo) return;
 		if (from === undo) { to.push(from.pop()); var st = JSON.parse(undo[undo.length - 1]); }
@@ -541,7 +547,7 @@
 
 	document.addEventListener("click", function (e) {
 		if (e.target.closest(".mg-colors") || e.target.closest("[data-cp-close]")) { colorPanel(); return; }
-		var sw = e.target.closest("[data-sw]");
+		var sw = e.target.closest("#mg-colorpanel [data-sw]");
 		if (sw) { e.preventDefault(); var row0 = sw.closest(".rse-sw").previousElementSibling; if (row0) setColor(row0.querySelector("input"), sw.getAttribute("data-sw")); return; }
 		if (e.target.closest("[data-cp-reset]")) {
 			var rb = e.target.closest("[data-cp-reset]");
@@ -574,9 +580,22 @@
 		else if (act === "expand") { data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; }); save(K_OPEN, open); applyCollapse(); }
 		else if (b.hasAttribute("data-mode")) setMode(b.getAttribute("data-mode") === "edit");
 		else if (b.classList.contains("mg-save")) {
-			var a = document.createElement("a");
-			a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: "application/json"}));
-			a.download = "move_guide.json"; a.click();
+			var text = JSON.stringify(data);
+			b.textContent = "Saving…";
+			fetch("/__save", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({path: "moveguide/move_guide.json", content: text})})
+				.then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+				.then(function () {
+					// it's in the website folder now: the draft isn't needed any more
+					dirty = false; clearTimeout(saveDraftSoon.t); saveDraftSoon.t = null;
+					try { localStorage.removeItem(K_DRAFT); } catch (e3) {}
+					editTools(); toast("Saved to the website folder (src/moveguide/move_guide.json)");
+				})
+				.catch(function () {
+					var a = document.createElement("a");
+					a.href = URL.createObjectURL(new Blob([text], {type: "application/json"}));
+					a.download = "move_guide.json"; a.click();
+					editTools(); toast("The save server isn't running, so it downloaded instead. Put move_guide.json in src/moveguide/.");
+				});
 		} else if (b.classList.contains("mg-discard")) {
 			if (!b.classList.contains("sure")) { b.classList.add("sure"); b.textContent = "Click again to discard"; setTimeout(function () { b.classList.remove("sure"); editTools(); }, 4000); return; }
 			try { localStorage.removeItem(K_DRAFT); } catch (e2) {}
@@ -606,6 +625,13 @@
 		dirty = !!(draft && draft.rows);
 		var st = document.createElement("style"); st.textContent = data.css; document.head.appendChild(st);
 		readClassColors();
+		var th0 = data.theme = data.theme || {};
+		delete th0["null"];
+		if (!th0.tocPurples) {
+			th0.toc = Object.assign(th0.toc || {}, {"t#f6b26b": "#b78bee", "t#ffe599": "#9f01be"});
+			th0.tocPurples = 1;
+			setTimeout(markDirty, 0);
+		}
 		var defs = document.createElement("div"); defs.innerHTML = data.defs; document.body.appendChild(defs.firstChild);
 		editTools();
 		render();

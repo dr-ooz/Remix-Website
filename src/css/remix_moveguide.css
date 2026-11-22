@@ -218,3 +218,12 @@ table.mg td.rse-st-bdt { border-top: var(--rse-bdt) !important; }
 table.mg td.rse-st-bdr { border-right: var(--rse-bdr) !important; }
 table.mg td.rse-st-bdb { border-bottom: var(--rse-bdb) !important; }
 table.mg td.rse-st-bdl { border-left: var(--rse-bdl) !important; }
+/* borders menu, row dragging, notes */
+#rse-bar .rse-bdgrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-bottom: 6px; }
+#rse-bar .rse-bdgrid .rse-b { border: 1px solid #ddd; font-size: 16px; height: 30px; }
+#rse-bar select[data-bdstyle] { flex: 1; }
+#rse-dropline { position: absolute; z-index: 70; height: 4px; background: #1a73e8; border-radius: 2px; pointer-events: none; display: none; }
+body.rse-dragging, body.rse-dragging * { cursor: grabbing !important; user-select: none; }
+table.mg.rse-grid th.rse-rn { cursor: grab; }
+#rse-note, #mg-toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 4500; display: none; background: #323232; color: #fff;
+	font: 13px Arial, sans-serif; padding: 9px 16px; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,.35); }

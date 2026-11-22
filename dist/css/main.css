@@ -1291,7 +1291,7 @@ body:not(.dz-open) .rx-nav { padding-left: 104px; } /* room for the fixed "Open 
 /* top bar: logos pushed to the far edges, tabs (with a blurb line under each) in the middle */
 .rx-nav { max-width: none; padding: 6px 16px; align-items: flex-start; }
 .rx-nav-logo { flex: 0 0 auto; align-self: center; }
-.rx-nav-tabs { align-items: flex-start; gap: 6px; }
-.rx-tabcol { display: flex; flex-direction: column; align-items: center; max-width: 150px; }
+.rx-nav-tabs { align-items: flex-start; gap: 8px 10px; }
+.rx-tabcol { display: flex; flex-direction: column; align-items: center; }
 .rx-tab-blurb { font-size: 10px; line-height: 1.2; color: #a59cb3; text-align: center; margin-top: 3px; min-height: 12px; }
 .rx-tab-blurb:empty { min-height: 0; margin: 0; }

@@ -230,7 +230,9 @@ var RemixSheetEditor = (function () {
 						PROPS.forEach(function (p) {
 							var v = el.style.getPropertyValue(p);
 							if (!v) return;
-							el.querySelectorAll("*").forEach(function (kid) { kid.style.setProperty(p, v); });
+							// important: beats the cell's own formatting (a whole-cell color) the way a text run does in Sheets
+							el.style.setProperty(p, v, "important");
+							el.querySelectorAll("*").forEach(function (kid) { kid.style.setProperty(p, v, "important"); });
 						});
 					});
 				};
@@ -258,16 +260,19 @@ var RemixSheetEditor = (function () {
 			o.changed(); o.rerender(rowsOf(cells));
 		}
 		function setCells(fn) { if (editTd) endEdit(true); var cells = selCells(); cells.forEach(function (c) { var e = ext(cellAt(c.i, c.j)); e.st = e.st || {}; fn(e.st, c); }); o.changed(); o.rerender(rowsOf(cells)); }
-		function borders(kind, color, width) {
-			var line = width + "px solid " + color;
+		function borders(kind, color, style) {
+			var line = style.replace("#", color);
 			setCells(function (st, c) {
 				var top = c.y === sel.y0, bot = c.y + c.rs - 1 === sel.y1, left = c.x === sel.x0, right = c.x + c.cs - 1 === sel.x1;
 				st.bd = st.bd || {};
-				var set = function (s, on) { if (on) st.bd[s] = line; };
+				var set = function (k, on) { if (on) st.bd[k] = line; };
 				if (kind === "all") st.bd = {t: line, r: line, b: line, l: line};
 				else if (kind === "outer") { set("t", top); set("b", bot); set("l", left); set("r", right); }
 				else if (kind === "inner") { set("t", !top); set("l", !left); }
+				else if (kind === "horizontal") set("t", !top);
+				else if (kind === "vertical") set("l", !left);
 				else if (kind === "none") st.bd = {t: "0 none", r: "0 none", b: "0 none", l: "0 none"};
+				else if (kind === "reset") delete st.bd;
 				else set(kind, kind === "t" ? top : kind === "b" ? bot : kind === "l" ? left : right);
 			});
 		}
@@ -371,9 +376,14 @@ var RemixSheetEditor = (function () {
 				btn("fs-", "−", "Smaller") + "<input data-in='fs' title='Font size (pt)'>" + btn("fs+", "+", "Bigger") + sep +
 				btn("b", "<b>B</b>", "Bold (Ctrl+B)") + btn("i", "<i>I</i>", "Italic (Ctrl+I)") + btn("s", "<s>S</s>", "Strikethrough") + btn("u", "<u>U</u>", "Underline (Ctrl+U)") +
 				colorBtn("color", "A", "Text color") + sep + colorBtn("bg", "🪣", "Fill color") +
-				pop("bd", "▦", "Borders", btn("bd", "▦ All", "All borders", "all") + btn("bd", "▢ Outer", "Outer borders", "outer") + btn("bd", "╋ Inner", "Inner borders", "inner") +
-					btn("bd", "▔ Top", "Top", "t") + btn("bd", "▁ Bottom", "Bottom", "b") + btn("bd", "▏Left", "Left", "l") + btn("bd", "▕ Right", "Right", "r") + btn("bd", "✕ None", "No borders", "none") +
-					"<div class='rse-poprow'>Color <input type='color' data-bdcolor value='#000000'> Width <select data-bdw><option>1</option><option>2</option><option selected>3</option></select>px</div>", true) +
+				pop("bd", "▦", "Borders", "<div class='rse-bdgrid'>" +
+					btn("bd", "▦", "All borders", "all") + btn("bd", "╋", "Inner borders", "inner") + btn("bd", "━", "Horizontal (inner) borders", "horizontal") + btn("bd", "┃", "Vertical (inner) borders", "vertical") + btn("bd", "▢", "Outer borders", "outer") +
+					btn("bd", "▏", "Left border", "l") + btn("bd", "▔", "Top border", "t") + btn("bd", "▕", "Right border", "r") + btn("bd", "▁", "Bottom border", "b") + btn("bd", "✕", "Clear borders (none)", "none") + "</div>" +
+					"<div class='rse-poprow'>Color <input type='color' data-bdcolor value='#000000'> " + btn("bd", "Sheet's own", "Back to the sheet's borders", "reset") + "</div>" +
+					"<div class='rse-poprow'>Style <select data-bdstyle>" + [["1px solid #", "Thin solid"], ["2px solid #", "Medium solid"], ["3px solid #", "Thick solid"], ["4px solid #", "Extra thick solid"],
+						["1px dotted #", "Dotted, fine"], ["2px dotted #", "Dotted"], ["3px dotted #", "Dotted, wide"], ["1px dashed #", "Dashed, fine"], ["2px dashed #", "Dashed"], ["3px dashed #", "Dashed, wide"],
+						["3px double #", "Double"], ["5px double #", "Double, wide"]].map(function (o2, k) { return "<option value='" + o2[0] + "'" + (k === 2 ? " selected" : "") + ">" + o2[1] + "</option>"; }).join("") +
+					"</select><span class='rse-bdprev'></span></div>", true) +
 				pop("mg", "⊞", "Merge cells", btn("merge", "⊞ Merge all", "Merge the selected cells") + btn("unmerge", "⊟ Unmerge", "Split merged cells")) + sep +
 				pop("al", "≡", "Horizontal align", btn("al", "⇤ Left", "Align left", "left") + btn("al", "↔ Center", "Align center", "center") + btn("al", "⇥ Right", "Align right", "right")) +
 				pop("va", "⇕", "Vertical align", btn("va", "⤒ Top", "Top", "top") + btn("va", "↕ Middle", "Middle", "middle") + btn("va", "⤓ Bottom", "Bottom", "bottom")) +
@@ -408,7 +418,7 @@ var RemixSheetEditor = (function () {
 				else if (a === "merge") merge(); else if (a === "unmerge") unmerge();
 				else if (a === "above" || a === "below" || a === "dup" || a === "del") rowOp(a);
 				else if (a === "paint") { var cs = selCells(); if (cs.length) { var src = cellAt(cs[0].i, cs[0].j); painter = {cls: src[0], st: JSON.parse(JSON.stringify((src[4] || {}).st || {}))}; document.body.classList.add("rse-painting"); } }
-				else if (a === "bd") borders(v, bar.querySelector("[data-bdcolor]").value, bar.querySelector("[data-bdw]").value);
+				else if (a === "bd") borders(v, bar.querySelector("[data-bdcolor]").value, bar.querySelector("[data-bdstyle]").value);
 				else if (a === "color-reset") { setCells(function (st) { delete st.color; }); closePops(); }
 				else if (a === "bg-reset") { setCells(function (st) { delete st.bg; }); closePops(); }
 			});
@@ -517,6 +527,7 @@ var RemixSheetEditor = (function () {
 			var cg = e.target.closest(".rse-colgrip"), rg = e.target.closest(".rse-rowgrip");
 			if (cg || rg) { e.preventDefault(); startResize(e, cg, rg); return; }
 			var ch = e.target.closest(o.scope + " th[data-col]"), rh = e.target.closest(o.scope + " th.rse-rn");
+			if (rh && e.button === 0 && !e.shiftKey) armRowDrag(e, rh);
 			if (ch || rh) {
 				if (e.button === 2 && sel) return;
 				e.preventDefault(); if (editTd) endEdit(true);
@@ -562,6 +573,53 @@ var RemixSheetEditor = (function () {
 			e.preventDefault();
 			openMenu(e.clientX, e.clientY);
 		});
+
+		// ---- moving rows by dragging their row number ----
+		function armRowDrag(e, rh) {
+			var startY = e.clientY, area = rh.closest("[id]"), moving = null, line = null, target = null;
+			var mv = function (ev) {
+				if (!moving) {
+					if (Math.abs(ev.clientY - startY) < 6) return;
+					var picked = selRows(), here = +rh.parentNode.getAttribute("data-i");
+					moving = picked.indexOf(here) >= 0 ? picked : [here];
+					line = document.createElement("div"); line.id = "rse-dropline"; document.body.appendChild(line);
+					document.body.classList.add("rse-dragging");
+				}
+				var el = document.elementFromPoint(ev.clientX, ev.clientY), tr = el && el.closest && el.closest("tr[data-i]");
+				if (!tr || tr.closest("[id]") !== area) { line.style.display = "none"; target = null; return; }
+				var b = tr.getBoundingClientRect(), after = ev.clientY > b.top + b.height / 2;
+				target = {i: +tr.getAttribute("data-i"), after: after};
+				line.style.display = "block";
+				line.style.left = (b.left + scrollX) + "px"; line.style.width = b.width + "px";
+				line.style.top = ((after ? b.bottom : b.top) + scrollY - 2) + "px";
+			};
+			var up = function () {
+				document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up);
+				if (line) line.remove();
+				document.body.classList.remove("rse-dragging");
+				if (moving && target) moveRows(moving, target.after ? target.i + 1 : target.i);
+			};
+			document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
+		}
+		function moveRows(rows, to) {
+			var R = data().rows, a = rows[0], b = rows[rows.length - 1];
+			if (rows.length !== b - a + 1) return note("Pick rows that are next to each other to move them together.");
+			if (to >= a && to <= b + 1) return; // dropped onto itself
+			// merged cells can't be split by a move
+			var spans = function (i) { return R[i].c.some(function (c) { return (c[2] || 1) > 1; }); };
+			for (var i = a; i <= b; i++) if (R[i].c.some(function (c) { return i + (c[2] || 1) - 1 > b; })) return note("Unmerge the cells that run past these rows first.");
+			for (var k = Math.max(0, a - 8); k < a; k++) if (R[k].c.some(function (c) { return k + (c[2] || 1) - 1 >= a; })) return note("These rows are part of a merged cell above; unmerge it first.");
+			for (k = Math.max(0, to - 8); k < to; k++) if (R[k].c.some(function (c) { return k + (c[2] || 1) - 1 >= to; })) return note("Can't drop inside a merged cell.");
+			var block = R.splice(a, b - a + 1);
+			var at = to > b ? to - block.length : to;
+			Array.prototype.splice.apply(R, [at, 0].concat(block));
+			sel = null; active = null; o.changed(); o.rerender();
+		}
+		function note(msg) {
+			var n = document.getElementById("rse-note") || document.body.appendChild(Object.assign(document.createElement("div"), {id: "rse-note"}));
+			n.textContent = msg; n.style.display = "block";
+			clearTimeout(note.t); note.t = setTimeout(function () { n.style.display = "none"; }, 3500);
+		}
 
 		function startResize(e, cg, rg) {
 			var start = cg ? e.clientX : e.clientY, zoom = parseFloat((cg || rg).closest("table").style.zoom) || 1, mv, up;
