@@ -404,7 +404,7 @@
 	var TOC_ICONS = {
 		"Priority Attacking Moves": [["chevrons-right"], ["phys", "spec"]],
 		"Attacking Moves With Drawbacks": [["exclaim", "phys"], ["exclaim", "spec"]],
-		"Other Damaging Moves": [["sword", "phys"], ["sword", "spec"]]
+		"Other Damaging Moves": [["plus-bold", "phys"], ["plus-bold", "spec"]]
 	};
 	function tocIcon(kind) {
 		if (kind === "physical" || kind === "special" || kind === "status") return "<img class='tocx-ico' src='" + ICON_URL.replace("%s", kind) + "' alt=''>";
