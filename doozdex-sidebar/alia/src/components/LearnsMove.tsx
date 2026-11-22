@@ -20,11 +20,14 @@ const howLabel = (how: How) =>
   );
 
 const LINE_H = 50;
-// a family's sprites go together (up to 3); bigger families in pairs
+// how a family's sprites split into lines: up to 3 on one line, 4 = 2+2, 5 = one line of 5, 6 = 3+3,
+// 7 = 4+3, 8 = four lines of 2; bigger ones in pairs
+const LINES: Record<number, number[]> = { 4: [2, 2], 5: [5], 6: [3, 3], 7: [4, 3], 8: [2, 2, 2, 2] };
 const bundles = (m: Learner[]) => {
-  const size = m.length <= 3 ? m.length : 2;
+  const sizes = m.length <= 3 ? [m.length] : LINES[m.length] ?? Array(Math.ceil(m.length / 2)).fill(2);
   const out: Learner[][] = [];
-  for (let i = 0; i < m.length; i += size) out.push(m.slice(i, i + size));
+  let i = 0;
+  for (const n of sizes) { out.push(m.slice(i, i + n)); i += n; }
   return out;
 };
 
@@ -55,8 +58,14 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   // over 50 Pokemon learn it: Widely Distributed
   // the second word ("Move" / "Distribution") drops off on its own when the header is too narrow for it
   // (measured against a hidden copy of the full text, so it never gets cut off with "...")
+  // and only when even the short label can't fit (e.g. "Widespread"), the move name's text shrinks to make room
   const [short, setShort] = createSignal(false);
+  const [nameSize, setNameSize] = createSignal(0); // 0 = normal size, else px
   let boxEl: HTMLDivElement | undefined, nameEl: HTMLSpanElement | undefined, fullEl: HTMLSpanElement | undefined;
+  let shortEl: HTMLSpanElement | undefined, nameMeasure: HTMLSpanElement | undefined;
+  // the move name in its type's color
+  const moves = useMoves();
+  const typeColour = () => { const t = (moves() as any)?.[mid]?.type; return (t && TYPE_COLOURS[t]) || undefined; };
   // how many Pokemon learn it (and how many there are in all)
   const monCount = () => learnsIt().reduce((t, r) => t + r.members.length, 0);
   const allMons = createMemo(() => Object.values(pokedex() ?? {}).filter((p) => !p.unusable).length);
@@ -76,9 +85,15 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   const fullText = () => words()?.[0] ?? "";
   const rarity = () => { const w = words(); return !w ? "" : short() ? w[1] : w[0]; };
   const refit = () => {
-    if (!boxEl || !nameEl || !fullEl) return;
-    const room = boxEl.clientWidth - 16 - nameEl.offsetWidth - 6; // padding px-2, gap-1.5
-    setShort(fullEl.offsetWidth > room);
+    if (!boxEl || !nameMeasure || !fullEl || !shortEl) return;
+    const GAP = 6, PAD = 16, AIR = 6; // gap-1.5, px-2, a little air before the Sort button
+    const nameW = nameMeasure.offsetWidth; // the name at its normal size
+    const room = boxEl.clientWidth - PAD - GAP - AIR;
+    if (!fullText() || fullEl.offsetWidth + nameW <= room) { setShort(false); setNameSize(0); return; }
+    setShort(true);
+    if (shortEl.offsetWidth + nameW <= room) { setNameSize(0); return; }
+    const base = parseFloat(getComputedStyle(nameMeasure).fontSize) || 16;
+    setNameSize(Math.max(10, Math.floor(base * ((room - shortEl.offsetWidth) / nameW) * 10) / 10));
   };
   onMount(() => {
     const ro = new ResizeObserver(refit);
@@ -179,7 +194,9 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
       >
         <div class="flex h-8 shrink-0 border-b">
           <div ref={boxEl} class="relative flex min-w-0 flex-auto items-center gap-1.5 overflow-hidden px-2">
-            <span ref={nameEl} class="shrink-0 font-bold">{props.move}</span>
+            <span ref={nameEl} class="shrink-0 font-bold" style={{ color: typeColour(), "font-size": nameSize() ? `${nameSize()}px` : undefined }}>
+              {props.move}
+            </span>
             {rarity() && (
               <span class="whitespace-nowrap text-[11px] font-normal italic opacity-80" title={`Learned by ${monCount()} Pokémon (${lineCount()} evolution line${lineCount() === 1 ? "" : "s"})`}>
                 ({rarity()})
@@ -187,6 +204,12 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
             )}
             <span ref={fullEl} aria-hidden="true" class="pointer-events-none invisible absolute left-0 top-0 whitespace-nowrap text-[11px] font-normal italic">
               ({fullText()})
+            </span>
+            <span ref={shortEl} aria-hidden="true" class="pointer-events-none invisible absolute left-0 top-0 whitespace-nowrap text-[11px] font-normal italic">
+              ({words()?.[1] ?? ""})
+            </span>
+            <span ref={nameMeasure} aria-hidden="true" class="pointer-events-none invisible absolute left-0 top-0 whitespace-nowrap font-bold">
+              {props.move}
             </span>
           </div>
           <button

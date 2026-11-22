@@ -211,6 +211,51 @@ for p in pokedex.values():
         if src:
             p["learntMoves"] = list(src["learntMoves"])
 
+# Form-change move swaps (remix-data/form_moves.json, from code.bin via tools/refresh_form_moves.py): changing
+# form turns a row's move into the new form's move, so every form "learns" its own column of a row at the
+# earliest way any form of the species gets a move from that row (learn Scald as Wash at Lv1 -> Heat Wave as Heat).
+FORM_COLUMNS = {  # species number -> the sidebar form for each table column ("" = the base entry)
+    479: ["", "Heat", "Wash", "Frost", "Fan", "Mow"],
+    492: ["", "Sky"],
+    586: ["", "Summer", "Autumn", "Winter"],
+    774: ["Red", "Blaze", "Surge", "Verdant", "Frost", "Tidal", "Draco"],
+}
+fm_path = os.path.join(CALC, "remix-data", "form_moves.json")
+if os.path.exists(fm_path):
+    with open(fm_path, encoding="utf8") as f:
+        form_moves = json.load(f)
+
+    def how_rank(h):
+        return h if isinstance(h, int) else 1000 if h == "tm" else 1001
+
+    for sp, rows in form_moves.items():
+        cols = FORM_COLUMNS.get(int(sp))
+        if not cols:
+            continue
+        entries = {}
+        for p in pokedex.values():
+            if p["num"] == int(sp):
+                entries[p.get("form") or ""] = p
+        if not entries:
+            continue
+        for row in rows:
+            ids = {move_id_by_num.get(m) for m in row if m} - {None}
+            hows = [how for p in entries.values() for mv, how in p.get("learntMoves", []) if mv in ids]
+            if not hows:
+                continue
+            best = min(hows, key=how_rank)
+            for c, mv in enumerate(row):
+                mid = move_id_by_num.get(mv)
+                # a season / form the sidebar has no entry for (Sawsbuck's seasons) goes on the base entry
+                p = entries.get(cols[c] if c < len(cols) else None) or entries.get("")
+                if not mid or p is None:
+                    continue
+                have = next((e for e in p.setdefault("learntMoves", []) if e[0] == mid), None)
+                if have is None:
+                    p["learntMoves"].append([mid, best])
+                elif how_rank(best) < how_rank(have[1]):  # e.g. Heat Wave by TM -> Lv1 through the Scald swap
+                    have[1] = best
+
 # Remix dex order (remix-data/dex_order.json, from the dex order board): dexOrder = position,
 # family = family index, so the list can sort by it and draw a line between families.
 order_path = os.path.join(CALC, "remix-data", "dex_order.json")
