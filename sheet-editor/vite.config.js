@@ -6,7 +6,7 @@ export default defineConfig({
 	plugins: [react()],
 	define: { "process.env.NODE_ENV": '"production"' },
 	build: {
-		outDir: "../src/sheet-editor",
+		outDir: "dist", // reference build only: NOT part of the site (the real-page editor is src/js/remix_sheet_editor.js)
 		emptyOutDir: true,
 		cssCodeSplit: false,
 		lib: { entry: "src/main.jsx", formats: ["iife"], name: "RemixFortuneLib", fileName: () => "sheet-editor.js" },

@@ -90,7 +90,6 @@ tr.mg-h0 .mg-caret { border-width: 12px; border-top-width: 17px; left: 14px; }
 img.mg-logo-edit { outline: 2px dashed #4af; cursor: move; }
 
 /* Sheets-style editor panel (src/js/remix_sheet_editor.js) */
-body.rse-on .mg-page { margin-right: 300px; }
 #rse-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 290px; z-index: 2500; display: none; overflow: auto; background: #1d1924;
 	border-left: 2px solid #8a5ab8; padding: 10px; font: 12px Comfortaa, Arial, sans-serif; color: #fff; box-shadow: -4px 0 16px rgba(0,0,0,.5); }
 #rse-panel .rse-h { font-size: 15px; font-weight: bold; color: #c9a6ef; }
@@ -124,3 +123,68 @@ a.mg-tg:hover { filter: brightness(1.15); box-shadow: 0 0 0 2px #fff; }
 #rf-host .rf-bar button { font: bold 13px Comfortaa, Arial, sans-serif; color: #fff; background: #2e2837; border: 1px solid #4a4256; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
 #rf-host .rf-bar button.rf-go { background: #3d2440; border-color: #ef1c7b; }
 #rf-host .rf-sheet { flex: 1; position: relative; min-height: 0; }
+
+/* ===== Sheets-style editor on the real page (src/js/remix_sheet_editor.js); only in Edit mode on localhost ===== */
+body.rse-on { padding-top: var(--rse-h, 44px); }
+#rse-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 4000; display: none; align-items: center; gap: 3px; flex-wrap: wrap; padding: 5px 10px;
+	background: #f9fbfd; border-bottom: 1px solid #c7c7c7; font: 13px Arial, sans-serif; color: #222; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+#rse-bar .rse-b { font: 14px Arial, sans-serif; min-width: 28px; height: 28px; padding: 0 6px; border: 0; border-radius: 4px; background: transparent; color: #333; cursor: pointer; }
+#rse-bar .rse-b:hover { background: #e8eaed; }
+#rse-bar .rse-b.on { background: #d3e3fd; color: #0b57d0; }
+#rse-bar .rse-sep { width: 1px; height: 20px; background: #c7c7c7; margin: 0 4px; }
+#rse-bar select, #rse-bar input[data-in] { height: 26px; border: 1px solid #c7c7c7; border-radius: 4px; background: #fff; color: #222; font: 13px Arial, sans-serif; padding: 0 4px; }
+#rse-bar select[data-in=ff] { width: 120px; }
+#rse-bar input[data-in=fs] { width: 46px; }
+#rse-bar .rse-info { margin-left: auto; color: #555; font-size: 12px; }
+#rse-bar .rse-color { position: relative; font-weight: bold; padding-bottom: 6px; }
+#rse-bar .rse-cbar { position: absolute; left: 5px; right: 5px; bottom: 3px; height: 4px; border-radius: 1px; background: #000; border: 1px solid rgba(0,0,0,.2); }
+#rse-bar .rse-pop { position: relative; display: inline-block; }
+#rse-bar .rse-popbox { display: none; position: absolute; top: 32px; left: 0; z-index: 4100; width: 280px; background: #fff; border: 1px solid #c7c7c7; border-radius: 6px; padding: 8px;
+	box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+#rse-bar .rse-popbox.on { display: block; }
+#rse-bar .rse-bdbox { width: 250px; }
+#rse-bar .rse-bdbox .rse-b { border: 1px solid #ddd; margin: 2px; }
+#rse-bar .rse-poprow { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 12px; }
+#rse-bar .rse-poprow input[type=color] { width: 30px; height: 24px; padding: 0; border: 1px solid #ccc; }
+.rse-sw { display: flex; flex-wrap: wrap; gap: 3px; }
+.rse-sw i { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(0,0,0,.35); cursor: pointer; }
+.rse-sw i:hover { outline: 2px solid #0b57d0; }
+.rse-sw .rse-sw-add { font: bold 12px Arial, sans-serif; width: 18px; height: 18px; padding: 0; line-height: 16px; border: 1px dashed #888; border-radius: 3px; background: #fff; color: #333; cursor: pointer; }
+
+/* column letters / row numbers */
+table.mg.rse-grid thead th, table.mg.rse-grid th.rse-rn { position: relative; background: #f1f3f4; color: #444; font: 12px Arial, sans-serif; text-align: center;
+	border: 1px solid #c7c7c7; cursor: pointer; user-select: none; padding: 0; }
+table.mg.rse-grid thead th { height: 22px; }
+table.mg.rse-grid th.rse-corner { background: #e8eaed; cursor: default; }
+table.mg.rse-grid thead th:hover, table.mg.rse-grid th.rse-rn:hover { background: #e2e5e8; }
+.rse-colgrip { position: absolute; top: 0; right: -3px; width: 6px; height: 100%; cursor: col-resize; z-index: 2; }
+.rse-rowgrip { position: absolute; left: 0; bottom: -3px; height: 6px; width: 100%; cursor: row-resize; z-index: 2; }
+.rse-colgrip:hover, .rse-rowgrip:hover { background: #0b57d0; }
+body.mg-editing .mg-page td { cursor: cell; }
+body.mg-editing .mg-page td.mg-go:hover { filter: none; text-decoration: none; }
+body.rse-painting .mg-page td { cursor: copy !important; }
+
+/* selection, active cell, the cell being typed in */
+#rse-selbox { position: absolute; display: none; z-index: 60; pointer-events: none; border: 1px solid #1a73e8; background: rgba(26,115,232,.10); }
+#rse-active { position: absolute; display: none; z-index: 61; pointer-events: none; border: 2px solid #1a73e8; }
+.mg-page td.rse-editing { outline: 2px solid #1a73e8; outline-offset: -2px; cursor: text; box-shadow: 0 0 0 4px rgba(26,115,232,.25); }
+.mg-page td.rse-editing .mg-in { zoom: 1 !important; }
+
+/* right-click menu + size box */
+#rse-menu { position: absolute; z-index: 4200; min-width: 220px; background: #fff; border: 1px solid #c7c7c7; border-radius: 6px; padding: 5px 0; box-shadow: 0 4px 16px rgba(0,0,0,.25);
+	font: 13px Arial, sans-serif; color: #222; }
+#rse-menu .rse-mi { padding: 5px 14px; cursor: pointer; display: flex; justify-content: space-between; gap: 14px; }
+#rse-menu .rse-mi:hover { background: #e8eaed; }
+#rse-menu .rse-mi small { color: #888; }
+#rse-menu .rse-mh { padding: 4px 14px 2px; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .5px; }
+#rse-menu hr { border: 0; border-top: 1px solid #e3e3e3; margin: 4px 0; }
+#rse-size { position: fixed; top: 52px; left: 50%; transform: translateX(-50%); z-index: 4300; background: #fff; color: #222; border: 1px solid #c7c7c7; border-radius: 6px;
+	padding: 8px 10px; font: 13px Arial, sans-serif; box-shadow: 0 4px 16px rgba(0,0,0,.25); display: flex; align-items: center; gap: 6px; }
+#rse-size input { width: 70px; height: 24px; }
+
+/* Preview / Edit switch */
+.mg-mode { display: inline-flex; border: 1px solid #4a4256; border-radius: 7px; overflow: hidden; }
+.mg-mode .mg-btn { border: 0; border-radius: 0; }
+.mg-mode .mg-btn.on { background: #3d2440; color: #ff9ccb; box-shadow: inset 0 -2px 0 #ef1c7b; }
+.mg-btn.sure { background: #6b1d1d !important; border-color: #ff6b6b !important; }
+body.rse-on .mg-bar { top: var(--rse-h, 44px); }

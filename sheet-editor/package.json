@@ -1,7 +1,7 @@
 {
   "name": "remix-sheet-editor",
   "private": true,
-  "description": "Dev-only Google-Sheets-style editor (FortuneSheet) for the Remix DoozDex site. Builds to ../src/sheet-editor/ and is only loaded on localhost.",
+  "description": "REFERENCE ONLY: FortuneSheet (a Google Sheets clone) kept to study how Sheets-like UI works. Not loaded by the site; the site edits the real page with src/js/remix_sheet_editor.js.",
   "scripts": { "build": "vite build" },
   "dependencies": {
     "@fortune-sheet/react": "1.0.4",

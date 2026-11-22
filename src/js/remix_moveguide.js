@@ -98,15 +98,20 @@
 
 	function rowHtml(r, i) {
 		var head = HEADS[r.k];
-		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" + r.c.map(function (c, j) {
+		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" +
+			(editing ? "<th class='rse-rn'>" + (i + 1) + "<span class='rse-rowgrip' title='Drag to resize the row'></span></th>" : "") + r.c.map(function (c, j) {
 			return "<td class='" + c[0] + cellExtra(c, r) + (head && j === 0 ? " mg-hd" : "") + "'" + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
-				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'" + (editing && r.special !== "types" ? " contenteditable='true'" : "") + ">" +
+				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'>" +
 				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : cellHtml(c, r)) + "</td>";
 		}).join("") + "</tr>";
 	}
 	function tableHtml(rows) {
-		return "<table class='mg waffle'><colgroup>" + data.cols.map(function (w) { return "<col style='width:" + w + "px'>"; }).join("") +
-			"</colgroup><tbody>" + rows.join("") + "</tbody></table>";
+		var L = typeof RemixSheetEditor !== "undefined" ? RemixSheetEditor.LETTERS : "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		return "<table class='mg waffle" + (editing ? " rse-grid" : "") + "'><colgroup>" + (editing ? "<col style='width:46px'>" : "") +
+			data.cols.map(function (w, x) { return "<col data-x='" + x + "' style='width:" + w + "px'>"; }).join("") + "</colgroup>" +
+			(editing ? "<thead><tr><th class='rse-corner'></th>" + data.cols.map(function (w, x) {
+				return "<th data-col='" + x + "'>" + L[x] + "<span class='rse-colgrip' data-col='" + x + "' title='Drag to resize the column'></span></th>";
+			}).join("") + "</tr></thead>" : "") + "<tbody>" + rows.join("") + "</tbody></table>";
 	}
 
 	function render() {
@@ -354,10 +359,10 @@
 	}
 	function applyColors() {
 		var st = document.getElementById("mg-colors") || document.head.appendChild(Object.assign(document.createElement("style"), {id: "mg-colors"}));
-		st.textContent = themeCss() /* the guide keeps the sheet's own type colors (user 2026-11-22); typeColorCss() unused */ + (editor ? editor.css() : cellCss());
+		st.textContent = themeCss() /* the guide keeps the sheet's own type colors (user 2026-11-22); typeColorCss() unused */ + cellCss();
 	}
 	// the editor's cell formatting, for viewers (the editor itself isn't loaded for them)
-	function cellCss() { return typeof RemixSheetEditor !== "undefined" ? RemixSheetEditor.create({data: function () { return data; }}).css() : ""; }
+	function cellCss() { return typeof RemixSheetEditor !== "undefined" ? RemixSheetEditor.css(data) : ""; }
 	function colorPanel() {
 		var p = document.getElementById("mg-colorpanel");
 		if (p) { p.remove(); return; }
@@ -420,7 +425,7 @@
 
 	// the sheet's own width, scaled down to fit (never up); very narrow screens scroll sideways instead
 	function scale() {
-		var w = data.cols.reduce(function (a, b) { return a + b; }, 0);
+		var w = data.cols.reduce(function (a, b) { return a + b; }, 0) + (editing ? 46 : 0);
 		$$(".mg-page table.mg").forEach(function (t) {
 			var box = t.parentNode.clientWidth;
 			t.style.zoom = Math.max(0.42, Math.min(1, box / w));
@@ -431,39 +436,14 @@
 	function editTools() {
 		var el = $(".mg-edit-tools");
 		if (!CAN_EDIT) { el.innerHTML = ""; return; }
-		el.innerHTML = "<button type='button' class='mg-btn mg-edit'>" + (editing ? "✓ Done editing" : "✏️ Edit guide") + "</button>" +
-			(editing ? "<button type='button' class='mg-btn mg-undo' title='Undo (Ctrl+Z)'>↶ Undo</button><button type='button' class='mg-btn mg-redo' title='Redo (Ctrl+Y)'>↷ Redo</button>" : "") +
-			"<button type='button' class='mg-btn mg-sheets' title='Open the whole guide in a Google-Sheets-style editor (only on localhost)'>📊 Edit in Sheets</button>" +
+		el.innerHTML = "<span class='mg-mode'><button type='button' class='mg-btn mg-mode-b" + (editing ? "" : " on") + "' data-mode='preview' title='Exactly what visitors see'>👁 Preview</button>" +
+			"<button type='button' class='mg-btn mg-mode-b" + (editing ? " on" : "") + "' data-mode='edit' title='The Sheets-style editor (only you see it)'>✏️ Edit</button></span>" +
 			"<button type='button' class='mg-btn mg-colors' title='Change the info blurb and table of contents colors'>🎨 Colors</button>" +
 			(editing || dirty ? "<button type='button' class='mg-btn mg-save' title='Download move_guide.json: put it in src/moveguide/ and rebuild'>💾 Save to file</button>" +
 				"<button type='button' class='mg-btn mg-discard' title='Throw away your unsaved edits'>Discard edits</button>" : "");
 	}
 	var undo = [], redo = [];
 	function snap() { return JSON.stringify({rows: data.rows, cols: data.cols, theme: data.theme, moveH: data.moveH}); }
-	// ---- Edit in Sheets: the dev-only FortuneSheet editor (loaded on first use, localhost only) ----
-	function loadOnce(src, css) {
-		return new Promise(function (ok, fail) {
-			if (document.querySelector((css ? "link[href='" : "script[src='") + src + "']")) return ok();
-			var el = document.createElement(css ? "link" : "script");
-			if (css) { el.rel = "stylesheet"; el.href = src; } else el.src = src;
-			el.onload = ok; el.onerror = function () { fail(new Error("couldn't load " + src)); };
-			document.head.appendChild(el);
-		});
-	}
-	function openSheets() {
-		var btn = $(".mg-sheets"); if (btn) btn.textContent = "Loading the editor…";
-		Promise.all([loadOnce("./sheet-editor/sheet-editor.css", true), loadOnce("./js/remix_sheet_fortune.js")])
-			.then(function () { return loadOnce("./sheet-editor/sheet-editor.js"); })
-			.then(function () {
-				if (!undo.length) undo.push(snap());
-				var f = RemixSheetFortune.toFortune(data, {rowH: rowH, name: "Move Guide"});
-				RemixFortune.open({sheets: f.sheets, title: "Move Guide · Edit in Sheets", onApply: function (sheets) {
-					RemixSheetFortune.fromFortune(sheets[0], data, f.memo);
-					markDirty(); render();
-				}, onClose: function () { editTools(); }});
-				editTools();
-			}).catch(function (e) { alert(e.message); editTools(); });
-	}
 	function markDirty() {
 		var now = snap();
 		if (undo[undo.length - 1] !== now) { undo.push(now); if (undo.length > 150) undo.shift(); redo = []; }
@@ -478,6 +458,7 @@
 	}
 	document.addEventListener("keydown", function (e) {
 		if (!editing || !(e.ctrlKey || e.metaKey)) return;
+		if (editor && editor.editing()) return; // typing in a cell: the browser undoes the typing itself
 		var k = e.key.toLowerCase();
 		if (k === "z" && !e.shiftKey) { e.preventDefault(); restore(undo, redo); }
 		else if (k === "y" || (k === "z" && e.shiftKey)) { e.preventDefault(); restore(redo, undo); }
@@ -486,13 +467,21 @@
 		if (!editor) editor = RemixSheetEditor.create({
 			data: function () { return data; },
 			scope: ".mg-page",
+			rowH: rowH,
 			rerender: render,
 			changed: markDirty,
-			kinds: [["row", "Normal row"], ["h0", "Big dropdown (whole group)"], ["h1", "Header (type / category)"], ["h2", "Sub-header"], ["intro", "Info blurb"], ["toc", "Table of contents"]],
-			extraSize: function () { return "<div class='rse-row'>Every move row <input type='number' data-rse-in='moveH' min='20' step='1' value='" + moveH() + "'>px</div>"; },
-			onInput: function (k, v) { if (k === "moveH") { data.moveH = Math.max(20, +v || 46); markDirty(); render(); } }
+			undo: function () { restore(undo, redo); },
+			redo: function () { restore(redo, undo); },
+			kinds: [["row", "Normal row"], ["h0", "Big dropdown (whole group)"], ["h1", "Header (type / category)"], ["h2", "Sub-header"], ["intro", "Info blurb"], ["toc", "Table of contents"]]
 		});
 		editor.start();
+	}
+	function setMode(edit) {
+		if (edit === editing) return;
+		editing = edit;
+		if (editing) { startEditor(); if (!undo.length) undo.push(snap()); } else if (editor) editor.stop();
+		document.body.classList.toggle("mg-editing", editing);
+		editTools(); render();
 	}
 
 	document.addEventListener("click", function (e) {
@@ -500,7 +489,8 @@
 		var sw = e.target.closest("[data-sw]");
 		if (sw) { e.preventDefault(); var row0 = sw.closest(".rse-sw").previousElementSibling; if (row0) setColor(row0.querySelector("input"), sw.getAttribute("data-sw")); return; }
 		if (e.target.closest("[data-cp-reset]")) {
-			if (!confirm("Put the info blurb and contents back to the sheet's colors?")) return;
+			var rb = e.target.closest("[data-cp-reset]");
+			if (!rb.classList.contains("sure")) { rb.classList.add("sure"); rb.textContent = "Click again to reset"; return; }
 			var logo = (data.theme || {}).logo; data.theme = logo ? {logo: logo} : {}; applyColors(); markDirty(); colorPanel(); colorPanel(); return;
 		}
 		if (editing) { var b0 = e.target.closest(".mg-btn"); if (!b0 && !e.target.classList.contains("mg-caret")) return; }
@@ -527,19 +517,13 @@
 		if (act === "info" || act === "toc") { hide[act] = hide[act] ? 0 : 1; save(K_HIDE, hide); applyHide(); }
 		else if (act === "collapse") { open = {}; save(K_OPEN, open); applyCollapse(); }
 		else if (act === "expand") { data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; }); save(K_OPEN, open); applyCollapse(); }
-		else if (b.classList.contains("mg-sheets")) openSheets();
-		else if (b.classList.contains("mg-undo")) restore(undo, redo);
-		else if (b.classList.contains("mg-redo")) restore(redo, undo);
-		else if (b.classList.contains("mg-edit")) {
-			editing = !editing;
-			if (editing) { startEditor(); if (!undo.length) undo.push(snap()); } else if (editor) editor.stop();
-			editTools(); render();
-		} else if (b.classList.contains("mg-save")) {
+		else if (b.hasAttribute("data-mode")) setMode(b.getAttribute("data-mode") === "edit");
+		else if (b.classList.contains("mg-save")) {
 			var a = document.createElement("a");
 			a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], {type: "application/json"}));
 			a.download = "move_guide.json"; a.click();
 		} else if (b.classList.contains("mg-discard")) {
-			if (!confirm("Throw away all your unsaved Move Guide edits?")) return;
+			if (!b.classList.contains("sure")) { b.classList.add("sure"); b.textContent = "Click again to discard"; setTimeout(function () { b.classList.remove("sure"); editTools(); }, 4000); return; }
 			try { localStorage.removeItem(K_DRAFT); } catch (e2) {}
 			location.reload();
 		}
