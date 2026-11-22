@@ -197,3 +197,5 @@ body.rse-on .mg-bar { top: var(--rse-h, 44px); }
 #rse-bar input[data-in=fs] { width: 38px; text-align: center; }
 #rse-bar select[data-in=kind] { width: 150px; }
 #rse-bar .rse-bdbox .rse-b, #rse-bar .rse-wide > .rse-b { display: inline-block; width: auto; border: 1px solid #ddd; margin: 2px; }
+/* one table per section; sections off screen aren't drawn (keeps editing quick) */
+.mg-chunk { content-visibility: auto; contain-intrinsic-size: auto 700px; }

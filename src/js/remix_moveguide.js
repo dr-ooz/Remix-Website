@@ -131,11 +131,21 @@
 			if (editor && editor.on) editor.mark();
 			return;
 		}
-		var intro = [], toc = [], body = [];
-		data.rows.forEach(function (r, i) { var z = zone(r); (z === "intro" ? intro : z === "toc" ? toc : body).push(rowHtml(r, i)); });
+		var intro = [], toc = [], chunks = [[]];
+		data.rows.forEach(function (r, i) {
+			var z = zone(r), h = rowHtml(r, i);
+			if (z === "intro") intro.push(h);
+			else if (z === "toc") toc.push(h);
+			else {
+				// the guide is one table per section (each type / category): a change only re-lays out its own section,
+				// and sections off screen aren't drawn at all (content-visibility), so editing stays quick
+				if ((r.k === "h0" || r.k === "h1") && chunks[chunks.length - 1].length) chunks.push([]);
+				chunks[chunks.length - 1].push(h);
+			}
+		});
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
 		$("#mg-toc").innerHTML = "<div class='mg-scroll'>" + tableHtml(toc) + "</div>";
-		$("#mg-guide").innerHTML = tableHtml(body);
+		$("#mg-guide").innerHTML = chunks.map(function (c) { return "<div class='mg-chunk'>" + tableHtml(c) + "</div>"; }).join("");
 		placeLogo();
 		applyColors();
 		applyCollapse();
@@ -241,6 +251,8 @@
 				var lines = (inn.innerHTML.match(/<br/g) || []).length + 1, j = +td.getAttribute("data-j"), c = r && r.c[j];
 				var key = c ? tr.getAttribute("data-h") + "|" + colsKey + "|" + r.c.map(function (q) { return q[1]; }).join(",") + "|" + j + "|" + JSON.stringify(c[4] || "") + "|" + c[3] : null;
 				inn.style.whiteSpace = lines >= 2 ? "nowrap" : "";
+				// a size you set yourself (the cell's size, or a size on part of its text) is kept: no auto-shrink
+				if (c && ((c[4] && c[4].st && c[4].st.fs) || /font-size/.test(c[3]))) { inn.style.zoom = 1; inn.setAttribute("data-fit", "1"); return; }
 				if (key && FIT[key] != null) { inn.style.zoom = FIT[key]; inn.setAttribute("data-fit", "1"); return; }
 				inn.style.zoom = 1;
 				todo.push({inn: inn, td: td, h: +tr.getAttribute("data-h") - 4, wrap: lines < 2, key: key});

@@ -105,8 +105,15 @@ var RemixSheetEditor = (function () {
 			grids.set(tb, g);
 			return g;
 		}
-		function tableId(tb) { var h = tb.closest("[id]"); return h ? h.id : ""; }
-		function tbodyById(id) { return document.querySelector("#" + id + " table.mg > tbody"); }
+		// a table is named by its page area + which table it is there (the guide is one table per section)
+		function tableId(tb) {
+			var h = tb.closest("[id]"); if (!h) return "";
+			return h.id + ":" + Array.prototype.indexOf.call(h.querySelectorAll("table.mg"), tb.parentNode);
+		}
+		function tbodyById(id) {
+			var p = id.split(":"), t = document.querySelectorAll("#" + p[0] + " table.mg")[+p[1] || 0];
+			return t ? t.tBodies[0] : null;
+		}
 		function cellAtXY(g, y, x) { return g.cells.filter(function (c) { return y >= c.y && y < c.y + c.rs && x >= c.x && x < c.x + c.cs; })[0]; }
 
 		// ---- selection: a rectangle in one table (grows to include whole merged cells, like Sheets) ----
