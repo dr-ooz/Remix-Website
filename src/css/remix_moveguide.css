@@ -1,0 +1,53 @@
+/* Move Guide page (src/js/remix_moveguide.js). The cells' own looks come from the sheet (move_guide.json css). */
+html, body { background: #000; }
+body:not(.dark) { background: #000; }
+.mg-page { max-width: 1800px; margin: 0 auto; padding: 8px 10px 40px; font-family: Comfortaa, Arial, sans-serif; color: #fff; }
+.mg-bar { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 6px 0; background: #000; }
+.mg-btn { font: bold 13px Comfortaa, Arial, sans-serif; color: #fff; background: #2e2837; border: 1px solid #4a4256; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.mg-btn:hover { background: #3a3246; border-color: #8a5ab8; }
+.mg-search { font: 13px Comfortaa, Arial, sans-serif; padding: 5px 9px; border-radius: 6px; border: 1px solid #4a4256; background: #17141c; color: #fff; width: 210px; }
+.mg-edit-tools { display: contents; }
+.mg-hint { font-size: 12px; color: #c9a6ef; font-style: italic; }
+.mg-box { margin: 6px 0 12px; }
+.mg-scroll { overflow-x: auto; }
+.mg-loading { padding: 40px; text-align: center; color: #aaa; }
+
+/* the sheet grid, like Google's own export */
+table.mg { table-layout: fixed; border-collapse: separate; border-spacing: 0; width: 0; margin: 0 auto; }
+table.mg td { overflow: hidden; border: 0 solid rgba(0,0,0,.15); border-width: 0 1px 1px 0; vertical-align: bottom; padding: 0 3px;
+	background-color: #fff; font-family: Comfortaa, Arial, sans-serif; font-size: 10pt; line-height: normal; }
+table.mg td * { font-family: Comfortaa, Arial, sans-serif; }
+table.mg td a { color: inherit; }
+table.mg img.mg-cat { height: 26px; vertical-align: middle; }
+table.mg img.mg-img { max-width: 100%; max-height: 240px; object-fit: scale-down; }
+table.mg svg { vertical-align: middle; }
+
+/* collapsible headers */
+table.mg td.mg-hd { position: relative; cursor: pointer; }
+.mg-caret { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 0; height: 0; border: 9px solid transparent;
+	border-top: 13px solid currentColor; border-bottom: 0; opacity: .75; cursor: pointer; }
+tr.mg-h2 .mg-caret { border-width: 7px; border-top-width: 10px; border-bottom-width: 0; }
+tr.mg-shut .mg-caret { transform: translateY(-50%) rotate(-90deg); }
+table.mg td.mg-hd:hover .mg-caret { opacity: 1; }
+
+/* table of contents (the site's own, from the headers) */
+#mg-toc { background: #120f16; border: 2px solid #3a3246; border-radius: 10px; padding: 10px 16px 14px; }
+.mg-toc-title { font-size: 34px; font-weight: bold; text-align: center; margin-bottom: 6px; }
+.mg-toc-cols { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 28px; }
+.mg-toc-h { font-size: 19px; font-weight: bold; color: #ffe599; margin: 4px 0; }
+#mg-toc ul { list-style: none; margin: 0; padding: 0; }
+#mg-toc .mg-toc-cols > div:last-child > ul { columns: 2; column-gap: 26px; }
+#mg-toc li { break-inside: avoid; margin: 2px 0; }
+#mg-toc li ul { margin: 1px 0 6px 14px; }
+#mg-toc a { color: #f6b26b; text-decoration: none; font-weight: bold; font-size: 14px; }
+#mg-toc li ul a { color: #ffe599; font-weight: normal; font-size: 13px; }
+#mg-toc a:hover { text-decoration: underline; }
+@media (max-width: 800px) { .mg-toc-cols { grid-template-columns: 1fr; } #mg-toc .mg-toc-cols > div:last-child > ul { columns: 1; } }
+
+/* edit mode */
+.mg-page td[contenteditable] { cursor: text; outline: none; }
+.mg-page td[contenteditable]:focus { box-shadow: inset 0 0 0 2px #4af; }
+.mg-rowtools { position: absolute; z-index: 50; display: none; flex-direction: column; gap: 2px; }
+.mg-rowtools button { font: bold 11px sans-serif; background: #2e2837; color: #fff; border: 1px solid #8a5ab8; border-radius: 4px; padding: 2px 6px; cursor: pointer; white-space: nowrap; }
+.mg-rowtools button:hover { background: #4a3a66; }
+body:not(.dz-open) .mg-bar { padding-left: 96px; }

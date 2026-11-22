@@ -752,6 +752,7 @@ function bgFitAll(root) {
 	var meas = bgFitAll.ctx || (bgFitAll.ctx = document.createElement("canvas").getContext("2d"));
 	$(root).find(".bg-mvnote").each(function () {
 		var el = this;
+		el.style.display = "";
 		if (bgEditing) { el.style.whiteSpace = ""; return; }
 		var src = el.getAttribute("data-src");
 		if (src == null) { src = el.textContent; el.setAttribute("data-src", src); }
@@ -759,6 +760,8 @@ function bgFitAll(root) {
 		// a long move name's BP leads the note: "(105 BP) | 35 BP, Hits 3x"
 		var bpTxt = el.getAttribute("data-bp");
 		if (bpTxt) eff.unshift(bpTxt);
+		// no note at all: the note row goes away, so the name sits in the middle of the box
+		if (!eff.length) { el.style.display = "none"; return; }
 		var join = function (list) { return list.length && list[0] === bpTxt ? [list[0]].concat(list.length > 1 ? [list.slice(1).join(", ")] : []).join(" | ") : list.join(", "); };
 		var html = function (text) {
 			var e = bgEsc(text);

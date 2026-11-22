@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Remix DoozDex: Move Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" />
+    <link type="text/css" rel="stylesheet" href="./css/main.css?2408711b" />
+    <link type="text/css" rel="stylesheet" href="./css/remix_moveguide.css?e4570080" />
+</head>
+
+<body>
+<script>
+(function () {
+    var light = false;
+    try { light = localStorage.getItem('remixTheme') === 'light'; } catch (e) {}
+    if (!light) document.body.classList.add('dark');
+})();
+</script>
+<nav id="rx-nav"></nav>
+<script src="./js/remix_nav.js?9f0e48ad"></script>
+
+<div class="mg-page">
+    <div class="mg-bar">
+        <button type="button" class="mg-btn" data-act="info">Hide info</button>
+        <button type="button" class="mg-btn" data-act="toc">Hide contents</button>
+        <button type="button" class="mg-btn" data-act="collapse">Collapse all</button>
+        <button type="button" class="mg-btn" data-act="expand">Expand all</button>
+        <input type="search" class="mg-search" placeholder="Find a move (or Ctrl+F)" />
+        <span class="mg-edit-tools"></span>
+    </div>
+    <div id="mg-info" class="mg-box"></div>
+    <div id="mg-toc" class="mg-box"></div>
+    <div id="mg-guide" class="mg-scroll"><div class="mg-loading">Loading the move guide…</div></div>
+</div>
+
+<script src="./js/remix_moveguide.js?3ed348b1"></script>
+<script src="./js/remix_doozdex_sidebar.js?e296b649"></script>
+</body>
+</html>

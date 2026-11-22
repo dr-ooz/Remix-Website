@@ -27,7 +27,7 @@
 .bg-side > div { border-bottom: 2px solid #fff; padding: 1px 4px; min-height: 0; }
 .bg-side > div:last-child { border-bottom: 0; }
 .bg-ability { flex: 0 0 50px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 27px; font-weight: bold; line-height: 1.05; cursor: help; }
-.bg-abname { max-width: 100%; }
+.bg-abname { max-width: 100%; line-height: 1.3; padding: 0 1px; } /* room for descenders (the g in Tangled Feet): .bg-fit hides overflow */
 .bg-abname.bg-abboost { text-decoration: underline; }
 .bg-mvname.bg-boosted { text-decoration: underline; font-style: italic; }
 .bg-abhint { font-size: 13px; font-weight: normal; font-style: italic; color: #ccc; margin-top: 2px; }

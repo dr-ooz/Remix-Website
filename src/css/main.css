@@ -1270,3 +1270,21 @@ body.dark .remix-apply.heals { border-color: #4fb56b; color: #c9f3d4; }
 #bg-row .bg-mine-bar.rx-sec .rx-sec-hide { width: auto; font-size: 12px; padding: 3px 16px; }
 
 .rx-sec .rx-sec-blurb { order: 3; font-size: 12px; font-style: italic; opacity: 0.85; margin-left: 4px; }
+/* Top bar (src/js/remix_nav.js): DoozDex logo | section tabs | Ultra Remix logo */
+#rx-nav { background: #1d1924; border-bottom: 2px solid #3a3246; }
+.rx-nav { display: flex; align-items: center; gap: 10px; max-width: 1400px; margin: 0 auto; padding: 6px 12px; }
+.rx-nav-logo img { height: 48px; display: block; }
+.rx-nav-right img { height: 40px; }
+.rx-nav-tabs { flex: 1; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.rx-tab { display: inline-flex; align-items: center; gap: 4px; padding: 5px 11px; border-radius: 6px; border: 1px solid #4a4256; background: #2e2837;
+	color: #ef1c7b !important; font-weight: bold; font-size: 14px; text-decoration: none !important; white-space: nowrap; }
+.rx-tab:hover { background: #3a3246; border-color: #8a5ab8; }
+.rx-tab-cur { background: #3d2440; border-color: #ef1c7b; box-shadow: 0 0 0 1px #ef1c7b inset; }
+.rx-tab-soon { color: #6f6779 !important; background: #221e28; border-style: dashed; cursor: default; }
+.rx-tab-soon:hover { background: #221e28; border-color: #4a4256; }
+.rx-tab-soon small { font-size: 9px; font-weight: normal; text-transform: uppercase; letter-spacing: .5px; color: #5b5464; }
+body:not(.dark) #rx-nav { background: #f4eff8; border-bottom-color: #d8cfe2; }
+body:not(.dark) .rx-tab { background: #fff; border-color: #cfc4dc; }
+body:not(.dark) .rx-tab-soon { background: #ece8f0; color: #a49cae !important; }
+@media (max-width: 700px) { .rx-nav { flex-wrap: wrap; justify-content: space-between; } .rx-nav-tabs { order: 3; flex-basis: 100%; } .rx-nav-logo img { height: 36px; } }
+body:not(.dz-open) .rx-nav { padding-left: 104px; } /* room for the fixed "Open DoozDex Sidebar" tab */
