@@ -164,7 +164,7 @@
 		"AI / Trainer Only Moves": [["bot"], ["status", "settings"]]
 	};
 	// sub-headers that get an icon (the weather / terrain ones)
-	var SUB_ICONS = {"Sun": "sun", "Rain": "cloud-rain", "Snow": "snowflake", "Sand": "wind", "Terrain": "mountain", "Lunar Aura": "moon-star", "Mud Sport": "droplets"};
+	var SUB_ICONS = {"Weather & Terrain Setting": "weather-ground", "Sun": "sun", "Rain": "cloud-rain", "Snow": "snowflake", "Sand": "wind", "Terrain": "mountain", "Lunar Aura": "moon-star", "Mud Sport": "droplets"};
 	function oneIcon(n) {
 		if (n === "phys" || n === "spec" || n === "status") n = {phys: "cat-physical", spec: "cat-special", status: "cat-status"}[n]; // crisp line versions
 		// "a+b": b drawn over a (e.g. repeat with a ban sign over it)
@@ -221,10 +221,21 @@
 		var list = scope ? scope.reduce(function (a, tr) { return a.concat($$(".mg-hpill", tr)); }, []) : $$("#mg-guide .mg-hpill");
 		var todo = list.filter(function (p) { return p.offsetParent; });
 		todo.forEach(function (p) { p.style.fontSize = ""; });
-		todo.forEach(function (p) { p._w = p.scrollWidth; p._room = p.parentNode.clientWidth - 170; }); // room for the dropdown arrow, the glow + breathing space
-		for (var round = 0; round < 4 && todo.length; round++) {
-			todo.forEach(function (p) { if (p._w > p._room) p.style.fontSize = (parseFloat(getComputedStyle(p).fontSize) * Math.max(0.5, p._room / p._w) * 0.98) + "px"; });
-			todo = todo.filter(function (p) { p._w = p.scrollWidth; return p._w > p._room; }); // check again: icons and padding don't shrink exactly with the text
+		// the pill stays clear of the arrows + their hints on the left (and the same space on the right, since it's centered).
+		// Measured on screen each time, so it holds at any zoom (e.g. with the DoozDex sidebar open).
+		var measure = function (p) {
+			var td = p.parentNode, tb = td.getBoundingClientRect(), left = 0;
+			td.querySelectorAll(".mg-caret, .mg-caret2, .mg-lbl").forEach(function (el) {
+				if (getComputedStyle(el).display === "none") return;
+				left = Math.max(left, el.getBoundingClientRect().right - tb.left);
+			});
+			p._room = tb.width - 2 * (left + tb.width * 0.012) - 8;
+			p._w = p.getBoundingClientRect().width;
+		};
+		todo.forEach(measure);
+		for (var round = 0; round < 5 && todo.length; round++) {
+			todo.forEach(function (p) { if (p._w > p._room) p.style.fontSize = (parseFloat(getComputedStyle(p).fontSize) * Math.max(0.4, p._room / p._w) * 0.98) + "px"; });
+			todo = todo.filter(function (p) { measure(p); return p._w > p._room; }); // check again: icons and padding don't shrink exactly with the text
 		}
 	}
 
@@ -491,6 +502,11 @@
 				Array.prototype.splice.apply(data.rows, [intB[1], 0].concat(moved));
 			}
 			th.weatherJoin = 1; changed = true;
+		}
+		// Weather & Terrain Setting becomes a sub-section of Weather & Terrain Interactions (user 2026-11-22)
+		if (!th.weatherSub) {
+			data.rows.forEach(function (r) { if (r.k === "h1" && r.cat === "Weather & Terrain Setting") { r.k = "h2"; delete r.cat; delete r.joinPrev; } });
+			th.weatherSub = 1; changed = true;
 		}
 		if (changed) setTimeout(markDirty, 0);
 	}
@@ -932,7 +948,7 @@
 	if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { if (data) { fitHeads(); fitTypeGrid(); fitToc(); } });
 	// opening / closing / resizing the DoozDex sidebar narrows the page: re-fit the sheet to it
 	var lastW = 0; // only when the width changes (not every time a cell grows while you type)
-	if (window.ResizeObserver) new ResizeObserver(function (en) { var w = Math.round(en[0].contentRect.width); if (data && w !== lastW) { lastW = w; scale(); } }).observe(document.querySelector(".mg-page"));
+	if (window.ResizeObserver) new ResizeObserver(function (en) { var w = Math.round(en[0].contentRect.width); if (data && w !== lastW) { lastW = w; scale(); fitHeads(); fitToc(); } }).observe(document.querySelector(".mg-page"));
 
 	document.body.classList.add("mg-sitebg"); // the windowed look (dark gray inside, site color around) is the normal look
 	var draft = CAN_EDIT ? load(K_DRAFT, null) : null;
