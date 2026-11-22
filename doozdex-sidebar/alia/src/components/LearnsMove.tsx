@@ -20,6 +20,13 @@ const howLabel = (how: How) =>
   );
 
 const LINE_H = 36;
+// a family's sprites go together (up to 3); bigger families in pairs
+const bundles = (m: Learner[]) => {
+  const size = m.length <= 3 ? m.length : 2;
+  const out: Learner[][] = [];
+  for (let i = 0; i < m.length; i += size) out.push(m.slice(i, i + size));
+  return out;
+};
 
 export function LearnsMove(props: { move: string; close: () => void; datasetId: string }) {
   const pokedex = usePokedex();
@@ -81,26 +88,41 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
               <div class="flex border-b" style={{ "min-height": `${LINE_H}px` }}>
                 <div class="flex w-11 shrink-0 items-center justify-center border-r text-center">{howLabel(row.how)}</div>
                 <div class="flex min-w-0 flex-auto flex-wrap items-center">
-                  <For each={row.members}>
-                    {([p]) => (
-                      <div
-                        class={clsx("flex min-w-0 items-center gap-0.5 pr-2.5", p.range && "cursor-pointer hover:bg-white/10")}
-                        style={{ height: `${LINE_H}px`, "max-width": "100%" }}
-                        onClick={() => p.range && openRange(p.range)}
-                        title={p.name}
-                      >
-                        <div
-                          class="aspect-square h-full shrink-0"
-                          style={{
-                            "background-image": `url(/calcsprites/${nameToId(p.name)}.png), url(/sprites/${nameToId(p.name)}.png)`,
-                            "background-size": "contain",
-                            "background-repeat": "no-repeat",
-                            "background-position": "center",
-                            "image-rendering": "pixelated",
-                            transform: "scaleX(-1)",
-                          }}
-                        />
-                        <div class="min-w-0 truncate text-[15px] font-semibold">{p.name}</div>
+                  {/* the sprites sit together, then their names; families of 4+ go in pairs (2 sprites + their 2 names) */}
+                  <For each={bundles(row.members)}>
+                    {(bundle) => (
+                      <div class="flex min-w-0 max-w-full items-center pr-3" style={{ "min-height": `${LINE_H}px` }}>
+                        <div class="flex shrink-0">
+                          <For each={bundle}>
+                            {([p]) => (
+                              <div
+                                class={clsx("aspect-square shrink-0", p.range && "cursor-pointer hover:brightness-125")}
+                                style={{
+                                  height: `${LINE_H}px`,
+                                  "margin-right": "-4px",
+                                  "background-image": `url(/calcsprites/${nameToId(p.name)}.png), url(/sprites/${nameToId(p.name)}.png)`,
+                                  "background-size": "contain",
+                                  "background-repeat": "no-repeat",
+                                  "background-position": "center",
+                                  "image-rendering": "pixelated",
+                                  transform: "scaleX(-1)",
+                                }}
+                                onClick={() => p.range && openRange(p.range)}
+                                title={p.name}
+                              />
+                            )}
+                          </For>
+                        </div>
+                        <div class="min-w-0 pl-2 text-[12px] leading-tight opacity-90">
+                          <For each={bundle}>
+                            {([p], k) => (
+                              <span class={clsx(p.range && "cursor-pointer hover:underline")} onClick={() => p.range && openRange(p.range)}>
+                                {p.name}
+                                {k() < bundle.length - 1 ? " / " : ""}
+                              </span>
+                            )}
+                          </For>
+                        </div>
                       </div>
                     )}
                   </For>
