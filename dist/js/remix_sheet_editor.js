@@ -199,8 +199,18 @@ var RemixSheetEditor = (function () {
 		document.addEventListener("selectionchange", function () {
 			if (!editTd) return;
 			var s = window.getSelection();
-			if (s.rangeCount && !s.isCollapsed && editTd.td.contains(s.anchorNode)) savedRange = s.getRangeAt(0).cloneRange();
+			if (s.rangeCount && !s.isCollapsed && editTd.td.contains(s.anchorNode)) {
+				savedRange = s.getRangeAt(0).cloneRange();
+				var pt = selPt(); if (pt && bar) bar.querySelector("[data-in=fs]").value = pt; // the size box shows the highlighted text's size
+			}
 		});
+		// the size (pt) of the highlighted text, where it starts
+		function selPt() {
+			if (!savedRange) return 0;
+			var n = savedRange.startContainer; n = n.nodeType === 1 ? (n.childNodes[savedRange.startOffset] || n) : n.parentNode;
+			if (n.nodeType !== 1) n = n.parentNode;
+			return n ? Math.round(parseFloat(getComputedStyle(n).fontSize) * 0.75) : 0;
+		}
 		function looks(cell) {
 			var td = cell.td, probe = td.querySelector(".mg-in span, :scope > span:not(.mg-caret)") || td, cs = getComputedStyle(probe);
 			return {b: parseInt(cs.fontWeight, 10) >= 600, i: cs.fontStyle === "italic", u: /underline/.test(cs.textDecorationLine), s: /line-through/.test(cs.textDecorationLine)};
@@ -209,6 +219,22 @@ var RemixSheetEditor = (function () {
 		function fmt(prop, val) {
 			if (editTd && savedRange && editTd.td.contains(savedRange.startContainer) && !savedRange.collapsed) {
 				var s = window.getSelection(); s.removeAllRanges(); s.addRange(savedRange);
+				// the browser wraps the highlighted text in a new styled piece, but text inside it keeps the sheet's own
+				// size / color / weight, which would win. Remember the pieces before, then push the new style down into them.
+				var before = new Map();
+				editTd.td.querySelectorAll("span, font, b, i, u, s, strike").forEach(function (el) { before.set(el, el.getAttribute("style") || ""); });
+				var push = function () {
+					var PROPS = ["font-size", "color", "font-family", "font-weight", "font-style", "text-decoration-line", "text-decoration"];
+					editTd.td.querySelectorAll("span, font, b, i, u, s, strike").forEach(function (el) {
+						if (before.get(el) === (el.getAttribute("style") || "")) return; // unchanged piece
+						PROPS.forEach(function (p) {
+							var v = el.style.getPropertyValue(p);
+							if (!v) return;
+							el.querySelectorAll("*").forEach(function (kid) { kid.style.setProperty(p, v); });
+						});
+					});
+				};
+				setTimeout(push, 0);
 				document.execCommand("styleWithCSS", false, true);
 				if (prop === "b") document.execCommand("bold");
 				else if (prop === "i") document.execCommand("italic");
@@ -371,8 +397,9 @@ var RemixSheetEditor = (function () {
 				if (a === "undo") { if (editTd) endEdit(true); o.undo(); } else if (a === "redo") { if (editTd) endEdit(true); o.redo(); }
 				else if (/^[bius]$/.test(a)) fmt(a);
 				else if (a === "fs-" || a === "fs+") {
-					var cur = parseFloat(bar.querySelector("[data-in=fs]").value) || 10, list = SIZES.slice();
-					var nx = a === "fs+" ? (list.filter(function (q) { return q > cur; })[0] || cur + 4) : (list.filter(function (q) { return q < cur; }).pop() || Math.max(4, cur - 1));
+					var cur = parseFloat(bar.querySelector("[data-in=fs]").value) || 10;
+					if (editTd && savedRange && !savedRange.collapsed) cur = selPt() || cur; // highlighted text: step from its own size
+					var nx = a === "fs+" ? Math.round(cur) + 1 : Math.max(4, Math.round(cur) - 1); // steps of 1, like Sheets
 					bar.querySelector("[data-in=fs]").value = nx; fmt("fs", nx);
 				}
 				else if (a === "al" || a === "va") setCells(function (st) { st[a] = v; });
