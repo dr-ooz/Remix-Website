@@ -13,7 +13,7 @@ export const Move = (props: {
       onContextMenu={props.open}
     >
       <div class={cn("relative flex h-6.5 items-center gap-2 pr-2 text-[14px]", styles.info)}>
-        <div class="h-full w-6.5 border-r border-b">
+        <div class="h-full w-6.5">
           <Type type={props.data.type} muted />
         </div>
 

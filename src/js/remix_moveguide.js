@@ -306,6 +306,13 @@
 		});
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
 		$("#mg-toc").innerHTML = "<div class='mg-scroll'>" + tableHtml(toc) + "</div>" + tocCards();
+		var tocTitle = $$("#mg-toc td").filter(function (td) { return /^\s*Table of Contents\s*$/.test(td.textContent); })[0];
+		if (tocTitle && !editing) {
+			tocTitle.classList.add("mg-toctitle");
+			tocTitle.insertAdjacentHTML("afterbegin",
+				"<button type='button' class='mg-btn mg-allbtn mg-tocbtn mg-tocbtn-l' data-act='everything' title='Open (or close) every dropdown in the whole guide, to scroll straight through it'></button>" +
+				"<button type='button' class='mg-btn mg-tocbtn mg-tocbtn-r' data-act='startopen' title='How the dropdowns start when you open the guide (remembered on this device)'></button>");
+		}
 		startOpenLabel();
 		$("#mg-guide").innerHTML = chunks.map(function (c) { return "<div class='mg-chunk" + (c.group ? " mg-group mg-group-" + c.group : "") + (c.unused ? " mg-group-unused" : "") + "'>" + tableHtml(c) + "</div>"; }).join("");
 		placeLogo();
@@ -435,8 +442,7 @@
 		if (!groups.length) return "";
 		var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/'/g, "&#39;"); };
 		var main = groups[0], rest = groups.slice(1);
-		var h = "<div class='tocx'><div class='tocx-tools'><button type='button' class='mg-btn mg-allbtn' data-act='everything' title='Open (or close) every dropdown in the whole guide, to scroll straight through it'></button>" +
-			"<button type='button' class='mg-btn' data-act='startopen' title='How the dropdowns start when you open the guide (remembered on this device)'></button></div>";
+		var h = "<div class='tocx'>";
 		// the three main categories: big cards, all one style
 		h += main.cats.map(function (c) {
 			var L = TOC_LOOK[c] || {};
@@ -513,6 +519,35 @@
 		if (!th.weatherSub) {
 			data.rows.forEach(function (r) { if (r.k === "h1" && r.cat === "Weather & Terrain Setting") { r.k = "h2"; delete r.cat; delete r.joinPrev; } });
 			th.weatherSub = 1; changed = true;
+		}
+		// a second intro dropdown: how to use the guide (Dooz rewords it later)
+		if (!th.navHelp) {
+			var head = null, after = -1;
+			data.rows.forEach(function (r, x) { if (zone(r) === "intro") { after = x; if (r.k === "h2" && !head) head = r; } });
+			if (head && after >= 0) {
+				var bodyRow = data.rows[data.rows.indexOf(head) + 1];
+				var cls = bodyRow && bodyRow.c[0] ? bodyRow.c[0][0] : head.c[0][0];
+				var hRow = JSON.parse(JSON.stringify(head));
+				hRow.c[0][3] = hRow.c[0][3].replace(/>([^<]*Click[^<]*)</, ">Click this dropdown for tips on getting around the Move Guide!<");
+				if (!/tips on getting around/.test(hRow.c[0][3])) hRow.c[0][3] = "Click this dropdown for tips on getting around the Move Guide!";
+				var tips = [
+					"<b>Table of Contents:</b> click any card or pill to jump straight to that category (it opens for you). The type buttons jump to that type's moves.",
+					"<b>Dropdowns:</b> everything starts closed. Click a header (or its arrow) to open it; the arrow points down while closed and up while open.",
+					"<b>The pink double arrow (\"all\")</b> beside a section's arrow opens or closes everything inside that section at once.",
+					"<b>Open everything</b> (top of the Table of Contents) opens the whole guide so you can just scroll through it, and closes it all again.",
+					"<b>Dropdowns start: Collapsed / Expanded</b> (top of the Table of Contents) sets how the guide opens on your device; it's remembered.",
+					"<b>All Moves Organized by Type</b> opens to the 18 types; open a type for its moves, sorted into physical / special / status / exclusive groups.",
+					"<b>Back to the Table of Contents</b> pills sit at the end of the category sections.",
+					"<b>Header icons:</b> the left icon shows what the category is about; the icons on the right show which move categories are in it (physical, special, status).",
+					"<b>Reading a move row:</b> a crossed-out name / number is the vanilla value and the arrow points to the Remix one (e.g. 60 > 45); * marks something special explained in the description; Z-Move power, the target and contact are on the right.",
+					"<b>DoozDex Sidebar</b> (the pink tab top-left): search any Pokemon or move without leaving the page. Right-click a move there to see every Pokemon that learns it, grouped by family.",
+					"<b>The top bar</b> slides away while you scroll down and comes back as soon as you scroll up.",
+					"<b>Ctrl+F</b> works too: press <b>Open everything</b> first so your browser can find moves inside closed sections."
+				];
+				var rows = [hRow].concat(tips.map(function (t) { return {k: "intro", h: 34, c: [[cls, 10, 1, "• " + t]]}; }));
+				Array.prototype.splice.apply(data.rows, [after + 1, 0].concat(rows));
+			}
+			th.navHelp = 1; changed = true;
 		}
 		if (changed) setTimeout(markDirty, 0);
 	}

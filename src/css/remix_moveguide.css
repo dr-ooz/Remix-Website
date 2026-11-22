@@ -428,3 +428,13 @@ body.rse-on .mg-bar.mg-devbar { top: auto; }
 
 .tocx-tools { gap: 6px; }
 .tocx-tools .mg-allbtn { background: #3d2440; border-color: #ef1c7b; color: #ffd1e8; }
+
+/* the two guide-wide buttons sit either side of the big "Table of Contents" title */
+table.mg td.mg-toctitle { position: relative; }
+.mg-tocbtn { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; font: bold 28px Comfortaa, Arial, sans-serif !important; padding: 14px 26px !important;
+	border-radius: 999px !important; border-width: 3px !important; white-space: nowrap; }
+.mg-tocbtn-l { left: 36px; }
+.mg-tocbtn-r { right: 36px; }
+.mg-btn.mg-tocbtn.mg-allbtn { background: #3d2440; border-color: #ef1c7b; color: #ffd1e8; }
+.mg-btn.mg-tocbtn[data-act=startopen] { background: #221d2a; border-color: #8a5ab8; color: #e6dcff; }
+.mg-btn.mg-tocbtn:hover { filter: brightness(1.2); }

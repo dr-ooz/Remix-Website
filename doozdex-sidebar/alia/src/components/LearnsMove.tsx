@@ -19,7 +19,7 @@ const howLabel = (how: How) =>
     <img src={`/icons/${how}.webp`} class="mx-auto h-full py-0.5" />
   );
 
-const LINE_H = 26;
+const LINE_H = 36;
 
 export function LearnsMove(props: { move: string; close: () => void; datasetId: string }) {
   const pokedex = usePokedex();
@@ -51,7 +51,7 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
 
   let parentRef: HTMLDivElement;
   // each member takes the width it needs (sprite + full name + its own Lv / TM); work out how many lines a row wraps to
-  const chipW = (p: PokemonData, own: boolean) => 36 + 6 + Math.ceil(p.name.length * 8.3) + (own ? 34 : 0) + 10;
+  const chipW = (p: PokemonData, own: boolean) => 48 + 6 + Math.ceil(p.name.length * 9.6) + (own ? 40 : 0) + 12;
   const linesFor = (r: FamilyRow) => {
     const room = Math.max(120, (parentRef?.clientWidth || 380) - 44);
     let lines = 1, used = 0;
@@ -116,9 +116,9 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
                           transform: "scaleX(-1)",
                         }}
                       />
-                      <div class="min-w-0 truncate text-[13px]">{p.name}</div>
+                      <div class="min-w-0 truncate text-[15px] font-semibold">{p.name}</div>
                       {row.how === null && (
-                        <div class="shrink-0 pl-1 text-[11px] opacity-75">
+                        <div class="shrink-0 pl-1 text-[12px] opacity-75">
                           {typeof how === "number" ? (how === 0 ? "–" : "Lv" + how) : how === "tm" ? "TM" : "Tutor"}
                         </div>
                       )}

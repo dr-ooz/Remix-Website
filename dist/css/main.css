@@ -1305,3 +1305,8 @@ body.rx-nav-pinned .rx-nav-logo img { height: 30px; }
 body.rx-nav-pinned .rx-tab-blurb { display: none; }
 body.rx-nav-pinned .rx-tab { padding: 3px 9px; font-size: 13px; }
 body.rse-on #rx-nav { position: static; } /* the sheet editor's toolbar owns the top while editing */
+
+/* bigger logos in the top bar (slim when pinned) */
+.rx-nav-logo img { height: 66px; }
+.rx-nav-right img { height: 54px; }
+body.rx-nav-pinned .rx-nav-logo img { height: 34px; }
