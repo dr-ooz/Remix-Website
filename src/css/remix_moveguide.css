@@ -298,3 +298,20 @@ body.mg-sitebg .mg-bar { background: #17141c; }
 /* test view: each sheet area sits in a window; inside is a shade darker than the site (the sheet's black + its black borders use it) */
 body.mg-sitebg #mg-info, body.mg-sitebg #mg-toc > .mg-scroll, body.mg-sitebg #mg-guide { background: #110e15; border: 2px solid #3a3246; border-radius: 12px; padding: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.35); }
 body.mg-sitebg #mg-toc > .mg-scroll { margin-bottom: 8px; }
+
+/* category headers as pills (one size; shrink only when needed - fitHeads); sub-headers as smaller pills; no underlines on headers */
+#mg-guide tr.mg-h0 td.mg-hd, #mg-guide tr.mg-h0 td.mg-hd *, #mg-guide tr.mg-h1 td.mg-hd, #mg-guide tr.mg-h1 td.mg-hd *, #mg-guide tr.mg-h2 td.mg-hd, #mg-guide tr.mg-h2 td.mg-hd * { text-decoration: none !important; }
+.mg-hpill { display: inline-flex; align-items: center; justify-content: center; gap: 0.35em; max-width: 100%; white-space: nowrap; vertical-align: middle;
+	font-family: Comfortaa, Arial, sans-serif; font-weight: bold; line-height: 1.15; margin: 6px 0; }
+.mg-hpill-1 { font-size: 80px; padding: 0.06em 0.7em 0.12em; border: 4px solid #8fc8ff; border-radius: 999px; color: #eaf4ff;
+	background: linear-gradient(#21588a, #173f66); box-shadow: 0 0 14px rgba(120, 190, 255, .3); text-shadow: 0 2px 3px rgba(0,0,0,.5); }
+.mg-hpill-2 { font-size: 40px; padding: 0.08em 0.9em 0.14em; border: 3px solid #8c72c8; border-radius: 999px; color: #e6dcff; background: #34245a;
+	box-shadow: 0 0 8px rgba(140, 114, 200, .3); }
+.mg-hpill .tocx-ico, .mg-hpill .tocx-arrow { width: 0.95em; height: 0.85em; }
+.mg-hpill img.tocx-ico { filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+.mg-btn[data-act=startopen].on { background: #3d2440; border-color: #ef1c7b; }
+/* each dropdown chain (a type or category: its header + everything inside) sits in one rounded window */
+#mg-guide .mg-group { margin: 10px 0; border-radius: 26px; overflow: hidden; border: 3px solid #3a3246; background: #110e15; }
+#mg-guide .mg-group-cat { border-color: #8fc8ff; box-shadow: 0 0 12px rgba(120, 190, 255, .22); }
+#mg-guide .mg-group-type { border-color: #4a4256; }
+#mg-guide .mg-group table.mg { margin: 0 auto; }

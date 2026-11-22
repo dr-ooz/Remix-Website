@@ -17,6 +17,7 @@
 	var plain = function (h) { var d = document.createElement("div"); d.innerHTML = h; return (d.textContent || "").replace(/\s+/g, " ").trim(); };
 	// every dropdown starts closed on each visit (nothing remembered); clicks and links open what's needed
 	var open = {}, hide = load(K_HIDE, {});
+	var startOpen = false; try { startOpen = localStorage.getItem("remixMoveGuideStartOpen") === "1"; } catch (e) {}
 	try { localStorage.removeItem(K_OPEN); } catch (e) {}
 	var HEADS = {h0: 1, h1: 1, h2: 1};
 
@@ -115,6 +116,31 @@
 		if (st.bd) ["t", "r", "b", "l"].forEach(function (k) { if (st.bd[k]) v("bd" + k, st.bd[k]); });
 		return [cls, sty];
 	}
+	// the part of the guide after the 18 types (the categories), where headers are drawn as pills
+	var catStart = 1e9;
+	function findCatStart() { catStart = 1e9; for (var i = 0; i < data.rows.length; i++) if (data.rows[i].cat) { catStart = i; break; } }
+	function groupIcon(cat) {
+		if (TOC_LOOK[cat] && TOC_LOOK[cat].icon) return TOC_LOOK[cat].icon;
+		var g = (data.toc || []).filter(function (x) { return x.cats.indexOf(cat) >= 0; })[0];
+		return g && TOC_LOOK[g.name] ? TOC_LOOK[g.name].icon : "gear";
+	}
+	function pillHead(r, i) {
+		if (zone(r) !== "body" || i < catStart || !(r.k === "h1" || r.k === "h2") || r.c.length !== 1) return "";
+		var t = headTitle(r).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+		if (!t) return "";
+		if (r.k === "h2") return "<div class='mg-hpill mg-hpill-2'><span class='mg-hpill-t'>" + t + "</span></div>";
+		var ic = tocIcon(groupIcon(r.cat)), main = !!(TOC_LOOK[r.cat] && TOC_LOOK[r.cat].sub);
+		return "<div class='mg-hpill mg-hpill-1'>" + ic + "<span class='mg-hpill-t'>" + t + "</span>" + (main ? ic : "") + "</div>";
+	}
+	// pills keep one size and only shrink when a name needs more room than its row
+	function fitHeads(scope) {
+		var list = scope ? scope.reduce(function (a, tr) { return a.concat($$(".mg-hpill", tr)); }, []) : $$("#mg-guide .mg-hpill");
+		var todo = list.filter(function (p) { return p.offsetParent; });
+		todo.forEach(function (p) { p.style.fontSize = ""; });
+		todo.forEach(function (p) { p._w = p.offsetWidth; p._room = p.parentNode.clientWidth - 70; });
+		todo.forEach(function (p) { if (p._w > p._room) p.style.fontSize = (parseFloat(getComputedStyle(p).fontSize) * p._room / p._w) + "px"; });
+	}
+
 	function rowHtml(r, i) {
 		var head = HEADS[r.k];
 		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" +
@@ -122,7 +148,7 @@
 			var sa = stAttr(c);
 			return "<td class='" + c[0] + cellExtra(c, r) + sa[0] + (head && j === 0 ? " mg-hd" : "") + "'" + (sa[1] ? " style=\"" + sa[1] + "\"" : "") + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
 				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'>" +
-				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : r.k === "top" && j === 0 ? "<a href='#mg-toc' class='mg-backpill'>↑ Back to the Table of Contents</a>" : cellHtml(c, r)) + "</td>";
+				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : j === 0 && !editing && pillHead(r, i) ? pillHead(r, i) : r.k === "top" && j === 0 ? "<a href='#mg-toc' class='mg-backpill'>↑ Back to the Table of Contents</a>" : cellHtml(c, r)) + "</td>";
 		}).join("") + "</tr>";
 	}
 	function tableHtml(rows) {
@@ -148,10 +174,11 @@
 				tr.parentNode.replaceChild(n, tr);
 				fresh.push(n);
 			});
-			fitMoves(fresh);
+			fitMoves(fresh); fitHeads(fresh);
 			if (editor && editor.on) editor.mark();
 			return;
 		}
+		findCatStart();
 		var intro = [], toc = [], chunks = [[]], tocDone = false;
 		data.rows.forEach(function (r, i) {
 			var z = zone(r), h = rowHtml(r, i);
@@ -161,12 +188,13 @@
 				// the guide is one table per section (each type / category): a change only re-lays out its own section,
 				// and sections off screen aren't drawn at all (content-visibility), so editing stays quick
 				if ((r.k === "h0" || r.k === "h1") && chunks[chunks.length - 1].length) chunks.push([]);
+				if (!chunks[chunks.length - 1].length) chunks[chunks.length - 1].group = r.k === "h1" ? (r.cat ? "cat" : "type") : ""; // a dropdown chain = one rounded window
 				chunks[chunks.length - 1].push(h);
 			}
 		});
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
 		$("#mg-toc").innerHTML = "<div class='mg-scroll'>" + tableHtml(toc) + "</div>" + tocCards();
-		$("#mg-guide").innerHTML = chunks.map(function (c) { return "<div class='mg-chunk'>" + tableHtml(c) + "</div>"; }).join("");
+		$("#mg-guide").innerHTML = chunks.map(function (c) { return "<div class='mg-chunk" + (c.group ? " mg-group mg-group-" + c.group : "") + "'>" + tableHtml(c) + "</div>"; }).join("");
 		placeLogo();
 		applyColors();
 		applyCollapse();
@@ -174,6 +202,7 @@
 		scale();
 		fitMoves();
 		fitTypeGrid();
+		fitHeads();
 		if (editor && editor.on) editor.mark();
 	}
 
@@ -571,7 +600,12 @@
 		document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
 	}, true);
 
+	function startOpenLabel() {
+		var b = $(".mg-btn[data-act=startopen]");
+		if (b) { b.innerHTML = startOpen ? "▾ Dropdowns start: Expanded" : "▸ Dropdowns start: Collapsed"; b.classList.toggle("on", startOpen); }
+	}
 	function applyHide() {
+		startOpenLabel();
 		$("#mg-info").style.display = hide.info ? "none" : "";
 		$("#mg-toc").style.display = hide.toc ? "none" : "";
 		$(".mg-btn[data-act=info]").textContent = hide.info ? "Show info" : "Hide info";
@@ -680,6 +714,13 @@
 		if (!b) return;
 		var act = b.getAttribute("data-act");
 		if (act === "info" || act === "toc") { hide[act] = hide[act] ? 0 : 1; save(K_HIDE, hide); applyHide(); }
+		else if (act === "startopen") {
+			startOpen = !startOpen;
+			try { localStorage.setItem("remixMoveGuideStartOpen", startOpen ? "1" : ""); } catch (e5) {}
+			if (startOpen) data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; });
+			else { open = {}; data.rows.forEach(function (r) { if (zone(r) === "toc" && HEADS[r.k]) open[headKey(r)] = 1; }); }
+			startOpenLabel(); applyCollapse();
+		}
 		else if (act === "collapse") { open = {}; save(K_OPEN, open); applyCollapse(); }
 		else if (act === "expand") { data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; }); save(K_OPEN, open); applyCollapse(); }
 		else if (b.hasAttribute("data-mode")) setMode(b.getAttribute("data-mode") === "edit");
@@ -732,6 +773,7 @@
 		var st = document.createElement("style"); st.textContent = data.css; document.head.appendChild(st);
 		readClassColors();
 		migrate();
+		if (startOpen) data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; });
 		data.rows.forEach(function (r) { if (zone(r) === "toc" && HEADS[r.k]) open[headKey(r)] = 1; }); // the type grid starts open
 		// the contents list the sheet's own categories only (my 5 extra Misc. Status ones were not in it)
 		(data.toc || []).forEach(function (g) {
