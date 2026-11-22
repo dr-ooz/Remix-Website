@@ -438,3 +438,10 @@ table.mg td.mg-toctitle { position: relative; }
 .mg-btn.mg-tocbtn.mg-allbtn { background: #3d2440; border-color: #ef1c7b; color: #ffd1e8; }
 .mg-btn.mg-tocbtn[data-act=startopen] { background: #221d2a; border-color: #8a5ab8; color: #e6dcff; }
 .mg-btn.mg-tocbtn:hover { filter: brightness(1.2); }
+
+/* a move jumped to from the sidebar / a link: a short glow */
+@keyframes mg-jumpflash { 0%, 40% { box-shadow: inset 0 0 0 3px #ffd34d, 0 0 14px #ffd34d99; } 100% { box-shadow: inset 0 0 0 3px transparent, 0 0 0 transparent; } }
+.mg-page tr.mg-jumpflash > td { animation: mg-jumpflash 2.2s ease-out; }
+
+/* a short note at the bottom of the screen (e.g. a move that isn't in the guide) */
+.mg-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 9999; background: #1b1820; color: #fff; border: 1px solid #ffffff33; border-radius: 999px; padding: 8px 18px; font: 600 14px Comfortaa, sans-serif; box-shadow: 0 6px 20px #0008; pointer-events: none; }

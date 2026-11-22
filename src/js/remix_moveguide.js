@@ -402,6 +402,44 @@
 		var tr = $(".mg-page tr[data-i='" + i + "']");
 		if (tr) tr.scrollIntoView({block: "start"});
 	}
+	// jump to a move's row (the first one in the guide): open its dropdowns, scroll to it, flash it.
+	// The DoozDex sidebar calls this ("Jump to MoveDex" / double-click); other pages link to moveguide.html#move=Name
+	function jumpToMove(name) {
+		if (!data) return false;
+		// a name cell can be "Pay Day > Gold Rush" (renamed moves) with notes on the next line: match any part of the first line
+		var norm = function (t) { return t.replace(/[‘’]/g, "'").toLowerCase(); };
+		var want = norm(String(name).trim()), at = -1, loose = -1;
+		data.rows.some(function (r, x) {
+			if (zone(r) !== "body" || !isMoveRow(r)) return false;
+			var first = norm(plain(r.c[0][3].split(/<br>|\n/)[0]));
+			if (first.split(/>|→/).some(function (p) { return p.replace(/[*()]/g, "").trim() === want; })) { at = x; return true; }
+			if (loose < 0 && first.indexOf(want) !== -1) loose = x;
+			return false;
+		});
+		if (at < 0) at = loose;
+		if (at < 0) { // not in the guide (Z-moves, a few others): say so instead of doing nothing
+			var t = document.createElement("div");
+			t.className = "mg-toast";
+			t.textContent = name + " isn't in the MoveDex yet";
+			document.body.appendChild(t);
+			setTimeout(function () { t.remove(); }, 2600);
+			return false;
+		}
+		goTo(at);
+		var tr = $(".mg-page tr[data-i='" + at + "']");
+		if (tr) {
+			tr.scrollIntoView({block: "center"});
+			setTimeout(function () { tr.scrollIntoView({block: "center"}); }, 120); // again once the opened sections have laid out
+			tr.classList.remove("mg-jumpflash"); void tr.offsetWidth; tr.classList.add("mg-jumpflash");
+		}
+		return true;
+	}
+	window.remixMoveGuideJump = jumpToMove;
+	function jumpFromHash() {
+		var m = /^#move=(.+)$/.exec(location.hash);
+		if (m) setTimeout(function () { jumpToMove(decodeURIComponent(m[1])); }, 60);
+	}
+	window.addEventListener("hashchange", jumpFromHash);
 	// open (or close) a header and every header inside it
 	function inside(i) {
 		var sec = sections(), out = [i], k = data.rows[i].k;
@@ -1021,5 +1059,6 @@
 		var defs = document.createElement("div"); defs.innerHTML = data.defs; document.body.appendChild(defs.firstChild);
 		editTools();
 		render();
+		jumpFromHash();
 	}).catch(function (e) { $("#mg-guide").innerHTML = "<div class='mg-loading'>Couldn't load the move guide (" + e + ").</div>"; });
 })();

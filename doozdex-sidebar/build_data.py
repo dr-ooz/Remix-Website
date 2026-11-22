@@ -53,6 +53,7 @@ def sprite_file(name):
 dex = read("pokedex.json")
 learnsets = read("learnsets.json")
 moves_raw = read("moves.json")
+move_effects = read("move_effects.json")
 abilities = [str(a[0]).replace("’", "'") for a in read("abilities.json")]
 renames = read("species_renames.json")
 # Matched loosely (letters/digits only), like the calc does: "NidoranF" = "Nidoran-F".
@@ -90,6 +91,9 @@ for m in moves_raw:
             "pp": m["pp"], "desc": m.get("desc", "")}
     if m.get("zPower"):
         move["zPower"] = m["zPower"]
+    # moves that use the higher attacking stat (Grass Knot, Gold Rush, ...) show both category icons
+    if move["category"] != "Status" and ((move_effects.get(m["name"]) or {}).get("remix") or {}).get("useHigherStat"):
+        move["mixed"] = True
     moves[mid] = move
 
 # Pokemon. Raw name = the game's species + form; the calc renames some of them.

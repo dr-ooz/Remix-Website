@@ -28,6 +28,24 @@ export function ScreenMoves() {
   });
 
   const [searchFilter, setSearchFilter] = createSignal("");
+  // the click menu on a move: {name, x, y} (in the list box's own coordinates)
+  const [menu, setMenu] = createSignal<{ name: string; x: number; y: number } | null>(null);
+  let listBox: HTMLDivElement | undefined;
+  const togglePin = (name: string) =>
+    setPinnedMoves((p) => {
+      const next = new Set(p);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  // the MoveDex (move guide page): on that page, jump straight to the move; elsewhere, open the page at it
+  const jumpToMoveDex = (name: string) => {
+    setMenu(null);
+    let top: any = window;
+    try { top = window.top ?? window; void top.location.href; } catch { top = window; }
+    if (typeof top.remixMoveGuideJump === "function") { top.remixMoveGuideJump(name); return; }
+    top.location.href = new URL("moveguide.html#move=" + encodeURIComponent(name), top.location.href).href;
+  };
   const [typeFilter, setTypeFilter] = createSignal("");
   const [categoryFilter, setCategoryFilter] = createSignal("");
 
@@ -167,11 +185,33 @@ export function ScreenMoves() {
       </div>
 
       <div class="flex flex-col pb-1 text-center text-xs text-white/70 italic">
-        <div>Click top-right corner of a move to pin or unpin it</div>
-        <div>Right-click to show Pokémon that learn that move</div>
+        <div>Click: options · Double-click: open in MoveDex</div>
+        <div>Corner: pin · Right-click: who learns it</div>
       </div>
 
-      <div class="relative flex flex-auto overflow-hidden border-t">
+      <div ref={listBox} class="relative flex flex-auto overflow-hidden border-t">
+        <Show when={menu()}>
+          {(m) => (
+            <>
+              <div class="absolute inset-0 z-20" onClick={() => setMenu(null)} onContextMenu={(e) => { e.preventDefault(); setMenu(null); }} />
+              <div
+                class="absolute z-30 flex min-w-48 flex-col overflow-hidden rounded border bg-black text-[13px] shadow-lg"
+                style={{ left: `${m().x}px`, top: `${m().y}px` }}
+              >
+                <div class="border-b px-2.5 py-1 font-bold opacity-80">{m().name}</div>
+                <button type="button" class="cursor-pointer px-2.5 py-1.5 text-left hover:bg-white/10" onClick={() => { const n = m().name; setMenu(null); setOpenMove(n); }}>
+                  Show Pokémon that learn this move
+                </button>
+                <button type="button" class="cursor-pointer px-2.5 py-1.5 text-left hover:bg-white/10" onClick={() => { const n = m().name; setMenu(null); togglePin(n); }}>
+                  {pinnedMoves().has(m().name) ? "Unpin this move" : "Pin this move"}
+                </button>
+                <button type="button" class="cursor-pointer px-2.5 py-1.5 text-left hover:bg-white/10" onClick={() => jumpToMoveDex(m().name)}>
+                  Jump to MoveDex
+                </button>
+              </div>
+            </>
+          )}
+        </Show>
         <Show when={openMove()}>
           <LearnsMove move={openMove()} close={() => setOpenMove("")} datasetId={datasetId()!} />
         </Show>
@@ -184,16 +224,17 @@ export function ScreenMoves() {
             {(d) => (
               <Move
                 data={d}
-                pinUnpin={() => {
-                  setPinnedMoves((p) => {
-                    const next = new Set(p);
-                    if (next.has(d.name)) next.delete(d.name);
-                    else next.add(d.name);
-                    return next;
-                  });
-                }}
+                pinUnpin={() => togglePin(d.name)}
                 pinned={pinnedMoves().has(d.name)}
-                open={() => setOpenMove(d.name)}
+                open={() => { setMenu(null); setOpenMove(d.name); }}
+                menu={(e) => {
+                  if (!listBox) return;
+                  const b = listBox.getBoundingClientRect();
+                  const x = Math.max(4, Math.min(e.clientX - b.left, b.width - 200));
+                  const y = Math.max(4, Math.min(e.clientY - b.top + 6, b.height - 120));
+                  setMenu({ name: d.name, x, y });
+                }}
+                jump={() => jumpToMoveDex(d.name)}
               />
             )}
           </RowVirtualizer>
