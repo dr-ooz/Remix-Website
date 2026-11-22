@@ -116,3 +116,11 @@ a.mg-tg:hover { filter: brightness(1.15); box-shadow: 0 0 0 2px #fff; }
 .rse-sw .rse-sw-add { font: bold 11px sans-serif; padding: 0 5px; line-height: 14px; background: #2e2837; color: #fff; border: 1px solid #8a5ab8; border-radius: 3px; cursor: pointer; }
 #mg-colorpanel .rse-sw { display: flex; flex-wrap: wrap; gap: 2px; margin: 0 0 6px 40px; }
 #mg-colorpanel .rse-sw i { width: 13px; height: 13px; border-radius: 3px; border: 1px solid #000; cursor: pointer; }
+/* Edit in Sheets overlay (src/sheet-editor/, FortuneSheet) */
+#rf-host .rf-wrap { position: fixed; inset: 0; z-index: 5000; background: #fff; display: flex; flex-direction: column; }
+#rf-host .rf-bar { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #1d1924; color: #fff; font: 13px Comfortaa, Arial, sans-serif; }
+#rf-host .rf-bar b { color: #c9a6ef; font-size: 15px; }
+#rf-host .rf-hint { flex: 1; color: #a59cb3; font-size: 11px; }
+#rf-host .rf-bar button { font: bold 13px Comfortaa, Arial, sans-serif; color: #fff; background: #2e2837; border: 1px solid #4a4256; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+#rf-host .rf-bar button.rf-go { background: #3d2440; border-color: #ef1c7b; }
+#rf-host .rf-sheet { flex: 1; position: relative; min-height: 0; }

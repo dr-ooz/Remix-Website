@@ -433,12 +433,37 @@
 		if (!CAN_EDIT) { el.innerHTML = ""; return; }
 		el.innerHTML = "<button type='button' class='mg-btn mg-edit'>" + (editing ? "✓ Done editing" : "✏️ Edit guide") + "</button>" +
 			(editing ? "<button type='button' class='mg-btn mg-undo' title='Undo (Ctrl+Z)'>↶ Undo</button><button type='button' class='mg-btn mg-redo' title='Redo (Ctrl+Y)'>↷ Redo</button>" : "") +
+			"<button type='button' class='mg-btn mg-sheets' title='Open the whole guide in a Google-Sheets-style editor (only on localhost)'>📊 Edit in Sheets</button>" +
 			"<button type='button' class='mg-btn mg-colors' title='Change the info blurb and table of contents colors'>🎨 Colors</button>" +
 			(editing || dirty ? "<button type='button' class='mg-btn mg-save' title='Download move_guide.json: put it in src/moveguide/ and rebuild'>💾 Save to file</button>" +
 				"<button type='button' class='mg-btn mg-discard' title='Throw away your unsaved edits'>Discard edits</button>" : "");
 	}
 	var undo = [], redo = [];
 	function snap() { return JSON.stringify({rows: data.rows, cols: data.cols, theme: data.theme, moveH: data.moveH}); }
+	// ---- Edit in Sheets: the dev-only FortuneSheet editor (loaded on first use, localhost only) ----
+	function loadOnce(src, css) {
+		return new Promise(function (ok, fail) {
+			if (document.querySelector((css ? "link[href='" : "script[src='") + src + "']")) return ok();
+			var el = document.createElement(css ? "link" : "script");
+			if (css) { el.rel = "stylesheet"; el.href = src; } else el.src = src;
+			el.onload = ok; el.onerror = function () { fail(new Error("couldn't load " + src)); };
+			document.head.appendChild(el);
+		});
+	}
+	function openSheets() {
+		var btn = $(".mg-sheets"); if (btn) btn.textContent = "Loading the editor…";
+		Promise.all([loadOnce("./sheet-editor/sheet-editor.css", true), loadOnce("./js/remix_sheet_fortune.js")])
+			.then(function () { return loadOnce("./sheet-editor/sheet-editor.js"); })
+			.then(function () {
+				if (!undo.length) undo.push(snap());
+				var f = RemixSheetFortune.toFortune(data, {rowH: rowH, name: "Move Guide"});
+				RemixFortune.open({sheets: f.sheets, title: "Move Guide · Edit in Sheets", onApply: function (sheets) {
+					RemixSheetFortune.fromFortune(sheets[0], data, f.memo);
+					markDirty(); render();
+				}, onClose: function () { editTools(); }});
+				editTools();
+			}).catch(function (e) { alert(e.message); editTools(); });
+	}
 	function markDirty() {
 		var now = snap();
 		if (undo[undo.length - 1] !== now) { undo.push(now); if (undo.length > 150) undo.shift(); redo = []; }
@@ -502,6 +527,7 @@
 		if (act === "info" || act === "toc") { hide[act] = hide[act] ? 0 : 1; save(K_HIDE, hide); applyHide(); }
 		else if (act === "collapse") { open = {}; save(K_OPEN, open); applyCollapse(); }
 		else if (act === "expand") { data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; }); save(K_OPEN, open); applyCollapse(); }
+		else if (b.classList.contains("mg-sheets")) openSheets();
 		else if (b.classList.contains("mg-undo")) restore(undo, redo);
 		else if (b.classList.contains("mg-redo")) restore(redo, undo);
 		else if (b.classList.contains("mg-edit")) {
