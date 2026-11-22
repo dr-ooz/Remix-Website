@@ -362,3 +362,37 @@ body.mg-sitebg #mg-info, body.mg-sitebg #mg-toc > .mg-scroll, body.mg-sitebg #mg
 .mg-hpill { max-width: none; }
 .mg-hpill-t { flex: none; white-space: nowrap; }
 .mg-typehead-t { margin: 0 22px; } /* a fixed gap (some headers are the sheet's mixed-size text, where an em gap came out as 0) */
+
+/* "open everything inside": a highlighted double arrow left of the section's own arrow */
+.mg-caret2 { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 8px; cursor: pointer;
+	background: rgba(239, 28, 123, .22); box-shadow: inset 0 0 0 2px rgba(255, 140, 200, .6); }
+.mg-caret2::before, .mg-caret2::after { content: ""; position: absolute; left: 50%; width: 9px; height: 9px; border-right: 3px solid #ff9ccb; border-bottom: 3px solid #ff9ccb;
+	transform: translateX(-50%) rotate(45deg); }
+.mg-caret2::before { top: 4px; } .mg-caret2::after { top: 12px; }
+.mg-caret2:hover { background: rgba(239, 28, 123, .45); }
+td.mg-hd:has(.mg-caret2) .mg-caret { left: 50px; }
+/* contents: pills that span two rows wrap their name at the normal size */
+#mg-toc .tocx a.tocx-item[style*="span"] .tocx-lbl { white-space: normal; }
+/* type pills: a bit bigger so the icons have room */
+.mg-tpill { width: 1.95em; height: 1.3em; }
+.mg-tpill img { height: 1.4em; width: 1.4em; }
+/* blank divider rows: thin (their text size can't hold them open) */
+#mg-guide tr.mg-blank td, #mg-guide tr.mg-blank td * { font-size: 0 !important; line-height: 0 !important; padding: 0 !important; }
+/* resize handles: much bigger targets (they straddle the border and sit above the next header) */
+.rse-colgrip { right: -9px; width: 18px; z-index: 6; }
+.rse-rowgrip { bottom: -9px; height: 18px; z-index: 6; }
+.rse-colgrip:hover, .rse-rowgrip:hover { background: rgba(11, 87, 208, .45); }
+
+/* contents window titles stay on one line (icons are a touch smaller there) */
+.tocx-head { white-space: nowrap; }
+.tocx-head .ci, .tocx-head .ci-img { width: 0.8em; height: 0.8em; }
+.tocx-head .ci-img { width: auto; }
+
+/* tiny, quiet hints under the dropdown arrows (they follow the open / closed state) */
+.mg-lbl { position: absolute; top: calc(50% + 16px); font: 13px Comfortaa, Arial, sans-serif; color: #8f86a0; opacity: .75; pointer-events: none; white-space: nowrap; letter-spacing: .3px; }
+.mg-lbl1 { left: 2px; } .mg-lbl1.mg-lbl-shift { left: 44px; }
+.mg-lbl2 { left: 1px; color: #d98ab4; }
+.mg-lbl1::after { content: "close"; } tr.mg-shut .mg-lbl1::after { content: "open"; }
+.mg-lbl2::after { content: "all"; }
+table.mg td.mg-hd:hover .mg-lbl { opacity: 1; color: #c9a6ef; }
+tr.mg-h0 .mg-lbl { top: calc(50% + 20px); }

@@ -27,7 +27,8 @@
 		return (d.textContent || "").split("\n")[0].replace(/[-–—]{4,}.*/, "").replace(/\s+/g, " ").trim();
 	}
 	function isColumnHead(r) { return /^Move Name$/i.test(plain(r.c[0][3])); }
-	function isMoveRow(r) { return r.k === "row" && r.c.length >= 8 && !isColumnHead(r); }
+	function emptyRow(r) { return r.c.every(function (c) { return !/<img/.test(c[3]) && !c[3].replace(/<[^>]+>|&nbsp;|\s/g, ""); }); }
+	function isMoveRow(r) { return r.k === "row" && r.c.length >= 8 && !isColumnHead(r) && !emptyRow(r); }
 	var TYPE_COLORS = typeof REMIX_TYPE_COLORS !== "undefined" ? REMIX_TYPE_COLORS : {};
 	function typeOf(r) { var m = /^All (\w+) Type Moves/.exec(headTitle(r)); return m && TYPE_COLORS[m[1]] ? m[1] : null; }
 
@@ -38,7 +39,7 @@
 		data.rows.forEach(function (r) { if (isMoveRow(r)) n[r.h] = (n[r.h] || 0) + 1; });
 		return (data.moveH = +Object.keys(n).sort(function (a, b) { return n[b] - n[a]; })[0] || 46);
 	}
-	function rowH(r) { return isMoveRow(r) && !r.hSet ? moveH() : r.h; }
+	function rowH(r) { return isMoveRow(r) && !r.hSet ? moveH() : !r.hSet && isBlankRow(r) ? Math.max(4, Math.round(r.h * 0.15)) : r.h; }
 
 	// A cell that is only rich-text spans: the cell's own font size would add a tall empty strut to every line
 	// (the sheet sizes each line by its own text), so the cell gets size 0 and each span keeps its own size.
@@ -208,10 +209,12 @@
 	}
 	// contents pills: a name that doesn't fit its pill shrinks just enough (instead of being cut off)
 	function fitToc() {
-		var items = $$("#mg-toc .tocx-item .tocx-lbl").filter(function (l) { return l.offsetParent; });
+		var items = $$("#mg-toc .tocx-item .tocx-lbl").filter(function (l) { return l.offsetParent && !/span/.test(l.parentNode.getAttribute("style") || ""); });
 		items.forEach(function (l) { l.style.fontSize = ""; });
 		items.forEach(function (l) { l._room = l.parentNode.clientWidth - l.previousElementSibling.offsetWidth - 34; l._w = l.scrollWidth; });
 		items.forEach(function (l) { if (l._w > l._room) l.style.fontSize = (parseFloat(getComputedStyle(l).fontSize) * l._room / l._w) + "px"; });
+		// window titles: one line, shrinking only if the window is too narrow
+		$$("#mg-toc .tocx-head").forEach(function (h) { h.style.fontSize = ""; var room = h.clientWidth - 16; if (h.scrollWidth > room) h.style.fontSize = (parseFloat(getComputedStyle(h).fontSize) * room / h.scrollWidth) + "px"; });
 	}
 	// pills keep one size and only shrink when a name needs more room than its row
 	function fitHeads(scope) {
@@ -225,14 +228,28 @@
 		}
 	}
 
+	// does this header have headers inside it (so "open everything" means something)?
+	var innerCache = null;
+	function hasInner(i) {
+		if (!innerCache) {
+			innerCache = {};
+			var sec = sections();
+			data.rows.forEach(function (r, x) { var s0 = sec[x]; if (HEADS[r.k]) ["h0", "h1"].forEach(function (k) { if (s0[k] >= 0 && s0[k] !== x) innerCache[s0[k]] = 1; }); });
+		}
+		return !!innerCache[i];
+	}
+	// a blank divider row (nothing in it) is drawn at ~15% of its height
+	function isBlankRow(r) { return r.k === "row" && zone(r) === "body" && r.c.length && emptyRow(r); }
+
 	function rowHtml(r, i) {
 		var head = HEADS[r.k];
-		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" +
+		return "<tr data-i='" + i + "' class='mg-" + r.k + (isMoveRow(r) ? " mg-mv" : "") + (isBlankRow(r) && !r.hSet ? " mg-blank" : "") + "' data-h='" + rowH(r) + "' style='height:" + rowH(r) + "px'>" +
 			(editing ? "<th class='rse-rn'>" + (i + 1) + "<span class='rse-rowgrip' title='Drag to resize the row'></span></th>" : "") + r.c.map(function (c, j) {
 			var sa = stAttr(c);
 			return "<td class='" + c[0] + cellExtra(c, r) + sa[0] + (head && j === 0 ? " mg-hd" : "") + "'" + (sa[1] ? " style=\"" + sa[1] + "\"" : "") + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
 				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'>" +
-				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : j === 0 && !editing && pillHead(r, i) ? pillHead(r, i) : j === 0 && !editing && typeHeadHtml(r, c) ? typeHeadHtml(r, c) : r.k === "top" && j === 0 ? "<a href='#mg-toc' class='mg-backpill'>↑ Back to the Table of Contents</a>" : cellHtml(c, r)) + "</td>";
+				(head && j === 0 ? (hasInner(i) ? "<span class='mg-caret2' contenteditable='false' title='Open (or close) everything inside'></span><span class='mg-lbl mg-lbl2' contenteditable='false'></span>" : "") +
+					"<span class='mg-caret' contenteditable='false'></span><span class='mg-lbl mg-lbl1" + (hasInner(i) ? " mg-lbl-shift" : "") + "' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : j === 0 && !editing && pillHead(r, i) ? pillHead(r, i) : j === 0 && !editing && typeHeadHtml(r, c) ? typeHeadHtml(r, c) : r.k === "top" && j === 0 ? "<a href='#mg-toc' class='mg-backpill'>↑ Back to the Table of Contents</a>" : cellHtml(c, r)) + "</td>";
 		}).join("") + "</tr>";
 	}
 	function tableHtml(rows) {
@@ -262,7 +279,7 @@
 			if (editor && editor.on) editor.mark();
 			return;
 		}
-		findCatStart();
+		findCatStart(); innerCache = null;
 		var intro = [], toc = [], chunks = [[]], tocDone = false;
 		data.rows.forEach(function (r, i) {
 			var z = zone(r), h = rowHtml(r, i);
@@ -378,6 +395,11 @@
 		"Status Inflicting Moves": {icon: "status", cols: 1, w: 0.6},
 		"Other Miscellaneous Utility Moves": {icon: "gear", cols: 3, colw: "1fr 1.42fr 1.12fr", w: 1.15, title: "Other Miscellaneous Utility Move Categories"}
 	};
+	var TOC_ICONS = {
+		"Priority Attacking Moves": [["chevrons-right"], ["phys", "spec"]],
+		"Attacking Moves With Drawbacks": [["circle-alert", "phys"], ["circle-alert", "spec"]],
+		"Other Damaging Moves": [["sparkles", "phys"], ["sparkles", "spec"]]
+	};
 	function tocIcon(kind) {
 		if (kind === "physical" || kind === "special" || kind === "status") return "<img class='tocx-ico' src='" + ICON_URL.replace("%s", kind) + "' alt=''>";
 		if (kind === "down") return "<svg class='tocx-arrow' viewBox='0 0 24 24'><path d='M9 3h6v9h5l-8 9-8-9h5z' fill='#b78bee'/></svg>";
@@ -394,14 +416,16 @@
 		// the three main categories: big cards, all one style
 		h += main.cats.map(function (c) {
 			var L = TOC_LOOK[c] || {};
-			return "<a href='#' class='tocx-main' data-cat='" + esc(c) + "'><div class='tocx-main-t'>" + tocIcon(L.icon) + "<span>" + esc(c) + "</span>" + tocIcon(L.icon) + "</div>" +
+			var TI = TOC_ICONS[c];
+			return "<a href='#' class='tocx-main' data-cat='" + esc(c) + "'><div class='tocx-main-t'>" + (TI ? iconGroup(TI[0]) : tocIcon(L.icon)) + "<span>" + esc(c) + "</span>" + (TI ? iconGroup(TI[1]) : tocIcon(L.icon)) + "</div>" +
 				(L.sub ? "<div class='tocx-main-s'>" + L.sub + "</div>" : "") + "</a>";
 		}).join("");
 		// the groups: windows with a header bar and pill rows
 		var win = function (g) {
 			var L = TOC_LOOK[g.name] || {cols: 1}, n = g.cats.length, cols = L.cols || 1, rows = Math.ceil(n / cols);
 			var lastCount = n - rows * (cols - 1); // a short last column: its first pill stretches to fill (like the mockup)
-			return "<div class='tocx-win'><div class='tocx-head'>" + tocIcon(L.icon) + "<span>" + esc(L.title || g.name) + "</span></div>" +
+			var TI = TOC_ICONS[g.name];
+			return "<div class='tocx-win'><div class='tocx-head'>" + (TI ? iconGroup(TI[0]) : tocIcon(L.icon)) + "<span>" + esc(L.title || g.name) + "</span>" + (TI ? iconGroup(TI[1]) : "") + "</div>" +
 				"<div class='tocx-items' style='grid-template-columns:" + (L.colw || "repeat(" + cols + ",1fr)") + ";grid-template-rows:repeat(" + rows + ",1fr)'>" +
 				g.cats.map(function (c, k) {
 					var span = cols > 1 && lastCount < rows && k === rows * (cols - 1) ? " style='grid-row:span " + (rows - lastCount + 1) + "'" : "";
@@ -821,6 +845,13 @@
 		}
 		var top = e.target.closest("a[href='#mg-toc']");
 		if (top) { e.preventDefault(); if (hide.toc) { hide.toc = 0; save(K_HIDE, hide); applyHide(); } $("#mg-toc").scrollIntoView(); return; }
+		var c2 = e.target.closest(".mg-caret2");
+		if (c2) {
+			var hi2 = +c2.closest("tr").getAttribute("data-i"), all = inside(hi2);
+			var anyShut = all.some(function (h) { return !isOpen(h); });
+			if (anyShut) openAll(hi2); else closeAll(hi2);
+			applyCollapse(); return;
+		}
 		var tg = e.target.closest(".mg-tg");
 		if (tg) { e.preventDefault(); goToType(tg.getAttribute("data-type")); return; }
 		var hd = e.target.closest(".mg-page td.mg-hd");
