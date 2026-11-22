@@ -35,6 +35,44 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   const [sortBy, setSortBy] = createSignal<string>((() => { try { return localStorage.getItem("dzLearnSort") === "lvlDesc" ? "lvlDesc" : "lvl"; } catch { return "lvl"; } })());
   const chooseSort = (v: string) => { setSortBy(v); try { localStorage.setItem("dzLearnSort", v); } catch { /* private mode */ } };
 
+  // how widely the move is spread: the number of separate evolution lines that learn it (Megas count as their base)
+  const lineCount = createMemo(() => {
+    const pd = pokedex();
+    if (!pd) return 0;
+    const byName: Record<string, PokemonData> = {};
+    for (const p of Object.values(pd)) byName[p.name] = p;
+    const strip = (n: string) => n.replace(/-(Mega|Primal)(-[XY])?$/, "");
+    const roots = new Set<string>();
+    for (const p of Object.values(pd)) {
+      if (p.unusable || !p.learntMoves.find((i) => nameToId(i[0]) === mid)) continue;
+      let n = byName[strip(p.name)] ? strip(p.name) : p.name, guard = 0;
+      while ((byName[n] as any)?.prevo && byName[(byName[n] as any).prevo] && guard++ < 6) n = (byName[n] as any).prevo;
+      roots.add(n);
+    }
+    return roots.size;
+  });
+  // fewer than 5 lines: Signature Move; fewer than 10: Exclusive Distribution; fewer than 15: Limited Distribution
+  // the second word ("Move" / "Distribution") drops off on its own when the header is too narrow for it
+  const [short, setShort] = createSignal(false);
+  let tagEl: HTMLSpanElement | undefined;
+  const rarity = () => {
+    const n = lineCount();
+    if (!n || n >= 15) return "";
+    const [a, b] = n < 5 ? ["Signature", "Move"] : n < 10 ? ["Exclusive", "Distribution"] : ["Limited", "Distribution"];
+    return short() ? a : a + " " + b;
+  };
+  const refit = () => {
+    if (!tagEl) return;
+    setShort(false);
+    requestAnimationFrame(() => tagEl && setShort(tagEl.scrollWidth > tagEl.clientWidth + 1));
+  };
+  onMount(() => {
+    refit();
+    const ro = new ResizeObserver(refit);
+    if (tagEl?.parentElement) ro.observe(tagEl.parentElement);
+    onCleanup(() => ro.disconnect());
+  });
+
   const learnsIt = createMemo(() => {
     const pd = pokedex();
     if (!pd) return [] as FamilyRow[];
@@ -124,7 +162,14 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
         onClick={(e) => e.stopPropagation()}
       >
         <div class="flex h-8 shrink-0 border-b">
-          <div class="flex flex-auto items-center px-2 font-bold">{props.move}</div>
+          <div class="flex min-w-0 flex-auto items-center gap-1.5 px-2">
+            <span class="shrink-0 font-bold">{props.move}</span>
+            {rarity() && (
+              <span ref={tagEl} class="truncate text-[11px] font-normal italic opacity-80" title={`Learned by ${lineCount()} evolution line${lineCount() === 1 ? "" : "s"}`}>
+                ({rarity()})
+              </span>
+            )}
+          </div>
           <button
             type="button"
             class="my-1 mr-1 cursor-pointer rounded border px-2 text-[13px] font-bold hover:bg-white/10"
