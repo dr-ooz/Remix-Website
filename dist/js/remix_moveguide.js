@@ -122,7 +122,7 @@
 			var sa = stAttr(c);
 			return "<td class='" + c[0] + cellExtra(c, r) + sa[0] + (head && j === 0 ? " mg-hd" : "") + "'" + (sa[1] ? " style=\"" + sa[1] + "\"" : "") + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
 				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'>" +
-				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : cellHtml(c, r)) + "</td>";
+				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : r.k === "top" && j === 0 ? "<a href='#mg-toc' class='mg-backpill'>↑ Back to the Table of Contents</a>" : cellHtml(c, r)) + "</td>";
 		}).join("") + "</tr>";
 	}
 	function tableHtml(rows) {
@@ -256,10 +256,10 @@
 		"Priority Attacking Moves": {icon: "prio", sub: "(Includes regular offensive priority moves, First Impression variants &amp; Fake Out variants)"},
 		"Debuffing Moves": {icon: "down", sub: "(Includes all moves ~both status and offensive~ that <u>lower the opponent's</u> offensive stats, defensive stats, or Speed)"},
 		"Setup Moves": {icon: "up", sub: "(Includes all moves ~both status and offensive~ that <u>boost the user's</u> offensive stats, defensive stats, or Speed)"},
-		"Attacking Moves With Drawbacks": {icon: "physical", cols: 1},
-		"Other Damaging Moves": {icon: "special", cols: 2},
-		"Status Inflicting Moves": {icon: "status", cols: 1},
-		"Other Miscellaneous Utility Moves": {icon: "gear", cols: 3, title: "Other Miscellaneous Utility Move Categories"}
+		"Attacking Moves With Drawbacks": {icon: "physical", cols: 1, w: 0.82},
+		"Other Damaging Moves": {icon: "special", cols: 2, colw: "1.75fr 1fr", w: 1},
+		"Status Inflicting Moves": {icon: "status", cols: 1, w: 0.6},
+		"Other Miscellaneous Utility Moves": {icon: "gear", cols: 3, colw: "1fr 1.42fr 1.12fr", w: 1.15, title: "Other Miscellaneous Utility Move Categories"}
 	};
 	function tocIcon(kind) {
 		if (kind === "physical" || kind === "special" || kind === "status") return "<img class='tocx-ico' src='" + ICON_URL.replace("%s", kind) + "' alt=''>";
@@ -283,15 +283,17 @@
 		// the groups: windows with a header bar and pill rows
 		var win = function (g) {
 			var L = TOC_LOOK[g.name] || {cols: 1}, n = g.cats.length, cols = L.cols || 1, rows = Math.ceil(n / cols);
+			var lastCount = n - rows * (cols - 1); // a short last column: its first pill stretches to fill (like the mockup)
 			return "<div class='tocx-win'><div class='tocx-head'>" + tocIcon(L.icon) + "<span>" + esc(L.title || g.name) + "</span></div>" +
-				"<div class='tocx-items' style='grid-template-columns:repeat(" + cols + ",auto);grid-template-rows:repeat(" + rows + ",auto)'>" +
+				"<div class='tocx-items' style='grid-template-columns:" + (L.colw || "repeat(" + cols + ",1fr)") + ";grid-template-rows:repeat(" + rows + ",1fr)'>" +
 				g.cats.map(function (c, k) {
-					return "<a href='#' class='tocx-item" + (k % 2 ? " tocx-alt" : "") + "' data-cat='" + esc(c) + "'><span class='tocx-arr'>→</span>" + esc(c) + "</a>";
+					var span = cols > 1 && lastCount < rows && k === rows * (cols - 1) ? " style='grid-row:span " + (rows - lastCount + 1) + "'" : "";
+					return "<a href='#' class='tocx-item" + (k % 2 ? " tocx-alt" : "") + "' data-cat='" + esc(c) + "'" + span + "><span class='tocx-arr'>→</span><span class='tocx-lbl'>" + esc(c) + "</span></a>";
 				}).join("") + "</div></div>";
 		};
 		for (var k = 0; k < rest.length; k += 2) {
 			var a = rest[k], b = rest[k + 1];
-			var wa = (TOC_LOOK[a.name] || {}).cols || 1, wb = b ? (TOC_LOOK[b.name] || {}).cols || 1 : 0;
+			var wa = (TOC_LOOK[a.name] || {}).w || 1, wb = b ? (TOC_LOOK[b.name] || {}).w || 1 : 0;
 			h += "<div class='tocx-pair' style='grid-template-columns:" + (b ? wa + "fr " + wb + "fr" : "1fr") + "'>" + win(a) + (b ? win(b) : "") + "</div>";
 		}
 		return h + "</div>";
@@ -447,6 +449,8 @@
 	}
 	function themeCss() {
 		var th = data.theme || {}, css = "";
+		// test view (toggle "◐ Site background"): every pure-black fill becomes the site's dark color
+		Object.keys(clsColor).forEach(function (k) { if (k[0] === "s" && clsColor[k].bg === "#000000") css += "body.mg-sitebg #mg-info td." + k + ",body.mg-sitebg #mg-toc td." + k + ",body.mg-sitebg #mg-guide td." + k + "{background-color:#17141c}"; });
 		[["intro", "#mg-info"], ["toc", "#mg-toc"]].forEach(function (a) {
 			var map = th[a[0]] || {};
 			Object.keys(clsColor).forEach(function (k) {
@@ -541,6 +545,7 @@
 		el.innerHTML = "<span class='mg-mode'><button type='button' class='mg-btn mg-mode-b" + (editing ? "" : " on") + "' data-mode='preview' title='Exactly what visitors see'>👁 Preview</button>" +
 			"<button type='button' class='mg-btn mg-mode-b" + (editing ? " on" : "") + "' data-mode='edit' title='The Sheets-style editor (only you see it)'>✏️ Edit</button></span>" +
 			"<button type='button' class='mg-btn mg-colors' title='Change the info blurb and table of contents colors'>🎨 Colors</button>" +
+			"<button type='button' class='mg-btn mg-sitebg-b" + (document.body.classList.contains("mg-sitebg") ? " on" : "") + "' title='Test: show the sheet's black backgrounds in the site's own color'>◐ Site background</button>" +
 			(editing || dirty ? "<button type='button' class='mg-btn mg-save' title='Save into the website folder (src/moveguide/move_guide.json)'>💾 Save" + (dirty ? " •" : "") + "</button>" +
 				"<button type='button' class='mg-btn mg-discard' title='Throw away your unsaved edits'>Discard edits</button>" : "");
 	}
@@ -629,6 +634,7 @@
 		else if (act === "collapse") { open = {}; save(K_OPEN, open); applyCollapse(); }
 		else if (act === "expand") { data.rows.forEach(function (r) { if (HEADS[r.k]) open[headKey(r)] = 1; }); save(K_OPEN, open); applyCollapse(); }
 		else if (b.hasAttribute("data-mode")) setMode(b.getAttribute("data-mode") === "edit");
+		else if (b.classList.contains("mg-sitebg-b")) { var on = document.body.classList.toggle("mg-sitebg"); try { localStorage.setItem("remixMoveGuideSiteBg", on ? "1" : ""); } catch (e4) {} editTools(); }
 		else if (b.classList.contains("mg-save")) {
 			var text = JSON.stringify(data);
 			b.textContent = "Saving…";
@@ -669,12 +675,18 @@
 	var lastW = 0; // only when the width changes (not every time a cell grows while you type)
 	if (window.ResizeObserver) new ResizeObserver(function (en) { var w = Math.round(en[0].contentRect.width); if (data && w !== lastW) { lastW = w; scale(); } }).observe(document.querySelector(".mg-page"));
 
+	try { if (localStorage.getItem("remixMoveGuideSiteBg")) document.body.classList.add("mg-sitebg"); } catch (e) {}
 	var draft = CAN_EDIT ? load(K_DRAFT, null) : null;
 	fetch("./moveguide/move_guide.json", {cache: "no-cache"}).then(function (r) { return r.json(); }).then(function (d) {
 		data = draft && draft.rows ? draft : d;
 		dirty = !!(draft && draft.rows);
 		var st = document.createElement("style"); st.textContent = data.css; document.head.appendChild(st);
 		readClassColors();
+		data.rows.forEach(function (r) { if (zone(r) === "toc" && HEADS[r.k]) open[headKey(r)] = 1; }); // the type grid starts open
+		// the contents list the sheet's own categories only (my 5 extra Misc. Status ones were not in it)
+		(data.toc || []).forEach(function (g) {
+			g.cats = g.cats.filter(function (c) { return ["Weather & Terrain Setting", "Redirection & Doubles Only Moves", "Assorted Status Moves", "AI / Trainer Only Moves", "Unused Moves/Animations"].indexOf(c) < 0; });
+		});
 		var th0 = data.theme = data.theme || {};
 		delete th0["null"];
 		if (!th0.tocPurples) {
