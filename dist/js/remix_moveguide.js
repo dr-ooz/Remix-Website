@@ -298,6 +298,47 @@
 		}
 		return h + "</div>";
 	}
+	// ---- one-time data updates (run on load so they reach an unsaved draft too) ----
+	function migrate() {
+		var th = data.theme = data.theme || {}, changed = false;
+		// a header that also holds its blurb: the header keeps just its name, the blurb (exactly as written) moves to a new row under it
+		if (!th.blurbRows) {
+			for (var i = data.rows.length - 1; i >= 0; i--) {
+				var r = data.rows[i];
+				if (!(r.k === "h1" || r.k === "h2") || zone(r) !== "body" || r.c.length !== 1) continue;
+				var parts = splitAtFirstBreak(r.c[0][3]);
+				if (!parts) continue;
+				r.c[0][3] = parts[0];
+				var blurb = {k: "row", h: 30, c: [[r.c[0][0], r.c[0][1], 1, parts[1]]]};
+				if (r.zone) blurb.zone = r.zone;
+				r.h = Math.min(r.h, 70);
+				data.rows.splice(i + 1, 0, blurb);
+			}
+			th.blurbRows = 1; changed = true;
+		}
+		// "Ability Changing" -> "Ability Changing Moves" (contents + the category it points at)
+		if (!th.renameAbility) {
+			(data.toc || []).forEach(function (g) { g.cats = g.cats.map(function (c) { return c === "Ability Changing" ? "Ability Changing Moves" : c; }); });
+			data.rows.forEach(function (r) { if (r.cat === "Ability Changing") r.cat = "Ability Changing Moves"; r.c.forEach(function (c) { if (c[4] && c[4].go === "Ability Changing") c[4].go = "Ability Changing Moves"; }); });
+			th.renameAbility = 1; changed = true;
+		}
+		if (changed) setTimeout(markDirty, 0);
+	}
+	// split a cell's html at its first line break: [title html, rest html] (null when there's nothing after it)
+	function splitAtFirstBreak(html) {
+		var box = document.createElement("div"); box.innerHTML = html;
+		var br = box.querySelector("br");
+		if (!br) return null;
+		var after = document.createRange(); after.setStartAfter(br); after.setEnd(box, box.childNodes.length);
+		var restFrag = after.cloneContents(), rest = document.createElement("div"); rest.appendChild(restFrag);
+		if (!rest.textContent.trim()) return null;
+		var before = document.createRange(); before.setStart(box, 0); before.setEndBefore(br);
+		var head = document.createElement("div"); head.appendChild(before.cloneContents());
+		if (!head.textContent.trim()) return null;
+		// drop leading line breaks / empty pieces at the start of the blurb
+		var restHtml = rest.innerHTML.replace(/^(\s|<span[^>]*>\s*<\/span>|<br\s*\/?>)+/, "");
+		return [head.innerHTML, restHtml];
+	}
 	function goToCat(name) {
 		for (var i = 0; i < data.rows.length; i++) if (data.rows[i].k === "h1" && data.rows[i].cat === name) return goTo(i);
 	}
@@ -356,7 +397,13 @@
 		return "#" + rgb.map(function (v) { return ("0" + Math.round(Math.max(0, Math.min(1, v + m)) * 255).toString(16)).slice(-2); }).join("");
 	}
 	var clsColor = {};
+	var blackBorders = {};
 	function readClassColors() {
+		data.css.replace(/\.mg \.(s\d+)\{([^}]*)\}/g, function (a, k, body) {
+			var sides = [];
+			body.replace(/border-(top|right|bottom|left):[^;]*#000000/gi, function (m, side) { sides.push(side.toLowerCase()); });
+			if (sides.length) blackBorders[k] = sides;
+		});
 		data.css.replace(/\.mg \.([a-z]\d+)\{([^}]*)\}/g, function (a, k, body) {
 			var c = /(?:^|;)color:(#[0-9a-f]{6})/i.exec(body), b = /background-color:(#[0-9a-f]{6})/i.exec(body);
 			clsColor[k] = {color: c && c[1].toLowerCase(), bg: b && b[1].toLowerCase()};
@@ -450,7 +497,9 @@
 	function themeCss() {
 		var th = data.theme || {}, css = "";
 		// test view (toggle "◐ Site background"): every pure-black fill becomes the site's dark color
-		Object.keys(clsColor).forEach(function (k) { if (k[0] === "s" && clsColor[k].bg === "#000000") css += "body.mg-sitebg #mg-info td." + k + ",body.mg-sitebg #mg-toc td." + k + ",body.mg-sitebg #mg-guide td." + k + "{background-color:#17141c}"; });
+		var INNER = "#110e15";
+		Object.keys(clsColor).forEach(function (k) { if (k[0] === "s" && clsColor[k].bg === "#000000") css += "body.mg-sitebg .mg-page td." + k + "{background-color:" + INNER + "}"; });
+		Object.keys(blackBorders).forEach(function (k) { css += "body.mg-sitebg .mg-page td." + k + "{" + blackBorders[k].map(function (side) { return "border-" + side + "-color:" + INNER; }).join(";") + "}"; });
 		[["intro", "#mg-info"], ["toc", "#mg-toc"]].forEach(function (a) {
 			var map = th[a[0]] || {};
 			Object.keys(clsColor).forEach(function (k) {
@@ -623,7 +672,7 @@
 		var hd = e.target.closest(".mg-page td.mg-hd");
 		if (hd) {
 			var hi = +hd.parentNode.getAttribute("data-i"), k = headKey(data.rows[hi]);
-			if (data.rows[hi].k === "h0") { if (open[k]) closeAll(hi); else openAll(hi); }
+			if (data.rows[hi].k === "h0") { if (open[k]) closeAll(hi); else open[k] = 1; }
 			else if (open[k]) delete open[k]; else open[k] = 1;
 			save(K_OPEN, open); applyCollapse(); return;
 		}
@@ -682,6 +731,7 @@
 		dirty = !!(draft && draft.rows);
 		var st = document.createElement("style"); st.textContent = data.css; document.head.appendChild(st);
 		readClassColors();
+		migrate();
 		data.rows.forEach(function (r) { if (zone(r) === "toc" && HEADS[r.k]) open[headKey(r)] = 1; }); // the type grid starts open
 		// the contents list the sheet's own categories only (my 5 extra Misc. Status ones were not in it)
 		(data.toc || []).forEach(function (g) {

@@ -295,3 +295,6 @@ body.mg-sitebg, html:has(body.mg-sitebg) { background: #17141c !important; }
 body.mg-sitebg .mg-bar { background: #17141c; }
 .mg-btn.mg-sitebg-b.on { background: #3d2440; border-color: #ef1c7b; }
 .mg-chunk { contain-intrinsic-size: auto 120px; } /* sections start closed: reserve about one header row, not a full section */
+/* test view: each sheet area sits in a window; inside is a shade darker than the site (the sheet's black + its black borders use it) */
+body.mg-sitebg #mg-info, body.mg-sitebg #mg-toc > .mg-scroll, body.mg-sitebg #mg-guide { background: #110e15; border: 2px solid #3a3246; border-radius: 12px; padding: 8px; box-shadow: 0 2px 12px rgba(0,0,0,.35); }
+body.mg-sitebg #mg-toc > .mg-scroll { margin-bottom: 8px; }
