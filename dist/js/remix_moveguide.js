@@ -114,7 +114,23 @@
 			}).join("") + "</tr></thead>" : "") + "<tbody>" + rows.join("") + "</tbody></table>";
 	}
 
-	function render() {
+	function render(only) {
+		if (only && only.length && document.querySelector(".mg-page tr[data-i]")) {
+			only.forEach(function (i) {
+				var tr = document.querySelector(".mg-page tr[data-i='" + i + "']");
+				if (!tr || !data.rows[i]) return;
+				var tmp = document.createElement("tbody");
+				tmp.innerHTML = rowHtml(data.rows[i], i);
+				var n = tmp.firstElementChild;
+				n.style.display = tr.style.display;
+				if (tr.classList.contains("mg-shut")) n.classList.add("mg-shut");
+				tr.parentNode.replaceChild(n, tr);
+			});
+			applyColors();
+			fitMoves();
+			if (editor && editor.on) editor.mark();
+			return;
+		}
 		var intro = [], toc = [], body = [];
 		data.rows.forEach(function (r, i) { var z = zone(r); (z === "intro" ? intro : z === "toc" ? toc : body).push(rowHtml(r, i)); });
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
@@ -212,18 +228,22 @@
 
 	// Move rows: one fixed height, at most two lines. A cell with two written lines never wraps further; a one-line
 	// cell may wrap to two. Anything that still doesn't fit shrinks (the whole cell, evenly) until it does.
+	var FIT = {};
 	function fitMoves() {
 		// batched: write all, then read all, then write all (measuring cell by cell made the page crawl)
-		var todo = [];
+		var todo = [], colsKey = data.cols.join(",");
 		$$("#mg-guide tr.mg-mv").forEach(function (tr) {
 			if (tr.style.display === "none") return;
+			var r = data.rows[+tr.getAttribute("data-i")];
 			Array.prototype.forEach.call(tr.children, function (td) {
 				var inn = td.firstElementChild;
-				if (!inn || !inn.classList.contains("mg-in") || (inn.getAttribute("data-fit") === "1" && !editing)) return;
-				var lines = (inn.innerHTML.match(/<br/g) || []).length + 1;
-				inn.style.zoom = 1;
+				if (!inn || !inn.classList.contains("mg-in") || inn.getAttribute("data-fit") === "1") return;
+				var lines = (inn.innerHTML.match(/<br/g) || []).length + 1, j = +td.getAttribute("data-j"), c = r && r.c[j];
+				var key = c ? tr.getAttribute("data-h") + "|" + colsKey + "|" + r.c.map(function (q) { return q[1]; }).join(",") + "|" + j + "|" + JSON.stringify(c[4] || "") + "|" + c[3] : null;
 				inn.style.whiteSpace = lines >= 2 ? "nowrap" : "";
-				todo.push({inn: inn, td: td, h: +tr.getAttribute("data-h") - 4, wrap: lines < 2});
+				if (key && FIT[key] != null) { inn.style.zoom = FIT[key]; inn.setAttribute("data-fit", "1"); return; }
+				inn.style.zoom = 1;
+				todo.push({inn: inn, td: td, h: +tr.getAttribute("data-h") - 4, wrap: lines < 2, key: key});
 			});
 		});
 		for (var round = 0; round < 4 && todo.length; round++) {
@@ -231,10 +251,11 @@
 			todo = todo.filter(function (t) {
 				var need = Math.min(t.h / (t.sh * t.z), t.w / (t.sw * t.z));
 				t.inn.setAttribute("data-fit", "1");
-				if (need >= 0.995) return false;
+				if (need >= 0.995) { if (t.key) FIT[t.key] = +t.inn.style.zoom || 1; return false; }
 				// a wrapping cell re-wraps when it shrinks, so it gets another look next round
 				var z = Math.max(0.45, Math.floor(t.z * need * (t.wrap ? Math.sqrt(need) : 1) * 100) / 100);
 				t.inn.style.zoom = z;
+				if (t.key) FIT[t.key] = z;
 				return t.wrap && z > 0.45;
 			});
 		}
@@ -447,8 +468,10 @@
 	function markDirty() {
 		var now = snap();
 		if (undo[undo.length - 1] !== now) { undo.push(now); if (undo.length > 150) undo.shift(); redo = []; }
-		dirty = true; save(K_DRAFT, data); editTools();
+		dirty = true; saveDraftSoon(); editTools();
 	}
+	function saveDraftSoon() { clearTimeout(saveDraftSoon.t); saveDraftSoon.t = setTimeout(function () { save(K_DRAFT, data); }, 600); }
+	window.addEventListener("beforeunload", function () { if (saveDraftSoon.t) save(K_DRAFT, data); });
 	function restore(from, to) {
 		if (from.length < 2 && from === undo) return;
 		if (from === undo) { to.push(from.pop()); var st = JSON.parse(undo[undo.length - 1]); }
@@ -532,7 +555,7 @@
 		if (e.target.classList && e.target.classList.contains("mg-search")) { applyCollapse(); return; }
 		if (e.target.hasAttribute && e.target.hasAttribute("data-cp")) { setColor(e.target, e.target.value); return; }
 		var td = e.target.closest && e.target.closest("td[contenteditable]");
-		if (!td) return;
+		if (!td || (editor && editor.on)) return;
 		var i = +td.parentNode.getAttribute("data-i"), j = +td.getAttribute("data-j");
 		var clone = td.cloneNode(true);
 		clone.querySelectorAll(".mg-caret").forEach(function (x) { x.remove(); });

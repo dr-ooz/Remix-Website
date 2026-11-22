@@ -129,6 +129,8 @@ var RemixSheetEditor = (function () {
 			var tb = tbodyById(sel.id); if (!tb) return [];
 			return grid(tb).cells.filter(function (c) { return c.y >= sel.y0 && c.y + c.rs - 1 <= sel.y1 && c.x >= sel.x0 && c.x + c.cs - 1 <= sel.x1; });
 		}
+		function clearContents() { var cells = selCells(); cells.forEach(function (c) { cellAt(c.i, c.j)[3] = ""; }); o.changed(); o.rerender(rowsOf(cells)); }
+		function rowsOf(cells) { var s2 = {}; cells.forEach(function (c) { s2[c.i] = 1; for (var a = 1; a < (c.rs || 1); a++) s2[c.i + a] = 1; }); return Object.keys(s2).map(Number); }
 		function selRows() { var s = {}; selCells().forEach(function (c) { s[c.i] = 1; }); return Object.keys(s).map(Number).sort(function (a, b) { return a - b; }); }
 		function draw() {
 			var box = document.getElementById("rse-selbox"), act = document.getElementById("rse-active");
@@ -154,7 +156,11 @@ var RemixSheetEditor = (function () {
 			var clone = td.cloneNode(true);
 			clone.querySelectorAll(".mg-caret").forEach(function (x) { x.remove(); });
 			var m = clone.querySelector(":scope > .mg-in");
-			return (m || clone).innerHTML;
+			if (!m) return clone.innerHTML;
+			// anything typed beside the inner box (an empty cell) belongs to the cell too
+			var html = "";
+			Array.prototype.forEach.call(clone.childNodes, function (n) { html += n === m ? m.innerHTML : (n.nodeType === 3 ? n.nodeValue.replace(/&/g, "&amp;").replace(/</g, "&lt;") : n.outerHTML); });
+			return html;
 		}
 		function beginEdit(cell, replace) {
 			if (!cell) return;
@@ -173,12 +179,12 @@ var RemixSheetEditor = (function () {
 		}
 		function endEdit(commit) {
 			if (!editTd) return;
-			var td = editTd.td, c = cellAt(editTd.cell.i, editTd.cell.j), html = cleanHtml(td);
+			var td = editTd.td, cellI = editTd.cell.i, c = cellAt(editTd.cell.i, editTd.cell.j), html = cleanHtml(td);
 			td.contentEditable = "false"; td.classList.remove("rse-editing");
 			editTd = null;
 			if (c && commit && html !== c[3]) { c[3] = html; o.changed(); }
 			else if (c && !commit) c[3] = editOrig;
-			o.rerender();
+			o.rerender([cellI]);
 		}
 
 		// ---- formatting ----
@@ -216,9 +222,9 @@ var RemixSheetEditor = (function () {
 			var now = looks(active && cells.indexOf(active) >= 0 ? active : cells[0]);
 			var v = /^[bius]$/.test(prop) ? !now[prop] : val;
 			cells.forEach(function (c) { var e = ext(cellAt(c.i, c.j)); e.st = e.st || {}; if (v === "" || v == null) delete e.st[prop]; else e.st[prop] = v; });
-			o.changed(); o.rerender();
+			o.changed(); o.rerender(rowsOf(cells));
 		}
-		function setCells(fn) { if (editTd) endEdit(true); selCells().forEach(function (c) { var e = ext(cellAt(c.i, c.j)); e.st = e.st || {}; fn(e.st, c); }); o.changed(); o.rerender(); }
+		function setCells(fn) { if (editTd) endEdit(true); var cells = selCells(); cells.forEach(function (c) { var e = ext(cellAt(c.i, c.j)); e.st = e.st || {}; fn(e.st, c); }); o.changed(); o.rerender(rowsOf(cells)); }
 		function borders(kind, color, width) {
 			var line = width + "px solid " + color;
 			setCells(function (st, c) {
@@ -290,68 +296,85 @@ var RemixSheetEditor = (function () {
 			cells.forEach(function (c) { (text[c.y - sel.y0] = text[c.y - sel.y0] || [])[c.x - sel.x0] = c.td.innerText.replace(/\s+/g, " ").trim(); });
 			clip.text = text.map(function (r) { return (r || []).join("\t"); }).join("\n");
 			try { navigator.clipboard.writeText(clip.text); } catch (e) {}
-			if (cut) { cells.forEach(function (c) { cellAt(c.i, c.j)[3] = ""; }); o.changed(); o.rerender(); }
+			if (cut) { cells.forEach(function (c) { cellAt(c.i, c.j)[3] = ""; }); o.changed(); o.rerender(rowsOf(cells)); }
 		}
 		function paste(text) {
 			if (!sel) return;
-			var tb = tbodyById(sel.id), g = grid(tb);
+			var tb = tbodyById(sel.id), g = grid(tb), touched = [];
 			if (clip && (text == null || text === clip.text)) {
 				clip.forEach(function (p) {
 					var t = cellAtXY(g, sel.y0 + p.dy, sel.x0 + p.dx); if (!t) return;
-					var c = cellAt(t.i, t.j); c[0] = p.cell[0]; c[3] = p.cell[3];
+					var c = cellAt(t.i, t.j); c[0] = p.cell[0]; c[3] = p.cell[3]; touched.push(t);
 					if (p.cell[4]) c[4] = JSON.parse(JSON.stringify(p.cell[4])); else c.length = Math.min(c.length, 4);
 				});
 			} else if (text != null) {
 				text.replace(/\r/g, "").split("\n").forEach(function (line, dy) {
 					line.split("\t").forEach(function (v, dx) {
-						var t = cellAtXY(g, sel.y0 + dy, sel.x0 + dx); if (t) cellAt(t.i, t.j)[3] = v.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+						var t = cellAtXY(g, sel.y0 + dy, sel.x0 + dx); if (t) { cellAt(t.i, t.j)[3] = v.replace(/&/g, "&amp;").replace(/</g, "&lt;"); touched.push(t); }
 					});
 				});
 			}
-			o.changed(); o.rerender();
+			o.changed(); o.rerender(rowsOf(touched));
 		}
 
 		// ---- the toolbar (like Google Sheets) ----
 		function btn(act, label, tip, v) { return "<button type='button' class='rse-b' data-a='" + act + "'" + (v != null ? " data-v='" + v + "'" : "") + " title='" + tip + "'>" + label + "</button>"; }
+		function pop(id, label, tip, body, wide) {
+			return "<span class='rse-pop'><button type='button' class='rse-b rse-dd' data-pop='" + id + "' title='" + tip + "'>" + label + "<small>▾</small></button>" +
+				"<div class='rse-popbox" + (wide ? " rse-wide" : "") + "' data-box='" + id + "'>" + body + "</div></span>";
+		}
 		function colorBtn(act, label, tip) {
 			return "<span class='rse-pop'><button type='button' class='rse-b rse-color' data-pop='" + act + "' title='" + tip + "'>" + label + "<i class='rse-cbar' data-bar='" + act + "'></i></button>" +
-				"<div class='rse-popbox' data-box='" + act + "'><div class='rse-poprow'><input type='color' data-pick='" + act + "'> <span>Custom</span>" +
+				"<div class='rse-popbox rse-wide' data-box='" + act + "'><div class='rse-poprow'><input type='color' data-pick='" + act + "'> <span>Custom</span>" +
 				"<button type='button' class='rse-b' data-a='" + act + "-reset' title='Back to the sheet&#39;s own color'>Reset</button></div>" + swatchHtml("data-sw", act) + "</div></span>";
 		}
+		var sep = "<i class='rse-sep'></i>";
 		function buildBar() {
 			bar = document.createElement("div");
 			bar.id = "rse-bar";
 			bar.innerHTML =
-				btn("undo", "↶", "Undo (Ctrl+Z)") + btn("redo", "↷", "Redo (Ctrl+Y)") + btn("paint", "🖌", "Paint format: copy this cell's format, then click where it goes") + btn("clear", "⌫", "Clear formatting") + "<i class='rse-sep'></i>" +
-				"<select data-in='ff' title='Font'>" + FONTS.map(function (f) { return "<option style='font-family:" + f + "'>" + f + "</option>"; }).join("") + "</select>" +
-				"<input data-in='fs' list='rse-sizes' title='Font size (pt)' placeholder='pt'><datalist id='rse-sizes'>" + SIZES.map(function (s) { return "<option value='" + s + "'>"; }).join("") + "</datalist><i class='rse-sep'></i>" +
+				btn("undo", "↶", "Undo (Ctrl+Z)") + btn("redo", "↷", "Redo (Ctrl+Y)") + btn("paint", "🖌", "Paint format: copy this cell's format, then click where it goes") + btn("clear", "⌫", "Clear formatting") + sep +
+				"<select data-in='ff' title='Font'>" + FONTS.map(function (f) { return "<option style='font-family:" + f + "'>" + f + "</option>"; }).join("") + "</select>" + sep +
+				btn("fs-", "−", "Smaller") + "<input data-in='fs' title='Font size (pt)'>" + btn("fs+", "+", "Bigger") + sep +
 				btn("b", "<b>B</b>", "Bold (Ctrl+B)") + btn("i", "<i>I</i>", "Italic (Ctrl+I)") + btn("s", "<s>S</s>", "Strikethrough") + btn("u", "<u>U</u>", "Underline (Ctrl+U)") +
-				colorBtn("color", "A", "Text color") + colorBtn("bg", "🪣", "Fill color") +
-				"<span class='rse-pop'><button type='button' class='rse-b' data-pop='bd' title='Borders'>▦</button><div class='rse-popbox rse-bdbox' data-box='bd'>" +
-				btn("bd", "All", "All borders", "all") + btn("bd", "Outer", "Outer borders", "outer") + btn("bd", "Inner", "Inner borders", "inner") +
-				btn("bd", "Top", "Top", "t") + btn("bd", "Bottom", "Bottom", "b") + btn("bd", "Left", "Left", "l") + btn("bd", "Right", "Right", "r") + btn("bd", "None", "No borders", "none") +
-				"<div class='rse-poprow'>Color <input type='color' data-bdcolor value='#000000'> Width <select data-bdw><option>1</option><option>2</option><option selected>3</option></select>px</div></div></span>" +
-				btn("merge", "⊞ Merge", "Merge the selected cells") + btn("unmerge", "⊟", "Unmerge") + "<i class='rse-sep'></i>" +
-				btn("al", "⇤", "Align left", "left") + btn("al", "↔", "Align center", "center") + btn("al", "⇥", "Align right", "right") +
-				btn("va", "⤒", "Top", "top") + btn("va", "↕", "Middle", "middle") + btn("va", "⤓", "Bottom", "bottom") +
-				"<select data-in='wrap' title='Text wrapping'><option value=''>Wrap: sheet's</option><option value='wrap'>Wrap</option><option value='overflow'>Overflow</option><option value='clip'>Clip</option></select>" +
+				colorBtn("color", "A", "Text color") + sep + colorBtn("bg", "🪣", "Fill color") +
+				pop("bd", "▦", "Borders", btn("bd", "▦ All", "All borders", "all") + btn("bd", "▢ Outer", "Outer borders", "outer") + btn("bd", "╋ Inner", "Inner borders", "inner") +
+					btn("bd", "▔ Top", "Top", "t") + btn("bd", "▁ Bottom", "Bottom", "b") + btn("bd", "▏Left", "Left", "l") + btn("bd", "▕ Right", "Right", "r") + btn("bd", "✕ None", "No borders", "none") +
+					"<div class='rse-poprow'>Color <input type='color' data-bdcolor value='#000000'> Width <select data-bdw><option>1</option><option>2</option><option selected>3</option></select>px</div>", true) +
+				pop("mg", "⊞", "Merge cells", btn("merge", "⊞ Merge all", "Merge the selected cells") + btn("unmerge", "⊟ Unmerge", "Split merged cells")) + sep +
+				pop("al", "≡", "Horizontal align", btn("al", "⇤ Left", "Align left", "left") + btn("al", "↔ Center", "Align center", "center") + btn("al", "⇥ Right", "Align right", "right")) +
+				pop("va", "⇕", "Vertical align", btn("va", "⤒ Top", "Top", "top") + btn("va", "↕ Middle", "Middle", "middle") + btn("va", "⤓ Bottom", "Bottom", "bottom")) +
+				pop("wr", "↵", "Text wrapping", btn("wrap", "Overflow", "Text spills into the next cells", "overflow") + btn("wrap", "Wrap", "Wrap onto new lines", "wrap") + btn("wrap", "Clip", "Cut off at the edge", "clip") + btn("wrap", "Sheet's own", "Back to the sheet's setting", "")) + sep +
+				pop("ins", "＋ Row", "Insert rows", btn("above", "Insert row above", "Insert a row above") + btn("below", "Insert row below", "Insert a row below") + btn("dup", "Duplicate row", "Copy the row below it")) +
+				btn("del", "🗑 Row", "Delete the selected row(s) (Undo brings them back)") +
+				"<select data-in='kind' title='Row type: how this row behaves on the page'>" + (o.kinds || []).map(function (k) { return "<option value='" + k[0] + "'>" + k[1] + "</option>"; }).join("") + "</select>" +
+				pop("sz", "↔ Size", "Row height / column width", "<div class='rse-poprow'>Row height <input type='number' data-in='h' min='8'> px</div><div class='rse-poprow'>Column width <input type='number' data-in='w' min='8'> px</div>" +
+					(o.extraSize ? o.extraSize() : "")) +
 				"<span class='rse-info'></span>";
 			document.body.appendChild(bar);
 			bar.addEventListener("mousedown", function (e) { if (e.target.closest("button, i[data-sw]")) e.preventDefault(); });
 			bar.addEventListener("click", function (e) {
 				var sw = e.target.closest("i[data-sw]");
 				if (sw) { var act0 = sw.closest(".rse-sw").getAttribute("data-act"), c0 = sw.getAttribute("data-sw"); bar.querySelector("[data-pick='" + act0 + "']").value = c0; applyColor(act0, c0); closePops(); return; }
-				var pop = e.target.closest("[data-pop]");
-				if (pop) { var box = bar.querySelector("[data-box='" + pop.getAttribute("data-pop") + "']"), was = box.classList.contains("on"); closePops(); if (!was) box.classList.add("on"); return; }
+				var pp = e.target.closest("[data-pop]");
+				if (pp) { var box = bar.querySelector("[data-box='" + pp.getAttribute("data-pop") + "']"), was = box.classList.contains("on"); closePops(); if (!was) box.classList.add("on"); return; }
 				var b = e.target.closest("[data-a]"); if (!b) return;
 				var a = b.getAttribute("data-a"), v = b.getAttribute("data-v");
+				if (b.closest(".rse-popbox") && !/reset/.test(a)) closePops();
 				if (a === "undo") { if (editTd) endEdit(true); o.undo(); } else if (a === "redo") { if (editTd) endEdit(true); o.redo(); }
 				else if (/^[bius]$/.test(a)) fmt(a);
+				else if (a === "fs-" || a === "fs+") {
+					var cur = parseFloat(bar.querySelector("[data-in=fs]").value) || 10, list = SIZES.slice();
+					var nx = a === "fs+" ? (list.filter(function (q) { return q > cur; })[0] || cur + 4) : (list.filter(function (q) { return q < cur; }).pop() || Math.max(4, cur - 1));
+					bar.querySelector("[data-in=fs]").value = nx; fmt("fs", nx);
+				}
 				else if (a === "al" || a === "va") setCells(function (st) { st[a] = v; });
+				else if (a === "wrap") setCells(function (st) { if (v) st.wrap = v; else delete st.wrap; });
 				else if (a === "clear") setCells(function (st, c) { delete ext(cellAt(c.i, c.j)).st; });
 				else if (a === "merge") merge(); else if (a === "unmerge") unmerge();
+				else if (a === "above" || a === "below" || a === "dup" || a === "del") rowOp(a);
 				else if (a === "paint") { var cs = selCells(); if (cs.length) { var src = cellAt(cs[0].i, cs[0].j); painter = {cls: src[0], st: JSON.parse(JSON.stringify((src[4] || {}).st || {}))}; document.body.classList.add("rse-painting"); } }
-				else if (a === "bd") { borders(v, bar.querySelector("[data-bdcolor]").value, bar.querySelector("[data-bdw]").value); closePops(); }
+				else if (a === "bd") borders(v, bar.querySelector("[data-bdcolor]").value, bar.querySelector("[data-bdw]").value);
 				else if (a === "color-reset") { setCells(function (st) { delete st.color; }); closePops(); }
 				else if (a === "bg-reset") { setCells(function (st) { delete st.bg; }); closePops(); }
 			});
@@ -360,8 +383,16 @@ var RemixSheetEditor = (function () {
 				if (pick) { applyColor(pick, e.target.value); return; }
 				if (k === "ff") fmt("ff", e.target.value);
 				else if (k === "fs") { var n = parseFloat(e.target.value); if (n) fmt("fs", n); }
-				else if (k === "wrap") setCells(function (st) { if (e.target.value) st.wrap = e.target.value; else delete st.wrap; });
+				else if (k === "kind") rowOp("kind", e.target.value);
+				else if (k === "h" || k === "w") setSize(k, e.target.value);
+				else if (o.onInput) o.onInput(k, e.target.value);
 			});
+			bar.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target.matches("input[data-in]")) e.target.dispatchEvent(new Event("change", {bubbles: true})); });
+		}
+		function setSize(kind, v) {
+			v = Math.max(8, Math.round(+v || 0)); if (!sel) return;
+			if (kind === "h") { var rows = selRows(); rows.forEach(function (i) { data().rows[i].h = v; data().rows[i].hSet = 1; }); o.changed(); o.rerender(rows); }
+			else { for (var x = sel.x0; x <= sel.x1; x++) data().cols[x] = v; o.changed(); o.rerender(); }
 		}
 		function applyColor(act, c) { if (act === "color") fmt("color", c); else setCells(function (st) { st.bg = c; }); }
 		function closePops() { if (bar) bar.querySelectorAll(".rse-popbox.on").forEach(function (b) { b.classList.remove("on"); }); }
@@ -375,7 +406,9 @@ var RemixSheetEditor = (function () {
 			info.textContent = LETTERS[sel.x0] + (rows[0] + 1) + (cells.length > 1 ? ":" + LETTERS[sel.x1] + (rows[rows.length - 1] + 1) : "") + " · " + (KIND_NAMES[r.k] || r.k);
 			bar.querySelector("[data-in=ff]").value = st.ff || cs.fontFamily.split(",")[0].replace(/['"]/g, "").trim() || "Comfortaa";
 			bar.querySelector("[data-in=fs]").value = st.fs || Math.round(parseFloat(cs.fontSize) * 0.75);
-			bar.querySelector("[data-in=wrap]").value = st.wrap || "";
+			bar.querySelector("[data-in=kind]").value = r.k;
+			bar.querySelector("[data-in=h]").value = Math.round(o.rowH ? o.rowH(r) : r.h);
+			bar.querySelector("[data-in=w]").value = data().cols[sel.x0] || "";
 			var lk = looks(c);
 			["b", "i", "u", "s"].forEach(function (k) { bar.querySelector("[data-a=" + k + "]").classList.toggle("on", lk[k]); });
 			bar.querySelector("[data-bar=color]").style.background = st.color || cs.color;
@@ -407,7 +440,7 @@ var RemixSheetEditor = (function () {
 				else if (a === "paste") { if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(paste, function () { paste(null); }); else paste(null); }
 				else if (a === "merge") merge(); else if (a === "unmerge") unmerge();
 				else if (a === "clear") setCells(function (st, c) { delete ext(cellAt(c.i, c.j)).st; });
-				else if (a === "empty") { selCells().forEach(function (c) { cellAt(c.i, c.j)[3] = ""; }); o.changed(); o.rerender(); }
+				else if (a === "empty") clearContents();
 				else if (a === "kind") rowOp("kind", v);
 				else if (a === "height") sizePrompt("h");
 				else if (a === "width") sizePrompt("w");
@@ -468,8 +501,8 @@ var RemixSheetEditor = (function () {
 			var tb2 = c.td.closest("tbody");
 			if (painter) {
 				setSel(tb2, c.y, c.x, c.y + c.rs - 1, c.x + c.cs - 1);
-				selCells().forEach(function (q) { var cc = cellAt(q.i, q.j); cc[0] = painter.cls; ext(cc).st = JSON.parse(JSON.stringify(painter.st)); });
-				painter = null; document.body.classList.remove("rse-painting"); o.changed(); o.rerender(); return;
+				var pc = selCells(); pc.forEach(function (q) { var cc = cellAt(q.i, q.j); cc[0] = painter.cls; ext(cc).st = JSON.parse(JSON.stringify(painter.st)); });
+				painter = null; document.body.classList.remove("rse-painting"); o.changed(); o.rerender(rowsOf(pc)); return;
 			}
 			if (e.shiftKey && sel && sel.id === tableId(tb2) && active) setSel(tb2, active.y, active.x, c.y + c.rs - 1, c.x + c.cs - 1);
 			else { active = c; setSel(tb2, c.y, c.x, c.y + c.rs - 1, c.x + c.cs - 1); dragging = true; }
@@ -506,7 +539,7 @@ var RemixSheetEditor = (function () {
 			} else {
 				var tr = rg.closest("tr"), i = +tr.getAttribute("data-i"), r = data().rows[i], h0 = o.rowH ? o.rowH(r) : r.h;
 				mv = function (ev) { var h = Math.max(8, Math.round(h0 + (ev.clientY - start) / zoom)); tr.style.height = h + "px"; rg.setAttribute("data-h", h); draw(); };
-				up = function () { document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); var h = +rg.getAttribute("data-h"); if (h && h !== h0) { r.h = h; r.hSet = 1; o.changed(); o.rerender(); } };
+				up = function () { document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); var h = +rg.getAttribute("data-h"); if (h && h !== h0) { r.h = h; r.hSet = 1; o.changed(); o.rerender([i]); } };
 			}
 			document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
 		}
@@ -545,7 +578,7 @@ var RemixSheetEditor = (function () {
 			else if (/^Arrow/.test(k)) { e.preventDefault(); move(k === "ArrowDown" ? 1 : k === "ArrowUp" ? -1 : 0, k === "ArrowRight" ? 1 : k === "ArrowLeft" ? -1 : 0, e.shiftKey); }
 			else if (k === "Tab") { e.preventDefault(); move(0, e.shiftKey ? -1 : 1); }
 			else if (k === "Enter" || k === "F2") { e.preventDefault(); beginEdit(active || selCells()[0]); }
-			else if (k === "Delete" || k === "Backspace") { e.preventDefault(); selCells().forEach(function (c) { cellAt(c.i, c.j)[3] = ""; }); o.changed(); o.rerender(); }
+			else if (k === "Delete" || k === "Backspace") { e.preventDefault(); clearContents(); }
 			else if (k === "Escape") { sel = null; painter = null; document.body.classList.remove("rse-painting"); draw(); }
 			else if (k.length === 1 && !mod && !e.altKey) { e.preventDefault(); beginEdit(active || selCells()[0], k); }
 		});
