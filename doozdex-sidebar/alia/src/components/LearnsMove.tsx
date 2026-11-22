@@ -54,27 +54,31 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   // fewer than 5 lines: Signature Move; fewer than 10: Exclusive Distribution; fewer than 20: Limited Distribution;
   // over 50 Pokemon learn it: Widely Distributed
   // the second word ("Move" / "Distribution") drops off on its own when the header is too narrow for it
+  // (measured against a hidden copy of the full text, so it never gets cut off with "...")
   const [short, setShort] = createSignal(false);
-  let tagEl: HTMLSpanElement | undefined;
-  const rarity = () => {
+  let boxEl: HTMLDivElement | undefined, nameEl: HTMLSpanElement | undefined, fullEl: HTMLSpanElement | undefined;
+  const words = () => {
     const n = lineCount();
-    if (!n) return "";
+    if (!n) return null;
     const wide = learnsIt().reduce((t, r) => t + r.members.length, 0) > 50;
-    if (n >= 20 && !wide) return "";
-    const [a, b] = n < 5 ? ["Signature", "Move"] : n < 10 ? ["Exclusive", "Distribution"] : n < 20 ? ["Limited", "Distribution"] : ["Widely", "Distributed"];
-    return short() ? (a === "Widely" ? "Widespread" : a) : a + " " + b;
+    if (n >= 20 && !wide) return null;
+    return n < 5 ? ["Signature", "Move", "Signature"] : n < 10 ? ["Exclusive", "Distribution", "Exclusive"] : n < 20 ? ["Limited", "Distribution", "Limited"] : ["Widely", "Distributed", "Widespread"];
   };
+  const fullText = () => { const w = words(); return w ? w[0] + " " + w[1] : ""; };
+  const rarity = () => { const w = words(); return !w ? "" : short() ? w[2] : w[0] + " " + w[1]; };
   const refit = () => {
-    if (!tagEl) return;
-    setShort(false);
-    requestAnimationFrame(() => tagEl && setShort(tagEl.scrollWidth > tagEl.clientWidth + 1));
+    if (!boxEl || !nameEl || !fullEl) return;
+    const room = boxEl.clientWidth - 16 - nameEl.offsetWidth - 6; // padding px-2, gap-1.5
+    setShort(fullEl.offsetWidth > room);
   };
   onMount(() => {
-    refit();
     const ro = new ResizeObserver(refit);
-    if (tagEl?.parentElement) ro.observe(tagEl.parentElement);
+    if (boxEl) ro.observe(boxEl);
+    requestAnimationFrame(refit);
+    document.fonts?.ready.then(refit);
     onCleanup(() => ro.disconnect());
   });
+  createEffect(() => { fullText(); requestAnimationFrame(refit); });
 
   const learnsIt = createMemo(() => {
     const pd = pokedex();
@@ -165,13 +169,16 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
         onClick={(e) => e.stopPropagation()}
       >
         <div class="flex h-8 shrink-0 border-b">
-          <div class="flex min-w-0 flex-auto items-center gap-1.5 px-2">
-            <span class="shrink-0 font-bold">{props.move}</span>
+          <div ref={boxEl} class="relative flex min-w-0 flex-auto items-center gap-1.5 overflow-hidden px-2">
+            <span ref={nameEl} class="shrink-0 font-bold">{props.move}</span>
             {rarity() && (
-              <span ref={tagEl} class="truncate text-[11px] font-normal italic opacity-80" title={`Learned by ${lineCount()} evolution line${lineCount() === 1 ? "" : "s"}`}>
+              <span class="whitespace-nowrap text-[11px] font-normal italic opacity-80" title={`Learned by ${lineCount()} evolution line${lineCount() === 1 ? "" : "s"}`}>
                 ({rarity()})
               </span>
             )}
+            <span ref={fullEl} aria-hidden="true" class="pointer-events-none invisible absolute left-0 top-0 whitespace-nowrap text-[11px] font-normal italic">
+              ({fullText()})
+            </span>
           </div>
           <button
             type="button"
