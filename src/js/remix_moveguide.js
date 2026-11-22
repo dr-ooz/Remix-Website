@@ -124,13 +124,70 @@
 		var g = (data.toc || []).filter(function (x) { return x.cats.indexOf(cat) >= 0; })[0];
 		return g && TOC_LOOK[g.name] ? TOC_LOOK[g.name].icon : "gear";
 	}
+	var CAT_ICONS = {
+		"Priority Attacking Moves": [["chevrons-right"], ["phys", "spec"]],
+		"Debuffing Moves": [["arrow-big-down", "arrow-big-down"], ["phys", "spec"]],
+		"Setup Moves": [["arrow-big-up", "arrow-big-up"], ["phys", "spec"]],
+		"Draco Meteor Variants": [["trending-down"], ["phys", "spec"]],
+		"Negative Priority Attacks": [["turtle"], ["phys", "spec"]],
+		"Inaccurate Moves": [["target"], ["phys", "spec"]],
+		"Recoil Moves": [["heart-minus"], ["phys", "spec"]],
+		"Moves That Can't Be Used 2x in a Row": [["repeat+ban"], ["phys", "spec"]],
+		"50% Critical Hit Rate Moves": [["swords"], ["phys", "spec"]],
+		"Multi-Hit Moves": [["dices"], ["phys", "spec"]],
+		"HP Draining Attacks": [["heart-plus"], ["phys", "spec"]],
+		"Trapping Moves": [["lock"], ["phys", "spec"]],
+		"Hex & Venoshock Variants": [["triangle-alert"], ["phys", "spec"]],
+		"Freeze-Dry Variants": [["shield-alert"], ["phys", "spec"]],
+		"Uses Higher Stat": [["phys", "shuffle"], ["shuffle", "spec"]],
+		"Changes Type": [["arrow-right-left"], ["phys", "spec"]],
+		"Generic Drawback Free Attacks": [["circle-check"], ["phys", "spec"]],
+		"Sleep Inducing Moves": [["zzz"], ["status", "settings"]],
+		"Paralysis Inducing Moves": [["zap"], ["status", "settings"]],
+		"Burn Inducing Moves": [["flame"], ["status", "settings"]],
+		"Poison Inducing Moves": [["skull"], ["status", "settings"]],
+		"Pivot Moves": [["redo-2"], ["status", "settings"]],
+		"New Recovery Moves": [["heart-plus"], ["status", "settings"]],
+		"Soak Variants": [["arrow-right-left"], ["status", "settings"]],
+		"Protect Variants": [["shield"], ["status", "settings"]],
+		"Retaliation & Sacrificial Moves": [["heart-off"], ["status", "settings"]],
+		"Weather & Terrain Interactions": [["weather-ground"], ["status", "settings"]],
+		"Weather & Terrain Setting": [["weather-ground"], ["status", "settings"]],
+		"Move Choice Related": [["circle-help+slash"], ["status", "settings"]],
+		"Entry Hazards": [["spikes"], ["status", "settings"]],
+		"Screens & Protective Effects": [["app-window"], ["status", "settings"]],
+		"Misc. Field Moves": [["globe"], ["status", "settings"]],
+		"Ability Changing Moves": [["dna"], ["status", "settings"]],
+		"Redirection & Doubles Only Moves": [["users"], ["status", "settings"]],
+		"Assorted Status Moves": [["puzzle"], ["status", "settings"]],
+		"AI / Trainer Only Moves": [["bot"], ["status", "settings"]]
+	};
+	// sub-headers that get an icon (the weather / terrain ones)
+	var SUB_ICONS = {"Sun": "sun", "Rain": "cloud-rain", "Snow": "snowflake", "Sand": "wind", "Terrain": "mountain", "Lunar Aura": "moon-star", "Mud Sport": "droplets"};
+	function oneIcon(n) {
+		if (n === "phys" || n === "spec" || n === "status") return "<img class='ci-img' src='" + ICON_URL.replace("%s", {phys: "physical", spec: "special", status: "status"}[n]) + "' alt=''>";
+		// "a+b": b drawn over a (e.g. repeat with a ban sign over it)
+		return "<span class='ci'>" + n.split("+").map(function (k, z) { return "<i class='ci-l" + (z ? " ci-over" : "") + "' style='--ci:url(" + new URL("./img/cat-icons/" + k + ".svg", location.href).href + ")'></i>"; }).join("") + "</span>";
+	}
+	function iconGroup(list) { return list && list.length ? "<span class='ci-grp'>" + list.map(oneIcon).join("") + "</span>" : ""; }
+	function typeHeadHtml(r, c) {
+		if (r.k !== "h1" || zone(r) !== "body") return "";
+		var t = typeOf(r); if (!t) return "";
+		if (!Object.keys(sheetMain).length) learnSheetColors();
+		var pill = "<span class='mg-tpill' style='background:" + (sheetMain[t] || TYPE_COLORS[t]) + "'><img src='./doozdex-sidebar/icons/" + t + ".svg?v=2' alt=''></span>";
+		return "<div class='mg-typehead'>" + pill + "<span class='mg-typehead-t'>" + c[3] + "</span>" + pill + "</div>";
+	}
 	function pillHead(r, i) {
 		if (zone(r) !== "body" || i < catStart || !(r.k === "h1" || r.k === "h2") || r.c.length !== 1) return "";
 		var t = headTitle(r).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 		if (!t) return "";
-		if (r.k === "h2") return "<div class='mg-hpill mg-hpill-2'><span class='mg-hpill-t'>" + t + "</span></div>";
-		var ic = tocIcon(groupIcon(r.cat)), main = !!(TOC_LOOK[r.cat] && TOC_LOOK[r.cat].sub);
-		return "<div class='mg-hpill mg-hpill-1'>" + ic + "<span class='mg-hpill-t'>" + t + "</span>" + (main ? ic : "") + "</div>";
+		if (r.k === "h2") {
+			var sub = Object.keys(SUB_ICONS).filter(function (k) { return headTitle(r).indexOf(k) === 0; })[0];
+			return "<div class='mg-hpill mg-hpill-2'>" + (sub ? iconGroup([SUB_ICONS[sub]]) : "") + "<span class='mg-hpill-t'>" + t + "</span>" + (sub ? iconGroup([SUB_ICONS[sub]]) : "") + "</div>";
+		}
+		if (r.cat === "Unused Moves/Animations") return "<div class='mg-hmini'>" + t + " <small>(for Dooz)</small></div>"; // just a small note at the bottom
+		var ic = CAT_ICONS[r.cat] || [[], []];
+		return "<div class='mg-hpill mg-hpill-1'>" + iconGroup(ic[0]) + "<span class='mg-hpill-t'>" + t + "</span>" + iconGroup(ic[1]) + "</div>";
 	}
 	// pills keep one size and only shrink when a name needs more room than its row
 	function fitHeads(scope) {
@@ -148,7 +205,7 @@
 			var sa = stAttr(c);
 			return "<td class='" + c[0] + cellExtra(c, r) + sa[0] + (head && j === 0 ? " mg-hd" : "") + "'" + (sa[1] ? " style=\"" + sa[1] + "\"" : "") + (c[1] > 1 ? " colspan='" + c[1] + "'" : "") +
 				(c[2] > 1 ? " rowspan='" + c[2] + "'" : "") + " data-j='" + j + "'>" +
-				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : j === 0 && !editing && pillHead(r, i) ? pillHead(r, i) : r.k === "top" && j === 0 ? "<a href='#mg-toc' class='mg-backpill'>↑ Back to the Table of Contents</a>" : cellHtml(c, r)) + "</td>";
+				(head && j === 0 ? "<span class='mg-caret' contenteditable='false'></span>" : "") + (r.special === "types" ? typeGridHtml() : j === 0 && !editing && pillHead(r, i) ? pillHead(r, i) : j === 0 && !editing && typeHeadHtml(r, c) ? typeHeadHtml(r, c) : r.k === "top" && j === 0 ? "<a href='#mg-toc' class='mg-backpill'>↑ Back to the Table of Contents</a>" : cellHtml(c, r)) + "</td>";
 		}).join("") + "</tr>";
 	}
 	function tableHtml(rows) {
@@ -187,14 +244,14 @@
 			else {
 				// the guide is one table per section (each type / category): a change only re-lays out its own section,
 				// and sections off screen aren't drawn at all (content-visibility), so editing stays quick
-				if ((r.k === "h0" || r.k === "h1") && chunks[chunks.length - 1].length) chunks.push([]);
-				if (!chunks[chunks.length - 1].length) chunks[chunks.length - 1].group = r.k === "h1" ? (r.cat ? "cat" : "type") : ""; // a dropdown chain = one rounded window
+				if ((r.k === "h0" || r.k === "h1") && !r.joinPrev && chunks[chunks.length - 1].length) chunks.push([]);
+				if (!chunks[chunks.length - 1].length) { chunks[chunks.length - 1].group = r.k === "h1" ? (r.cat ? "cat" : "type") : ""; chunks[chunks.length - 1].unused = r.cat === "Unused Moves/Animations"; } // a dropdown chain = one rounded window
 				chunks[chunks.length - 1].push(h);
 			}
 		});
 		$("#mg-info").innerHTML = "<div class='mg-scroll'>" + tableHtml(intro) + "</div>";
 		$("#mg-toc").innerHTML = "<div class='mg-scroll'>" + tableHtml(toc) + "</div>" + tocCards();
-		$("#mg-guide").innerHTML = chunks.map(function (c) { return "<div class='mg-chunk" + (c.group ? " mg-group mg-group-" + c.group : "") + "'>" + tableHtml(c) + "</div>"; }).join("");
+		$("#mg-guide").innerHTML = chunks.map(function (c) { return "<div class='mg-chunk" + (c.group ? " mg-group mg-group-" + c.group : "") + (c.unused ? " mg-group-unused" : "") + "'>" + tableHtml(c) + "</div>"; }).join("");
 		placeLogo();
 		applyColors();
 		applyCollapse();
@@ -255,6 +312,9 @@
 			});
 			tr.style.display = show ? "" : "none";
 			if (HEADS[r.k]) tr.classList.toggle("mg-shut", !(q && zone(r) === "body") && !isOpen(i));
+		});
+		$$("#mg-guide .mg-chunk").forEach(function (ch) {
+			ch.classList.toggle("mg-chunk-empty", !Array.prototype.some.call(ch.querySelectorAll("tr[data-i]"), function (tr) { return tr.style.display !== "none"; }));
 		});
 		fitMoves();
 		fitTypeGrid();
@@ -350,6 +410,28 @@
 			(data.toc || []).forEach(function (g) { g.cats = g.cats.map(function (c) { return c === "Ability Changing" ? "Ability Changing Moves" : c; }); });
 			data.rows.forEach(function (r) { if (r.cat === "Ability Changing") r.cat = "Ability Changing Moves"; r.c.forEach(function (c) { if (c[4] && c[4].go === "Ability Changing") c[4].go = "Ability Changing Moves"; }); });
 			th.renameAbility = 1; changed = true;
+		}
+		// "Inaccurate Damaging Moves" -> "Inaccurate Moves"
+		if (!th.renameInaccurate) {
+			data.rows.forEach(function (r) { if (r.cat === "Inaccurate Moves" && (r.k === "h1")) r.c[0][3] = r.c[0][3].replace("Inaccurate Damaging Moves", "Inaccurate Moves"); });
+			th.renameInaccurate = 1; changed = true;
+		}
+		// Weather & Terrain Setting moves up to sit in the same box as Weather & Terrain Interactions
+		if (!th.weatherJoin) {
+			var blockOf = function (cat) {
+				var a = -1; for (var x = 0; x < data.rows.length; x++) if (data.rows[x].k === "h1" && data.rows[x].cat === cat) { a = x; break; }
+				if (a < 0) return null;
+				var b = a + 1; while (b < data.rows.length && !(data.rows[b].k === "h1" || data.rows[b].k === "h0")) b++;
+				return [a, b];
+			};
+			var setB = blockOf("Weather & Terrain Setting"), intB = blockOf("Weather & Terrain Interactions");
+			if (setB && intB) {
+				var moved = data.rows.splice(setB[0], setB[1] - setB[0]);
+				moved[0].joinPrev = true;
+				intB = blockOf("Weather & Terrain Interactions");
+				Array.prototype.splice.apply(data.rows, [intB[1], 0].concat(moved));
+			}
+			th.weatherJoin = 1; changed = true;
 		}
 		if (changed) setTimeout(markDirty, 0);
 	}
@@ -526,7 +608,7 @@
 	function themeCss() {
 		var th = data.theme || {}, css = "";
 		// test view (toggle "◐ Site background"): every pure-black fill becomes the site's dark color
-		var INNER = "#110e15";
+		var INNER = "#0c0a0e"; // halfway between the sheet's black and the site's #17141c
 		Object.keys(clsColor).forEach(function (k) { if (k[0] === "s" && clsColor[k].bg === "#000000") css += "body.mg-sitebg .mg-page td." + k + "{background-color:" + INNER + "}"; });
 		Object.keys(blackBorders).forEach(function (k) { css += "body.mg-sitebg .mg-page td." + k + "{" + blackBorders[k].map(function (side) { return "border-" + side + "-color:" + INNER; }).join(";") + "}"; });
 		[["intro", "#mg-info"], ["toc", "#mg-toc"]].forEach(function (a) {
@@ -628,7 +710,7 @@
 		el.innerHTML = "<span class='mg-mode'><button type='button' class='mg-btn mg-mode-b" + (editing ? "" : " on") + "' data-mode='preview' title='Exactly what visitors see'>👁 Preview</button>" +
 			"<button type='button' class='mg-btn mg-mode-b" + (editing ? " on" : "") + "' data-mode='edit' title='The Sheets-style editor (only you see it)'>✏️ Edit</button></span>" +
 			"<button type='button' class='mg-btn mg-colors' title='Change the info blurb and table of contents colors'>🎨 Colors</button>" +
-			"<button type='button' class='mg-btn mg-sitebg-b" + (document.body.classList.contains("mg-sitebg") ? " on" : "") + "' title='Test: show the sheet's black backgrounds in the site's own color'>◐ Site background</button>" +
+
 			(editing || dirty ? "<button type='button' class='mg-btn mg-save' title='Save into the website folder (src/moveguide/move_guide.json)'>💾 Save" + (dirty ? " •" : "") + "</button>" +
 				"<button type='button' class='mg-btn mg-discard' title='Throw away your unsaved edits'>Discard edits</button>" : "");
 	}
@@ -788,7 +870,7 @@
 	var lastW = 0; // only when the width changes (not every time a cell grows while you type)
 	if (window.ResizeObserver) new ResizeObserver(function (en) { var w = Math.round(en[0].contentRect.width); if (data && w !== lastW) { lastW = w; scale(); } }).observe(document.querySelector(".mg-page"));
 
-	try { if (localStorage.getItem("remixMoveGuideSiteBg")) document.body.classList.add("mg-sitebg"); } catch (e) {}
+	document.body.classList.add("mg-sitebg"); // the windowed look (dark gray inside, site color around) is the normal look
 	var draft = CAN_EDIT ? load(K_DRAFT, null) : null;
 	fetch("./moveguide/move_guide.json", {cache: "no-cache"}).then(function (r) { return r.json(); }).then(function (d) {
 		data = draft && draft.rows ? draft : d;
