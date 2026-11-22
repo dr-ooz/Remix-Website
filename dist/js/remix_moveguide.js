@@ -39,7 +39,8 @@
 		data.rows.forEach(function (r) { if (isMoveRow(r)) n[r.h] = (n[r.h] || 0) + 1; });
 		return (data.moveH = +Object.keys(n).sort(function (a, b) { return n[b] - n[a]; })[0] || 46);
 	}
-	function rowH(r) { return isMoveRow(r) && !r.hSet ? moveH() : !r.hSet && isBlankRow(r) ? Math.max(4, Math.round(r.h * 0.15)) : r.h; }
+	function isTypeHead(r) { return r.k === "h1" && zone(r) === "body" && !r.cat && !!typeOf(r); }
+	function rowH(r) { return isTypeHead(r) ? 112 : isMoveRow(r) && !r.hSet ? moveH() : !r.hSet && isBlankRow(r) ? Math.max(4, Math.round(r.h * 0.15)) : r.h; }
 
 	// A cell that is only rich-text spans: the cell's own font size would add a tall empty strut to every line
 	// (the sheet sizes each line by its own text), so the cell gets size 0 and each span keeps its own size.

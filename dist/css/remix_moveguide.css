@@ -445,3 +445,8 @@ table.mg td.mg-toctitle { position: relative; }
 
 /* a short note at the bottom of the screen (e.g. a move that isn't in the guide) */
 .mg-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 9999; background: #1b1820; color: #fff; border: 1px solid #ffffff33; border-radius: 999px; padding: 8px 18px; font: 600 14px Comfortaa, sans-serif; box-shadow: 0 6px 20px #0008; pointer-events: none; }
+
+/* the type headers (All Normal Type Moves ...): one height, the pills + text centered in it */
+.mg-page td:has(> .mg-typehead) { vertical-align: middle !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+.mg-typehead { vertical-align: middle; line-height: 1; }
+.mg-typehead-t { line-height: 1.1; }

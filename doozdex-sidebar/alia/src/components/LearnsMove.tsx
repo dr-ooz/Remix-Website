@@ -57,15 +57,24 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   // (measured against a hidden copy of the full text, so it never gets cut off with "...")
   const [short, setShort] = createSignal(false);
   let boxEl: HTMLDivElement | undefined, nameEl: HTMLSpanElement | undefined, fullEl: HTMLSpanElement | undefined;
-  const words = () => {
-    const n = lineCount();
+  // how many Pokemon learn it (and how many there are in all)
+  const monCount = () => learnsIt().reduce((t, r) => t + r.members.length, 0);
+  const allMons = createMemo(() => Object.values(pokedex() ?? {}).filter((p) => !p.unusable).length);
+  // [full label, short label]: by share of all Pokemon, then by count, then by evolution lines
+  const words = (): [string, string] | null => {
+    const n = lineCount(), m = monCount(), all = allMons();
     if (!n) return null;
-    const wide = learnsIt().reduce((t, r) => t + r.members.length, 0) > 50;
-    if (n >= 20 && !wide) return null;
-    return n < 5 ? ["Signature", "Move", "Signature"] : n < 10 ? ["Exclusive", "Distribution", "Exclusive"] : n < 20 ? ["Limited", "Distribution", "Limited"] : ["Widely", "Distributed", "Widespread"];
+    if (all && m >= all * 0.9) return ["Universal", "Universal"];
+    if (all && m >= all * 0.75) return ["Near Universal", "Near Universal"];
+    if (m > 100) return ["Very Widespread", "Very Wide"];
+    if (m > 50) return ["Widespread", "Widespread"];
+    if (n < 5) return ["Signature Move", "Signature"];
+    if (n < 10) return ["Exclusive Distribution", "Exclusive"];
+    if (n <= 20) return ["Limited Distribution", "Limited"];
+    return ["Semi-Limited Distribution", "Semi-Limited"];
   };
-  const fullText = () => { const w = words(); return w ? w[0] + " " + w[1] : ""; };
-  const rarity = () => { const w = words(); return !w ? "" : short() ? w[2] : w[0] + " " + w[1]; };
+  const fullText = () => words()?.[0] ?? "";
+  const rarity = () => { const w = words(); return !w ? "" : short() ? w[1] : w[0]; };
   const refit = () => {
     if (!boxEl || !nameEl || !fullEl) return;
     const room = boxEl.clientWidth - 16 - nameEl.offsetWidth - 6; // padding px-2, gap-1.5
@@ -172,7 +181,7 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
           <div ref={boxEl} class="relative flex min-w-0 flex-auto items-center gap-1.5 overflow-hidden px-2">
             <span ref={nameEl} class="shrink-0 font-bold">{props.move}</span>
             {rarity() && (
-              <span class="whitespace-nowrap text-[11px] font-normal italic opacity-80" title={`Learned by ${lineCount()} evolution line${lineCount() === 1 ? "" : "s"}`}>
+              <span class="whitespace-nowrap text-[11px] font-normal italic opacity-80" title={`Learned by ${monCount()} Pokémon (${lineCount()} evolution line${lineCount() === 1 ? "" : "s"})`}>
                 ({rarity()})
               </span>
             )}

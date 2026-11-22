@@ -38,10 +38,23 @@ export const Move = (props: {
             />
           }
         >
-          {/* uses the higher attacking stat: both icons, small, one over the other's corner */}
-          <div class="relative aspect-square h-full" title="Uses the user's higher attacking stat (Physical or Special)">
-            <div class="absolute top-0 left-0 h-[68%] w-[68%] bg-contain bg-center bg-no-repeat" style={{ "background-image": "url(/icons/Physical.webp)" }} />
-            <div class="absolute right-0 bottom-0 h-[68%] w-[68%] bg-contain bg-center bg-no-repeat" style={{ "background-image": "url(/icons/Special.webp)" }} />
+          {/* uses the higher attacking stat: a shuffle icon */}
+          <div class="flex aspect-square h-full items-center justify-center" title="Uses the user's higher attacking stat (Physical or Special)">
+            <svg viewBox="0 0 24 24" class="h-[82%] w-[82%]" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <defs>
+                <linearGradient id="dz-mixed" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#ff8a4c" />
+                  <stop offset="1" stop-color="#6ea8ff" />
+                </linearGradient>
+              </defs>
+              <g stroke="url(#dz-mixed)">
+                <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22" />
+                <path d="m18 2 4 4-4 4" />
+                <path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2" />
+                <path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8" />
+                <path d="m18 14 4 4-4 4" />
+              </g>
+            </svg>
           </div>
         </Show>
 

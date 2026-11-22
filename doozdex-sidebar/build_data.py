@@ -80,9 +80,11 @@ SPRITE_ALIAS = {"nidoranf": "nidoran-f", "nidoranm": "nidoran-m", "basculinblue"
                 "deerling": "deerling-summer", "sawsbuck": "sawsbuck-summer"}
 
 # Moves, keyed by id like the extension.
+HIDDEN_MOVES = {"Arm Thrust", "Swallow", "Ally Switch", "Mirror Move", "Snatch", "Secret Power", "Metronome"}
 moves, move_id_by_num = {}, {}
 for m in moves_raw:
-    if not m.get("name") or m["name"].startswith("OLD "):  # retired moves (OLD Comet Punch) aren't shown
+    # retired / unused moves aren't shown (OLD Comet Punch = the old slot; the rest are Dooz's unused list)
+    if not m.get("name") or m["name"].startswith("OLD ") or m["name"] in HIDDEN_MOVES:
         continue
     mid = to_id(m["name"])
     move_id_by_num[m["num"]] = mid

@@ -200,13 +200,14 @@ export function ScreenMoves() {
               >
                 <div class="border-b px-2.5 py-1 font-bold opacity-80">{m().name}</div>
                 <button type="button" class="cursor-pointer px-2.5 py-1.5 text-left hover:bg-white/10" onClick={() => { const n = m().name; setMenu(null); setOpenMove(n); }}>
-                  Show Pokémon that learn this move
+                  Show Pokémon that learn this move <span class="text-[11px] italic opacity-60">(or Right-Click)</span>
                 </button>
                 <button type="button" class="cursor-pointer px-2.5 py-1.5 text-left hover:bg-white/10" onClick={() => { const n = m().name; setMenu(null); togglePin(n); }}>
-                  {pinnedMoves().has(m().name) ? "Unpin this move" : "Pin this move"}
+                  {pinnedMoves().has(m().name) ? "Unpin this move" : "Pin this move"}{" "}
+                  <span class="text-[11px] italic opacity-60">(or the corner pin button)</span>
                 </button>
                 <button type="button" class="cursor-pointer px-2.5 py-1.5 text-left hover:bg-white/10" onClick={() => jumpToMoveDex(m().name)}>
-                  Jump to MoveDex
+                  Jump to MoveDex <span class="text-[11px] italic opacity-60">(or Double-Click)</span>
                 </button>
               </div>
             </>
