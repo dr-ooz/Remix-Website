@@ -1745,6 +1745,8 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
    "species": [
     "Omanyte",
     "Omastar",
+    "Persian",
+    "Persian-Alola",
     "Yamask",
     "Cofagrigus"
    ],

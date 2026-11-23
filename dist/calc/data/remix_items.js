@@ -1747,6 +1747,8 @@ exports.REMIX_ITEM_EFFECTS = {
             "species": [
                 "Omanyte",
                 "Omastar",
+                "Persian",
+                "Persian-Alola",
                 "Yamask",
                 "Cofagrigus"
             ],

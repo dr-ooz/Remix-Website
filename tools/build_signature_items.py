@@ -104,7 +104,8 @@ for item, hs in MANUAL.items():
 NOT_HOLDERS = {"Aurora Crystal": ["Venonat"],
                "Buried Idol": ["Darmanitan"],          # only Zen Mode Darmanitan (plus Baltoy, Claydol, Sigilyph)
                "Frozen Claw": ["Sandslash"],           # Alolan Sandslash only (Kanto Sandslash has Toxic Claw)
-               "Toxic Claw": ["Sandslash-Alola"]}
+               "Toxic Claw": ["Sandslash-Alola"],
+               "Treasure Chest": ["Meowth"]}   # gate is Persian (all forms) only, not the Meowth pre-evolution
 for item, hs in NOT_HOLDERS.items():
     if item in out:
         out[item]["holders"] = [h for h in out[item]["holders"] if h not in hs]
