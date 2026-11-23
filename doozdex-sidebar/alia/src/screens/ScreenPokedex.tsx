@@ -276,8 +276,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       list.forEach((p, i) => result.push({ type: "item", data: p, famStart: or === "num" && i > 0 && p.family !== list[i - 1].family }));
     };
     section(someMons, `Has some of these abilities (${af.join(" / ")})`);
-    section(grantedMons, `Abilities that include the effects of ${af.join(" / ")}`,
-      "Their own ability has this built in");
+    section(grantedMons, `Abilities that include the effects of ${af.join(" / ")}`);
     // signature items: each item's row (icon + in-game description) above the Pokemon it gives the ability to
     if (signatureItemMons.length) {
       result.push({ type: "header", label: `Gains the effects of ${af.join(" / ")} via a signature item` });
