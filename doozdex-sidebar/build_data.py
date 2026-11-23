@@ -306,7 +306,16 @@ if os.path.exists(guide_path):
         if r["k"] == "h1" and r.get("cat"):
             in_cat = True
             cname = re.split(r"\s*\(", _plain(re.split(r"<br>|\n", r["c"][0][3])[0]).strip())[0].strip()
-            cats.append({"name": cname, "moves": []})
+            cats.append({"name": cname, "moves": [], "prio": cname.startswith("Priority Attacking")})
+        # Priority Attacking Moves splits into its 3 groups (regular priority, First Impression variants, Fake Out
+        # variants) by its sub-headers
+        if in_cat and r["k"] == "h2" and cats and cats[-1].get("prio"):
+            sub = _plain(re.split(r"<br>|\n", r["c"][0][3])[0]).lower()
+            nm = "First Impression Variants" if "impression" in sub else "Fake Out Variants" if "fake out" in sub else "Priority Attacks"
+            if not any(c["name"] == nm for c in cats):
+                cats.append({"name": nm, "moves": [], "prio": True})
+            else:
+                cats.append(cats.pop(next(i for i, c in enumerate(cats) if c["name"] == nm)))
         if in_cat and r["k"] == "row" and len(r["c"]) >= 8:
             first = _plain(re.split(r"<br>|\n", r["c"][0][3])[0])
             if re.match(r"(?i)^move name$", first.strip()):
@@ -319,7 +328,7 @@ if os.path.exists(guide_path):
     for i, mid in enumerate(eff):
         moves[mid]["effectOrder"] = i
     with open(os.path.join(OUT, "effect_cats.json"), "w", encoding="utf8") as f:
-        json.dump([c for c in cats if c["moves"]], f, ensure_ascii=False, separators=(",", ":"))
+        json.dump([{"name": c["name"], "moves": c["moves"]} for c in cats if c["moves"]], f, ensure_ascii=False, separators=(",", ":"))
 
 # Filters: "Type Changed" (types differ from the original game's) and "Doozian Form" (Dooz's new / renamed
 # Pokemon and forms). The original types come from the calc's species data before the Remix data is applied.

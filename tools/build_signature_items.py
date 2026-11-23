@@ -99,6 +99,17 @@ for item, hs in MANUAL.items():
     entry = out.setdefault(item, {"holders": [], "abilities": []})
     entry["holders"] = sorted(set(entry["holders"]) | set(hs))
 
+# Holders the text parse gets wrong (an old evolution line from the evo data): removed by hand.
+# Venonat no longer evolves into Venomoth in Remix (Caterpie/Metapod do), so it doesn't get Aurora Crystal.
+NOT_HOLDERS = {"Aurora Crystal": ["Venonat"]}
+for item, hs in NOT_HOLDERS.items():
+    if item in out:
+        out[item]["holders"] = [h for h in out[item]["holders"] if h not in hs]
+# Not listed at all: Silvally's Memories (form items, nothing to show) and Metal Powder (only hosts Strange
+# Souvenir's effect in code).
+for item in [i for i in out if i.endswith(" Memory")] + ["Metal Powder"]:
+    out.pop(item, None)
+
 json.dump(out, open(os.path.join(DATA, "signature_items.json"), "w", encoding="utf8"), ensure_ascii=False, indent=1)
 print(len(out), "signature items")
 

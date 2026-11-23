@@ -97,3 +97,35 @@ select optgroup {
   color: #f2cd6b;
   margin-left: 1px;
 }
+
+/* a main filter reversed ("No Signature Item"): red instead of the on-state's light */
+.dz-filter-not {
+  background: color-mix(in srgb, #e05555 22%, transparent);
+  outline: 1px solid color-mix(in srgb, #ff7a7a 70%, transparent);
+  color: #ffd0d0;
+}
+/* a filter cell that is set: a lit border (a "doesn't learn" move: red) */
+.dz-set {
+  border-color: color-mix(in srgb, var(--color-white) 75%, transparent) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-white) 35%, transparent);
+  font-weight: bold;
+}
+.dz-set-not {
+  border-color: #ff7a7a !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, #ff7a7a 40%, transparent);
+  font-weight: bold;
+}
+/* the small X that clears a filter cell */
+.dz-x {
+  flex: none;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  padding: 2px 3px;
+  border-radius: 3px;
+  opacity: 0.75;
+}
+.dz-x:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--color-white) 15%, transparent);
+}

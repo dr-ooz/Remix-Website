@@ -1086,8 +1086,7 @@
    "Aurorus",
    "Caterpie",
    "Metapod",
-   "Venomoth",
-   "Venonat"
+   "Venomoth"
   ],
   "abilities": [
    "Resilient",
@@ -1141,12 +1140,6 @@
   ],
   "abilities": []
  },
- "Metal Powder": {
-  "holders": [
-   "Ditto"
-  ],
-  "abilities": []
- },
  "Thick Club": {
   "holders": [
    "Cubone",
@@ -1184,108 +1177,6 @@
  "Chill Drive": {
   "holders": [
    "Genesect"
-  ],
-  "abilities": []
- },
- "Fighting Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Flying Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Poison Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Ground Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Rock Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Bug Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Ghost Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Steel Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Fire Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Water Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Grass Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Electric Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Psychic Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Ice Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Dragon Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Dark Memory": {
-  "holders": [
-   "Silvally"
-  ],
-  "abilities": []
- },
- "Fairy Memory": {
-  "holders": [
-   "Silvally"
   ],
   "abilities": []
  },

@@ -1914,7 +1914,8 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
  "Aurora Crystal": [
   {
    "species": [
-    "Venonat",
+    "Caterpie",
+    "Metapod",
     "Venomoth",
     "Aurorus"
    ],

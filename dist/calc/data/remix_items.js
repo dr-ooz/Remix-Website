@@ -1916,7 +1916,8 @@ exports.REMIX_ITEM_EFFECTS = {
     "Aurora Crystal": [
         {
             "species": [
-                "Venonat",
+                "Caterpie",
+                "Metapod",
                 "Venomoth",
                 "Aurorus"
             ],

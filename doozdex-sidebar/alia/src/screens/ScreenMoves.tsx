@@ -66,42 +66,21 @@ export function ScreenMoves() {
   // Power sorts by effective power, the way the AI sees it (fixed multi-hits x hits, 2-5 hits x3, always-crit x1.5)
   const calcData = useCalcData();
   const effPower = (m: MoveData) => calcData()?.movePower[nameToId(m.name)] ?? m.power;
-  // Effect: the Move Guide's categories, which the viewer can hide and reorder (right-click Effect; remembered).
-  // A move sits in the first shown category it's in (in the chosen order); moves only in hidden ones drop out.
+  // Effect = a mini MoveDex: clicking Effect opens the directory of the guide's categories (click it again to come
+  // back to it); picking one lists just that category's moves in guide order, "All moves" lists every move that way
   const effectCats = useEffectCats();
-  type EffCfg = { order: string[]; hidden: string[] };
-  const [effCfg, setEffCfgRaw] = createSignal<EffCfg>((() => { try { return JSON.parse(localStorage.getItem("dzEffectCats") || "null") ?? { order: [], hidden: [] }; } catch { return { order: [], hidden: [] }; } })());
-  const setEffCfg = (c: EffCfg) => { setEffCfgRaw(c); try { localStorage.setItem("dzEffectCats", JSON.stringify(c)); } catch { /* private mode */ } };
   const [catsOpen, setCatsOpen] = createSignal(false);
-  const catsOrdered = createMemo(() => {
-    const cats = effectCats() ?? [];
-    const ord = effCfg().order;
-    const rank = (n: string) => { const i = ord.indexOf(n); return i < 0 ? 1e3 : i; };
-    return cats.map((c, i) => ({ c, i })).sort((a, b) => rank(a.c.name) - rank(b.c.name) || a.i - b.i).map((x) => x.c);
-  });
+  const [effectPick, setEffectPick] = createSignal("");
+  const pickedCat = () => (effectCats() ?? []).find((c) => c.name === effectPick());
   const moveCatPos = createMemo(() => {
-    const pos: Record<string, number> = {}, inAny = new Set<string>();
+    const pos: Record<string, number> = {};
     let n = 0;
-    for (const c of catsOrdered()) {
-      const hidden = effCfg().hidden.includes(c.name);
-      for (const mid of c.moves) {
-        inAny.add(mid);
-        if (!hidden && pos[mid] === undefined) pos[mid] = n++;
-      }
-    }
-    return { pos, inAny };
+    const pc = pickedCat();
+    for (const c of pc ? [pc] : effectCats() ?? []) for (const mid of c.moves) if (pos[mid] === undefined) pos[mid] = n++;
+    return pos;
   });
-  const moveCat = (from: number, to: number) => {
-    const names = catsOrdered().map((c) => c.name);
-    if (to < 0 || to >= names.length) return;
-    const [x] = names.splice(from, 1);
-    names.splice(to, 0, x!);
-    setEffCfg({ ...effCfg(), order: names });
-  };
-  const toggleCat = (name: string) => {
-    const h = effCfg().hidden;
-    setEffCfg({ ...effCfg(), hidden: h.includes(name) ? h.filter((x) => x !== name) : [...h, name] });
-  };
+  // Power, low to high: status moves can be hidden
+  const [hideStatus, setHideStatus] = createSignal(true);
   const [typeFilter, setTypeFilter] = createSignal("");
   const [categoryFilter, setCategoryFilter] = createSignal("");
 
@@ -165,7 +144,8 @@ export function ScreenMoves() {
     const cp = moveCatPos();
     return filtered()
       .filter((m) => or !== "rare" || !hiddenTiers().includes(tierOf(m.name)))
-      .filter((m) => { const id = nameToId(m.name); return or !== "eff" || cp.pos[id] !== undefined || !cp.inAny.has(id); })
+      .filter((m) => or !== "eff" || !pickedCat() || cp[nameToId(m.name)] !== undefined)
+      .filter((m) => !(or === "pow" && reversed() && hideStatus()) || effPower(m) > 0)
       .toSorted((a, b) => {
       const aPinned = p.has(a.name);
       if (aPinned !== p.has(b.name)) return aPinned ? -1 : 1;
@@ -199,7 +179,7 @@ export function ScreenMoves() {
         }
         case "eff": {
           // moves not in the guide go last, A-Z
-          const ea = cp.pos[nameToId(a.name)] ?? (a as any).effectOrder ?? 1e6, eb = cp.pos[nameToId(b.name)] ?? (b as any).effectOrder ?? 1e6;
+          const ea = cp[nameToId(a.name)] ?? 1e6, eb = cp[nameToId(b.name)] ?? 1e6;
           i = ea - eb || a.name.localeCompare(b.name);
           break;
         }
@@ -249,10 +229,12 @@ export function ScreenMoves() {
           <For each={ORDERS}>
             {(o) => (
               <Button
-                class={cn("flex-1 text-sm", order() === o.value && "font-bold")}
-                onclick={() =>
-                  order() === o.value ? setReversed((prev) => !prev) : setOrder(o.value)
-                }
+                class={cn("flex-1 text-sm", order() === o.value && "dz-filter-on font-bold")}
+                title={o.value === "eff" ? "Browse the MoveDex categories" : "Click again to reverse"}
+                onclick={() => {
+                  if (o.value === "eff") { if (order() !== "eff") setOrder("eff"); setCatsOpen(true); return; }
+                  order() === o.value ? setReversed((prev) => !prev) : setOrder(o.value);
+                }}
                 oncontextmenu={(e) => {
                   if (o.value !== "eff") return;
                   e.preventDefault();
@@ -261,13 +243,32 @@ export function ScreenMoves() {
                 }}
               >
                 {o.label}
-                {order() === o.value && <span class="text-[10px]"> {reversed() ? "▼" : "▲"}</span>}
+                {order() === o.value && o.value !== "eff" && <span class="text-[10px]"> {reversed() ? "▼" : "▲"}</span>}
               </Button>
             )}
           </For>
         </div>
 
-        <div class="text-center text-[11px] text-white/60 italic">Right-click Effect to pick and order its categories</div>
+        <Show when={order() === "eff"}>
+          <button
+            type="button"
+            class="dz-filter-on flex cursor-pointer items-center justify-center gap-1 rounded border px-2 py-1 text-[13px]"
+            onClick={() => setCatsOpen(true)}
+          >
+            <span class="text-white/70">Showing:</span>
+            <b class="truncate">{pickedCat()?.name ?? "All moves, in MoveDex order"}</b>
+            <span class="text-[11px] text-white/70">(change ▾)</span>
+          </button>
+        </Show>
+        <Show when={order() === "pow" && reversed()}>
+          <button
+            type="button"
+            class={cn("cursor-pointer rounded border px-2 py-0.5 text-[12px]", hideStatus() && "dz-filter-on font-bold")}
+            onClick={() => setHideStatus(!hideStatus())}
+          >
+            {hideStatus() ? "Non-damaging moves hidden (click to show)" : "Non-damaging moves shown (click to hide)"}
+          </button>
+        </Show>
 
         <Show when={order() === "rare"}>
           <div class="flex flex-wrap gap-1" title="Click a tier to hide or show its moves">
@@ -299,23 +300,24 @@ export function ScreenMoves() {
           <div class="absolute inset-0 z-40 bg-black/80" onClick={() => setCatsOpen(false)}>
             <div class="absolute inset-3 flex flex-col rounded border bg-black shadow" onClick={(e) => e.stopPropagation()}>
               <div class="flex h-8 shrink-0 items-center border-b">
-                <div class="flex-auto px-2 font-bold">Effect categories</div>
-                <button type="button" class="my-1 mr-1 cursor-pointer rounded border px-2 text-[12px] hover:bg-white/10" onClick={() => setEffCfg({ order: [], hidden: [] })}>
-                  Reset
-                </button>
+                <div class="flex-auto px-2 font-bold">MoveDex categories</div>
                 <div onClick={() => setCatsOpen(false)} class="flex aspect-square h-full cursor-pointer items-center justify-center border-l">X</div>
               </div>
-              <div class="px-2 py-1 text-[11px] text-white/60 italic">Tick to show, arrows to reorder. The Effect sort lists moves in this order.</div>
+              <div class="px-2 py-1 text-[11px] text-white/60 italic">Pick a category to list its moves. Click Effect to come back here.</div>
               <div class="flex-auto overflow-auto">
-                <For each={catsOrdered()}>
-                  {(c, i) => (
-                    <div class={cn("flex items-center gap-1.5 border-b px-2 py-0.5 text-[13px]", effCfg().hidden.includes(c.name) && "opacity-45")}>
-                      <input type="checkbox" class="cursor-pointer" checked={!effCfg().hidden.includes(c.name)} onChange={() => toggleCat(c.name)} />
-                      <span class="min-w-0 flex-auto truncate" title={c.name}>{c.name}</span>
-                      <span class="text-[11px] text-white/50">{c.moves.length}</span>
-                      <button type="button" class="cursor-pointer px-1 hover:bg-white/10 disabled:opacity-30" disabled={i() === 0} onClick={() => moveCat(i(), i() - 1)} title="Move up">▲</button>
-                      <button type="button" class="cursor-pointer px-1 hover:bg-white/10 disabled:opacity-30" disabled={i() === catsOrdered().length - 1} onClick={() => moveCat(i(), i() + 1)} title="Move down">▼</button>
-                    </div>
+                <For each={[{ name: "", moves: [] as string[] }, ...(effectCats() ?? [])]}>
+                  {(c) => (
+                    <button
+                      type="button"
+                      class={cn(
+                        "flex w-full cursor-pointer items-center gap-1.5 border-b px-2 py-1 text-left text-[13px] hover:bg-white/10",
+                        effectPick() === c.name && "dz-filter-on font-bold",
+                      )}
+                      onClick={() => { setEffectPick(c.name); setCatsOpen(false); parentRef?.scrollTo({ top: 0 }); }}
+                    >
+                      <span class="min-w-0 flex-auto truncate" title={c.name || "All moves"}>{c.name || "All moves (MoveDex order)"}</span>
+                      <Show when={c.name}><span class="text-[11px] text-white/50">{c.moves.length}</span></Show>
+                    </button>
                   )}
                 </For>
               </div>

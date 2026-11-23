@@ -421,7 +421,7 @@ export const DATASET_IDS: DatasetData[] = [
 
 export const SCREENS: Option[] = [
   { value: "pokedex", label: "Pokemon" },
-  { value: "moves", label: "Moves/Type Chart" },
+  { value: "moves", label: "Moves & Type Chart" },
 ];
 
 export const STAT_KEYS = ["hp", "atk", "def", "spa", "spd", "spe"] as const;

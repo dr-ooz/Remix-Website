@@ -21,8 +21,13 @@ const ORDERS: Option<Order>[] = [
 type PokemonRowItem =
   | { type: "item"; data: PokemonData; famStart?: boolean }
   | { type: "header"; label: string }
-  | { type: "itemhead"; name: string; icon: string; desc: string };
-const ITEM_HEAD_H = 74; // an item's row: its icon + up to 4 lines of its in-game description
+  | { type: "itemhead"; name: string; icon: string; desc: string }
+  | { type: "forms"; key: string; species: string; n: number; open: boolean };
+const ITEM_HEAD_H = 80; // an item's row: its icon (72px) + its name and up to 4 lines of its in-game description
+const FORMS_H = 26; // the "show / hide forms" row under Furfrou / Minior
+// species with many look-alike forms: folded under the first one (folded by default in the item groups)
+const FOLD_SPECIES = ["Furfrou", "Minior"];
+const cycle = (v: number) => (v === 0 ? 1 : v === 1 ? -1 : 0); // a main filter: off -> on -> reversed -> off
 
 export const ScreenPokedex = (props: { datasetId: string }) => {
   onMount(() => useOPT()![1](null));
@@ -43,10 +48,16 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
   const [abilityFilter, setAbilityFilter] = createSignal(["", "", ""]);
 
-  // the three filters, and a picked item (shows the Pokemon that hold it)
-  const [sigOnly, setSigOnly] = createSignal(false);
-  const [doozianOnly, setDoozianOnly] = createSignal(false);
-  const [typeChangedOnly, setTypeChangedOnly] = createSignal(false);
+  // the three main filters: 0 off, 1 only those, -1 only those without (click: on -> reversed -> off),
+  // and a picked item (shows the Pokemon that hold it)
+  const [sigState, setSigState] = createSignal(0);
+  const [doozState, setDoozState] = createSignal(0);
+  const [tcState, setTcState] = createSignal(0);
+  const itemView = () => sigState() === 1 || !!itemPick(); // the item groups
+  // the item groups' order: featured (semi-signature first, then dex order), most / fewest holders, A-Z
+  const [itemSort, setItemSort] = createSignal<"featured" | "most" | "fewest" | "az">("featured");
+  // Furfrou / Minior forms: folded in the item groups, open elsewhere, unless the viewer flips one
+  const [formsFlip, setFormsFlip] = createSignal<Record<string, boolean>>({});
   const [itemPick, setItemPick] = createSignal("");
   // Mega: only Mega Evolutions, each under its base form (the base forms can be hidden)
   const [megaOnly, setMegaOnly] = createSignal(false);
@@ -57,10 +68,10 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
   const setFiltersOpen = (v: boolean) => { setFiltersOpenRaw(v); try { localStorage.setItem("dzFiltersOpen", v ? "1" : "0"); } catch { /* private mode */ } };
   const activeCount = () =>
     typesFilter().filter(Boolean).length + abilityFilter().filter(Boolean).length + movesFilter().filter((m) => m[0]).length +
-    (sigOnly() ? 1 : 0) + (doozianOnly() ? 1 : 0) + (typeChangedOnly() ? 1 : 0) + (itemPick() ? 1 : 0) + (megaOnly() ? 1 : 0);
+    (sigState() ? 1 : 0) + (doozState() ? 1 : 0) + (tcState() ? 1 : 0) + (itemPick() ? 1 : 0) + (megaOnly() ? 1 : 0);
   const clearFilters = () => {
     setTypesFilter(["", ""]); setAbilityFilter(["", "", ""]); setMovesFilter([["", true], ["", true], ["", true], ["", true]]);
-    setSigOnly(false); setDoozianOnly(false); setTypeChangedOnly(false); setItemPick(""); setMegaOnly(false);
+    setSigState(0); setDoozState(0); setTcState(0); setItemPick(""); setMegaOnly(false);
   };
 
   const [movesFilter, setMovesFilter] = createSignal<[string, boolean][]>([
@@ -171,10 +182,13 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       if (!movesMatch) continue;
 
       const sig = datasetData?.signatureItems[id];
-      if (sigOnly() && !sig) continue;
+      if (sigState() === 1 && !sig) continue;
+      if (sigState() === -1 && sig) continue;
       if (ip && !(sig ?? "").split(" / ").includes(ip)) continue;
-      if (doozianOnly() && !(p as any).doozian) continue;
-      if (typeChangedOnly() && !(p as any).typeChanged) continue;
+      if (doozState() !== 0 && !!(p as any).doozian !== (doozState() === 1)) continue;
+      if (tcState() !== 0 && !!(p as any).typeChanged !== (tcState() === 1)) continue;
+      // a Mega has to hold its Mega Stone, so it never shows with a signature item
+      if ((sigState() === 1 || ip) && /-Mega(-[XY])?$/.test(p.name)) continue;
       if (megaOnly() && !/-Mega(-[XY])?$/.test(p.name)) continue;
 
       if (af.length > 0) {
@@ -282,7 +296,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
     // Signature Item / a picked item: the Pokemon grouped by item, each group under a row with the item's icon and
     // in-game description. Semi-signature items (type boosters, weather rocks, seeds...) first, the rest by dex order.
-    if (sigOnly() || ip) {
+    if (sigState() === 1 || ip) {
       const info = itemInfo() ?? {};
       const mons = [...rows.filter((r) => r.type === "item").map((r) => (r as any).data as PokemonData), ...signatureItemMons];
       const groups = new Map<string, PokemonData[]>();
@@ -294,14 +308,56 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         }
       });
       const firstAt = (it: string) => mons.indexOf(groups.get(it)![0]!);
+      // how many separate evolution lines hold it (Megas count as their base)
+      const lineOf = (n: string) => {
+        let x = n.replace(/-(Mega|Primal)(-[XY])?$/, "");
+        if (!data[nameToId(x)]) x = n;
+        let g = 0;
+        while ((data[nameToId(x)] as any)?.prevo && data[nameToId((data[nameToId(x)] as any).prevo)] && g++ < 6) x = (data[nameToId(x)] as any).prevo;
+        return x;
+      };
+      const lines = (it: string) => new Set(groups.get(it)!.map((p) => lineOf(p.name))).size;
+      const featured = (a: string, b: string) => (info[a]?.semi ?? 1e3) - (info[b]?.semi ?? 1e3) || firstAt(a) - firstAt(b);
+      const isort = itemSort();
       const items = [...groups.keys()].sort((a, b) =>
-        (info[a]?.semi ?? 1e3) - (info[b]?.semi ?? 1e3) || firstAt(a) - firstAt(b));
+        isort === "az" ? a.localeCompare(b)
+        : isort === "most" ? lines(b) - lines(a) || groups.get(b)!.length - groups.get(a)!.length || featured(a, b)
+        : isort === "fewest" ? lines(a) - lines(b) || groups.get(a)!.length - groups.get(b)!.length || featured(a, b)
+        : featured(a, b));
       rows = [];
       for (const it of items) {
         rows.push({ type: "itemhead", name: it, icon: itemIconUrl(info[it]?.icon), desc: info[it]?.desc ?? "" });
         groups.get(it)!.forEach((p, i, l) =>
           rows.push({ type: "item", data: p, famStart: i > 0 && (p as any).family !== (l[i - 1] as any).family }));
       }
+    }
+
+    // Furfrou / Minior: the first form, a "show / hide forms" row, then the rest only while open
+    const speciesOf = (p: PokemonData) => FOLD_SPECIES.find((f) => p.name === f || p.name.startsWith(f + "-"));
+    if (rows.some((r) => r.type === "item" && speciesOf((r as any).data))) {
+      const blockKey: string[] = [], counts: Record<string, number> = {};
+      let block = 0;
+      rows.forEach((r, i) => {
+        if (r.type === "itemhead") block++;
+        const sp = r.type === "item" ? speciesOf((r as any).data) : undefined;
+        blockKey[i] = sp ? block + ":" + sp : "";
+        if (sp) counts[blockKey[i]!] = (counts[blockKey[i]!] ?? 0) + 1;
+      });
+      const out: PokemonRowItem[] = [], seen = new Set<string>();
+      const defOpen = !(sigState() === 1 || ip);
+      rows.forEach((r, i) => {
+        const k = blockKey[i]!;
+        if (!k || counts[k]! < 2) { out.push(r); return; }
+        const open = formsFlip()[k.split(":")[1]!] ?? defOpen;
+        if (!seen.has(k)) {
+          seen.add(k);
+          out.push(r);
+          out.push({ type: "forms", key: k, species: k.split(":")[1]!, n: counts[k]! - 1, open });
+          return;
+        }
+        if (open) out.push({ ...(r as any), famStart: false });
+      });
+      rows = out;
     }
 
     return rows;
@@ -330,7 +386,10 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       return groupedAndSorted()?.length ?? 0;
     },
     getScrollElement: () => parentRef,
-    estimateSize: (i) => (groupedAndSorted()[i]?.type === "itemhead" ? ITEM_HEAD_H : statBars() ? ROW_H_BARS : 58),
+    estimateSize: (i) => {
+      const t = groupedAndSorted()[i]?.type;
+      return t === "itemhead" ? ITEM_HEAD_H : t === "forms" ? FORMS_H : statBars() ? ROW_H_BARS : 58;
+    },
   });
 
   // row height changes with the stat display: re-measure the list when it's switched
@@ -375,9 +434,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     else if (s.kind === "ability") setAbilityFilter((l) => put(l, s.value, (x) => !x, (x) => x === s.value));
     else if (s.kind === "move") setMovesFilter((l) => put(l, [s.value, true] as [string, boolean], (x) => !x[0], (x) => x[0] === s.value));
     else if (s.kind === "item") setItemPick(s.value);
-    else if (s.value === "sig") setSigOnly(true);
-    else if (s.value === "doozian") setDoozianOnly(true);
-    else if (s.value === "typeChanged") setTypeChangedOnly(true);
+    else if (s.value === "sig") setSigState(1);
+    else if (s.value === "doozian") setDoozState(1);
+    else if (s.value === "typeChanged") setTcState(1);
     else if (s.value === "mega") setMegaOnly(true);
     setFiltersOpen(true);
   };
@@ -397,8 +456,13 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             placeholder="Search anything..."
             title="Pokémon, types, abilities, moves, items, or a filter (Signature Item, Doozian Form, Type Changed)"
           />
+          <Show when={activeCount()}>
+            <Button class="flex-none px-1.5 py-0 text-[10px] leading-[1.05] whitespace-nowrap" title="Clear every filter" onclick={clearFilters}>
+              <span class="flex flex-col"><span>Clear</span><span>Filters</span></span>
+            </Button>
+          </Show>
           <Button
-            class="flex-none px-1.5 py-0 whitespace-nowrap"
+            class={cn("flex-none px-1.5 py-0 whitespace-nowrap", activeCount() && "dz-filter-on")}
             title={filtersOpen() ? "Hide the filters" : "Show the filters"}
             onclick={() => setFiltersOpen(!filtersOpen())}
           >
@@ -413,17 +477,23 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         <div class="flex gap-1">
           <Index each={typesFilter()}>
             {(t, index) => (
-              <Select
-                options={named(TYPES.toSorted((a, b) => a.label.localeCompare(b.label)), `(Type ${index + 1})`)}
-                value={t()}
-                oninput={(e) =>
-                  setTypesFilter((prev) => {
-                    const next = [...prev];
-                    next[index] = e.currentTarget.value;
-                    return next;
-                  })
-                }
-              />
+              <div class="flex min-w-0 flex-1 items-center gap-0.5">
+                <Show when={t()}>
+                  <button type="button" class="dz-x" title="Remove" onClick={() => setTypesFilter((prev) => prev.map((x, i) => (i === index ? "" : x)))}>✕</button>
+                </Show>
+                <Select
+                  class={cn(t() && "dz-set")}
+                  options={named(TYPES.toSorted((a, b) => a.label.localeCompare(b.label)), `(Type ${index + 1})`)}
+                  value={t()}
+                  oninput={(e) =>
+                    setTypesFilter((prev) => {
+                      const next = [...prev];
+                      next[index] = e.currentTarget.value;
+                      return next;
+                    })
+                  }
+                />
+              </div>
             )}
           </Index>
         </div>
@@ -431,17 +501,23 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         <div class="flex gap-1">
           <Index each={abilityFilter()}>
             {(t, index) => (
-              <Select
-                options={named(abilityOptions(), `(Ability ${index + 1})`)}
-                value={t()}
-                oninput={(e) =>
-                  setAbilityFilter((prev) => {
-                    const next = [...prev];
-                    next[index] = e.currentTarget.value;
-                    return next;
-                  })
-                }
-              />
+              <div class="flex min-w-0 flex-1 items-center gap-0.5">
+                <Show when={t()}>
+                  <button type="button" class="dz-x" title="Remove" onClick={() => setAbilityFilter((prev) => prev.map((x, i) => (i === index ? "" : x)))}>✕</button>
+                </Show>
+                <Select
+                  class={cn(t() && "dz-set")}
+                  options={named(abilityOptions(), `(Ability ${index + 1})`)}
+                  value={t()}
+                  oninput={(e) =>
+                    setAbilityFilter((prev) => {
+                      const next = [...prev];
+                      next[index] = e.currentTarget.value;
+                      return next;
+                    })
+                  }
+                />
+              </div>
             )}
           </Index>
         </div>
@@ -449,7 +525,10 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         <div class="grid grid-cols-2 gap-1">
           <Index each={movesFilter()}>
             {(t, index) => (
-              <div class="flex gap-1">
+              <div class="flex min-w-0 items-center gap-0.5">
+                <Show when={t()[0]}>
+                  <button type="button" class="dz-x" title="Remove" onClick={() => setMovesFilter((prev) => prev.map((x, i) => (i === index ? ["", true] as [string, boolean] : x)))}>✕</button>
+                </Show>
                 <Checkbox
                   checked={t()[1]}
                   title="Ticked: learns it. Crossed: doesn't learn it"
@@ -462,6 +541,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                   }
                 />
                 <Select
+                  class={cn(t()[0] && (t()[1] ? "dz-set" : "dz-set-not"))}
                   options={named(moveOptions(), `(Move ${index + 1})`)}
                   value={t()[0]}
                   oninput={(e) =>
@@ -478,36 +558,32 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         </div>
 
         <div class="flex gap-1">
-          <Button class={cn("flex-1 text-xs", sigOnly() && "dz-filter-on font-bold")} onclick={() => setSigOnly(!sigOnly())}>
-            Signature Item
-          </Button>
-          <Button class={cn("flex-1 text-xs", doozianOnly() && "dz-filter-on font-bold")} onclick={() => setDoozianOnly(!doozianOnly())}>
-            Doozian Form
-          </Button>
-          <Button class={cn("flex-1 text-xs", typeChangedOnly() && "dz-filter-on font-bold")} onclick={() => setTypeChangedOnly(!typeChangedOnly())}>
-            Type Changed
-          </Button>
-          <Button class={cn("flex-none px-2 text-xs", megaOnly() && "dz-filter-on font-bold")} onclick={() => setMegaOnly(!megaOnly())}>
-            Mega
-          </Button>
+          <For each={[
+            { on: "Signature Item", off: "No Signature Item", v: sigState, set: setSigState },
+            { on: "Doozian Form", off: "Not Doozian", v: doozState, set: setDoozState },
+            { on: "Type Changed", off: "Type Unchanged", v: tcState, set: setTcState },
+          ]}>
+            {(f) => (
+              <Button
+                class={cn("flex-1 text-xs", f.v() === 1 && "dz-filter-on font-bold", f.v() === -1 && "dz-filter-not font-bold")}
+                title="Click: only these · again: only the ones without · again: off"
+                onclick={() => f.set(cycle(f.v()))}
+              >
+                {f.v() === -1 ? f.off : f.on}
+              </Button>
+            )}
+          </For>
+          <Show when={megaOnly()}>
+            <Button class="dz-filter-on flex-none px-2 text-xs font-bold" title="Remove the Mega filter" onclick={() => setMegaOnly(false)}>
+              Mega ✕
+            </Button>
+          </Show>
         </div>
-        <Show when={megaOnly()}>
-          <Button class="text-xs" onclick={() => setHideBase(!hideBase())}>
-            {hideBase() ? "Base forms hidden (show them)" : "Base forms shown (hide them)"}
-          </Button>
-        </Show>
 
-        <Show when={itemPick() || activeCount()}>
+        <Show when={itemPick()}>
           <div class="flex items-center gap-1 text-xs">
-            <Show when={itemPick()}>
-              <span class="flex-1 truncate">
-                Holds: <b>{itemPick()}</b>{" "}
-                <button type="button" class="cursor-pointer opacity-70 hover:opacity-100" title="Remove" onClick={() => setItemPick("")}>✕</button>
-              </span>
-            </Show>
-            <button type="button" class="ml-auto cursor-pointer text-white/70 underline hover:text-white" onClick={clearFilters}>
-              Clear filters
-            </button>
+            <button type="button" class="dz-x" title="Remove" onClick={() => setItemPick("")}>✕</button>
+            <span class="flex-1 truncate">Holds: <b>{itemPick()}</b></span>
           </div>
         </Show>
         </Show>
@@ -516,12 +592,13 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
           <For each={ORDERS}>
             {(o) => (
               <Button
-                class={cn("flex-1 text-sm", order() === o.value && "font-bold")}
+                class={cn("flex-1 text-sm", order() === o.value && "dz-filter-on font-bold")}
                 onclick={() =>
                   order() === o.value ? setReversed((prev) => !prev) : setOrder(o.value)
                 }
               >
                 {o.label}
+                {order() === o.value && <span class="text-[9px]">{reversed() ? "▼" : "▲"}</span>}
               </Button>
             )}
           </For>
@@ -533,6 +610,28 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             <div class="text-xs font-normal text-white/70">
               {counts().mons} Pokémon · {counts().lines} evolution line{counts().lines === 1 ? "" : "s"}
             </div>
+            <Show when={megaOnly()}>
+              <button type="button" class="mx-auto cursor-pointer text-xs font-normal text-white/80 underline hover:text-white" onClick={() => setHideBase(!hideBase())}>
+                {hideBase() ? "Base forms hidden (click to show)" : "Base forms shown (click to hide)"}
+              </button>
+            </Show>
+            <Show when={itemView()}>
+              <div class="mt-0.5 flex items-center justify-center gap-1 text-[11px] font-normal">
+                <span class="text-white/60">Items:</span>
+                <For each={[["featured", "Featured"], ["most", "Most holders"], ["fewest", "Fewest holders"], ["az", "A-Z"]] as const}>
+                  {([v, l]) => (
+                    <button
+                      type="button"
+                      class={cn("cursor-pointer rounded border px-1", itemSort() === v && "dz-filter-on font-bold")}
+                      title={v === "featured" ? "Type boosters, weather rocks, seeds... first, then dex order" : v === "az" ? "By item name" : "By how many evolution lines hold it"}
+                      onClick={() => setItemSort(v)}
+                    >
+                      {l}
+                    </button>
+                  )}
+                </For>
+              </div>
+            </Show>
           </div>
           <div class="flex flex-none flex-col gap-0.5">
             <Button class="text-xs" onclick={() => setStatBars(!statBars())}>
@@ -555,10 +654,18 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                 </Show>
                 <Pokemon data={d.data} datasetId={props.datasetId} sheetId={sheetId()!} />
               </div>
+            ) : d.type === "forms" ? (
+              <button
+                type="button"
+                class="flex h-full w-full cursor-pointer items-center justify-center border-b text-[11px] text-white/75 hover:bg-white/5 hover:text-white"
+                onClick={() => setFormsFlip((m) => ({ ...m, [d.species]: !d.open }))}
+              >
+                {d.open ? `▴ Hide the other ${d.species} forms` : `▾ Show ${d.n} more ${d.species} form${d.n === 1 ? "" : "s"}`}
+              </button>
             ) : d.type === "itemhead" ? (
               <div class="dz-itemhead flex h-full items-center gap-2 border-b px-2">
                 <div
-                  class="h-12 w-12 flex-none bg-contain bg-center bg-no-repeat"
+                  class="h-[72px] w-[72px] flex-none bg-contain bg-center bg-no-repeat"
                   style={{ "background-image": d.icon ? `url(${d.icon})` : undefined, "image-rendering": "pixelated" }}
                   title={d.name}
                 />
