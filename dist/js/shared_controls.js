@@ -128,7 +128,13 @@ $(".sp .base, .sp .evs, .sp .ivs").bind("keyup change", function () {
 	calcStat($(this).closest(".poke-info"), 'sp');
 });
 $(".evs").bind('keyup change', function () {
-	totalEVs($(this).closest(".poke-info"));
+	var poke = $(this).closest(".poke-info");
+	var left = totalEVs(poke);
+	// Remix: remaining EVs never go below 0 - this box takes only what's left (lower other EVs to free more)
+	if (left < 0) {
+		var v = Math.max(0, (~~$(this).val()) + left);
+		$(this).val(v).change();
+	}
 });
 $(".sl .base").keyup(function () {
 	calcStat($(this).closest(".poke-info"), 'sl');

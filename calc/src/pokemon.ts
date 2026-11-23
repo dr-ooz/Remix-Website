@@ -224,9 +224,10 @@ export class Pokemon implements State.Pokemon {
       return form === 'Meteor' || !form ? ['Levitate'] : ['Levitate', 'Dazzling'];
     case 'Zen Mode': return this.name === 'Darmanitan-Zen' ? ['Unaware'] : [];
     case 'Power Construct':
-      if (this.name === 'Zygarde-10%') return ['Multiscale', 'Hustle'];
-      if (this.name === 'Zygarde-Core') return ['Multiscale', 'Regenerator'];
-      return ['Multiscale', 'Mold Breaker']; // 50% and Complete
+      // Power Construct includes Energy Shield (its in-game text; same damage cut as Multiscale)
+      if (this.name === 'Zygarde-10%') return ['Energy Shield', 'Hustle'];
+      if (this.name === 'Zygarde-Core') return ['Energy Shield', 'Regenerator'];
+      return ['Energy Shield', 'Mold Breaker']; // 50% and Complete
     case 'Seasonal Spirit':
       if (form === 'Summer') return ['Solar Rush', 'Sap Sipper'];
       if (form === 'Autumn') return ['Moxie', 'Reckless'];

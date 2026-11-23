@@ -2,7 +2,7 @@ import { statBars, setStatBars, ROW_H_BARS } from "../components/Pokemon";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 import type { JSX } from "solid-js/jsx-runtime";
-import { useItemInfo, itemIconUrl } from "@/utils/calcData";
+import { useItemInfo, itemIconUrl, useCalcData } from "@/utils/calcData";
 
 type Order = "num" | "a-z" | "hp" | "atk" | "def" | "spa" | "spd" | "spe" | "bst";
 
@@ -66,6 +66,8 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
   const [megaOnly, setMegaOnly] = createSignal(false);
   const [hideBase, setHideBase] = createSignal(false);
   const itemInfo = useItemInfo();
+  // abilities that include other abilities' effects, per Pokemon (from the calc: Star Power -> Levitate...)
+  const calcData = useCalcData();
   // the filter block can fold away (remembered)
   const [filtersOpen, setFiltersOpenRaw] = createSignal((() => { try { return localStorage.getItem("dzFiltersOpen") !== "0"; } catch { return true; } })());
   const setFiltersOpen = (v: boolean) => { setFiltersOpenRaw(v); try { localStorage.setItem("dzFiltersOpen", v ? "1" : "0"); } catch { /* private mode */ } };
@@ -152,6 +154,11 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
     const standardMons: any[] = [];
     const signatureItemMons: any[] = [];
+    // searching abilities: Pokemon with every one first, then (2+ abilities) the ones with only some of them, then
+    // the ones whose own ability includes the effects (Star Power -> Levitate), then signature items
+    const someMons: any[] = [];
+    const grantedMons: any[] = [];
+    const grants = calcData()?.grants ?? {};
 
     const ip = itemPick();
 
@@ -199,28 +206,17 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       if (af.length > 0) {
         const sigItem = datasetData?.signatureItems[id];
         const sigAbilities = (sigItem && datasetData?.magicItems[sigItem]?.abilities) || [];
+        const granted = Object.values(grants[id] ?? {}).flat();
+        const own = af.filter((a) => p.abilities.includes(a));
+        const viaGrant = af.filter((a) => !own.includes(a) && granted.includes(a));
+        const viaItem = af.filter((a) => !own.includes(a) && !viaGrant.includes(a) && sigAbilities.includes(a));
+        const covered = own.length + viaGrant.length + viaItem.length;
 
-        let allMatch = true;
-        let needsSignatureItem = false;
-
-        for (let i = 0; i < af.length; i++) {
-          const ability = af[i]!;
-          if (p.abilities.includes(ability)) continue;
-          if (sigAbilities.includes(ability)) {
-            needsSignatureItem = true;
-            continue;
-          }
-          allMatch = false;
-          break;
-        }
-        if (!allMatch) continue;
-
-        if (!needsSignatureItem || (or !== "a-z" && or !== "num")) {
-          standardMons.push(p);
-        } else {
-          signatureItemMons.push(p);
-        }
-      } else {
+        if (own.length === af.length) standardMons.push(p);
+        else if (covered === af.length && viaItem.length) signatureItemMons.push(p);
+        else if (covered === af.length) grantedMons.push(p);
+        else if (af.length > 1 && covered > 0) someMons.push(p);
+        else continue;      } else {
         standardMons.push(p);
       }
     }
@@ -264,6 +260,8 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
     standardMons.sort(sortFn);
     signatureItemMons.sort(sortFn);
+    someMons.sort(sortFn);
+    grantedMons.sort(sortFn);
 
     const result: PokemonRowItem[] = standardMons.map((p, i) => ({
       type: "item",
@@ -271,16 +269,16 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       famStart: or === "num" && i > 0 && p.family !== standardMons[i - 1].family,
     }));
 
-    if (signatureItemMons.length > 0) {
-      result.push({
-        type: "header",
-        label: `Gains the effects of ${af.join("/")} via a signature item`,
-        sub: "To see full effects of the item, click the Pokemon's icon!",
-      });
-      for (const p of signatureItemMons) {
-        result.push({ type: "item", data: p });
-      }
-    }
+    const section = (list: any[], label: string, sub?: string) => {
+      if (!list.length) return;
+      result.push({ type: "header", label, sub });
+      list.forEach((p, i) => result.push({ type: "item", data: p, famStart: or === "num" && i > 0 && p.family !== list[i - 1].family }));
+    };
+    section(someMons, `Has some of these abilities (${af.join(" / ")})`);
+    section(grantedMons, `Abilities that include the effects of ${af.join(" / ")}`,
+      "Their own ability has these built in (e.g. Star Power includes Levitate)");
+    section(signatureItemMons, `Gains the effects of ${af.join(" / ")} via a signature item`,
+      "To see full effects of the item, click the Pokemon's icon!");
 
     let rows = result;
 
@@ -352,8 +350,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         const open = itemFlip()[it] ?? !itemsOnly();
         rows.push({ type: "itemhead", name: it, icon: itemIconUrl(info[it]?.icon), desc: info[it]?.desc ?? "", open, n: groups.get(it)!.length });
         if (open)
-          groups.get(it)!.forEach((p, i, l) =>
-            rows.push({ type: "item", data: p, famStart: i > 0 && (p as any).family !== (l[i - 1] as any).family }));
+          groups.get(it)!.forEach((p) => rows.push({ type: "item", data: p, famStart: false }));
       }
     }
 
@@ -533,7 +530,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                   <button type="button" class="dz-x" title="Remove" onClick={() => setAbilityFilter((prev) => prev.map((x, i) => (i === index ? "" : x)))}>✕</button>
                 </Show>
                 <Select
-                  class={cn(t() && "dz-set")}
+                  class={cn("text-[11px]", t() && "dz-set dz-set-light")}
                   options={named(abilityOptions(), `(Ability ${index + 1})`)}
                   value={t()}
                   oninput={(e) =>
@@ -698,7 +695,10 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                 {d.open ? `▴ Hide the other ${d.species} forms` : `▾ Show ${d.n} more ${d.species} form${d.n === 1 ? "" : "s"}`}
               </button>
             ) : d.type === "itemhead" ? (
-              <div class="dz-itemhead flex h-full items-center gap-2 border-b px-1">
+              <div class="dz-itemhead relative flex h-full items-center gap-2 border-b px-1">
+                <Show when={groupedAndSorted()[0] !== d}>
+                  <div class="dz-family-line pointer-events-none absolute top-0 right-0 left-0" style={{ "z-index": 50 }} />
+                </Show>
                 <button
                   type="button"
                   class="flex h-full w-5 flex-none cursor-pointer flex-col items-center justify-center text-[12px] text-white/70 hover:text-white"

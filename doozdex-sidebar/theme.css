@@ -136,3 +136,8 @@ select optgroup {
   outline: 1px solid color-mix(in srgb, #7ab0ff 70%, transparent);
   color: #d6e6ff;
 }
+
+/* a set ability cell: lit border, but regular weight (ability names are long for the cell) */
+.dz-set.dz-set-light {
+  font-weight: normal;
+}

@@ -1314,3 +1314,10 @@ body.rx-nav-pinned .rx-nav-logo img { height: 34px; }
 /* a matchup changed by the ability / item: a thin gold outline + a gold star (same as the DoozDex sidebar) */
 .tc-cell.tc-cell-from { box-shadow: 0 0 0 1.5px #e9c46a; border-radius: 3px; }
 .tc-val.tc-from::after { color: #f2cd6b; opacity: 1; }
+
+/* EV / IV / base number boxes: dark up/down arrows (the browser's own control follows color-scheme), slimmer, with a
+   little room from the box edge so "252" isn't cut off */
+.poke-info input[type="number"] { color-scheme: dark; padding-right: 1px; }
+.poke-info input[type="number"]::-webkit-inner-spin-button {
+	width: 10px; height: calc(100% - 4px); margin: 2px 1px 2px 2px; opacity: 0.85; cursor: pointer;
+}

@@ -252,10 +252,10 @@ var Pokemon = (function () {
             case 'Zen Mode': return this.name === 'Darmanitan-Zen' ? ['Unaware'] : [];
             case 'Power Construct':
                 if (this.name === 'Zygarde-10%')
-                    return ['Multiscale', 'Hustle'];
+                    return ['Energy Shield', 'Hustle'];
                 if (this.name === 'Zygarde-Core')
-                    return ['Multiscale', 'Regenerator'];
-                return ['Multiscale', 'Mold Breaker'];
+                    return ['Energy Shield', 'Regenerator'];
+                return ['Energy Shield', 'Mold Breaker'];
             case 'Seasonal Spirit':
                 if (form === 'Summer')
                     return ['Solar Rush', 'Sap Sipper'];

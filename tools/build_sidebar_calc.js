@@ -56,7 +56,7 @@ function makeMon(p) {
   return null;
 }
 
-const out = {charts: {}, movePower: {}};
+const out = {charts: {}, movePower: {}, grants: {}};
 let done = 0, missing = [];
 for (const [id, p] of Object.entries(data.pokedex)) {
   const mon = makeMon(p);
@@ -94,6 +94,14 @@ for (const [id, p] of Object.entries(data.pokedex)) {
     }
   }
   out.charts[id] = entry;
+  // abilities that include other abilities' effects for this Pokemon (Star Power -> Levitate, Stance Change ->
+  // Sharpness / Battle Armor + Levitate, Power Construct per form...), straight from the calc
+  for (const ab of abilities) {
+    try {
+      const g = new calc.Pokemon(gen, mon.name, {level: 100, ability: ab}).remixGrantedAbilities();
+      if (g && g.length) (out.grants[id] = out.grants[id] || {})[ab] = g;
+    } catch (e) { /* no grants */ }
+  }
   if (++done % 100 === 0) process.stdout.write(done + " ");
 }
 

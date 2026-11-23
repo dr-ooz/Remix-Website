@@ -23,8 +23,8 @@ const darkShade = (hex: string) => {
 // it when the page zoom / screen scale changes.
 const outlineRadius = () => {
   const dpr = (typeof window !== "undefined" && window.devicePixelRatio) || 1;
-  // 1 screen pixel at 100% scaling, 1.5 on scaled-up screens (125%, 150%, 200%...)
-  return (((dpr > 1.01 ? 1.5 : 1) / dpr) - 0.02).toFixed(3);
+  // exactly 1 screen pixel at any scaling (Dooz, 2026-11-23: thicker read as too thick in a real browser)
+  return ((1 / dpr) - 0.02).toFixed(3);
 };
 if (typeof window !== "undefined" && window.matchMedia) {
   const watch = () => {
