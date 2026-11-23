@@ -159,8 +159,11 @@ export const ScreenTypeChart = () => {
           <div class="flex h-6 gap-1">
             <For each={mon()!.types}>
               {(t) => (
-                <div class="flex-1 overflow-hidden rounded-xs border">
-                  <Type type={t} muted />
+                <div
+                  class="flex flex-1 items-center justify-center overflow-hidden rounded-xs border text-sm font-bold"
+                  style={{ background: `color-mix(in srgb, ${TYPE_COLOURS[t] ?? "#999"} var(--dz-info-mix), var(--dz-mix-base))` }}
+                >
+                  {t}
                 </div>
               )}
             </For>
