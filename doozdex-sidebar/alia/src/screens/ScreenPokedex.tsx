@@ -185,7 +185,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       if (sigState() === 1 && !sig) continue;
       if (sigState() === -1 && sig) continue;
       if (ip && !(sig ?? "").split(" / ").includes(ip)) continue;
-      if (doozState() !== 0 && !!(p as any).doozian !== (doozState() === 1)) continue;
+      if (doozState() === 1 && !(p as any).doozian) continue;
+      if (doozState() === -1 && (p as any).doozian) continue;
+      if (doozState() === 2 && ((p as any).doozian || (p as any).redesigned)) continue;
       if (tcState() !== 0 && !!(p as any).typeChanged !== (tcState() === 1)) continue;
       // a Mega has to hold its Mega Stone, so it never shows with a signature item
       if ((sigState() === 1 || ip) && /-Mega(-[XY])?$/.test(p.name)) continue;
@@ -317,7 +319,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         return x;
       };
       const lines = (it: string) => new Set(groups.get(it)!.map((p) => lineOf(p.name))).size;
-      const featured = (a: string, b: string) => (info[a]?.semi ?? 1e3) - (info[b]?.semi ?? 1e3) || firstAt(a) - firstAt(b);
+      const featured = (a: string, b: string) => (info[a]?.order ?? 1e3) - (info[b]?.order ?? 1e3) || firstAt(a) - firstAt(b);
       const isort = itemSort();
       const items = [...groups.keys()].sort((a, b) =>
         isort === "az" ? a.localeCompare(b)
@@ -560,16 +562,16 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         <div class="flex gap-1">
           <For each={[
             { on: "Signature Item", off: "No Signature Item", v: sigState, set: setSigState },
-            { on: "Doozian Form", off: "Not Doozian", v: doozState, set: setDoozState },
+            { on: "Doozian Form", off: "Not Doozian", third: "Unchanged", v: doozState, set: setDoozState },
             { on: "Type Changed", off: "Type Unchanged", v: tcState, set: setTcState },
           ]}>
             {(f) => (
               <Button
-                class={cn("flex-1 text-xs", f.v() === 1 && "dz-filter-on font-bold", f.v() === -1 && "dz-filter-not font-bold")}
-                title="Click: only these · again: only the ones without · again: off"
-                onclick={() => f.set(cycle(f.v()))}
+                class={cn("flex-1 text-xs", f.v() === 1 && "dz-filter-on font-bold", f.v() === -1 && "dz-filter-not font-bold", f.v() === 2 && "dz-filter-third font-bold")}
+                title={(f as any).third ? "Click: Doozian forms · again: not Doozian · again: unchanged designs · again: off" : "Click: only these · again: only the ones without · again: off"}
+                onclick={() => f.set((f as any).third ? (f.v() === 0 ? 1 : f.v() === 1 ? -1 : f.v() === -1 ? 2 : 0) : cycle(f.v()))}
               >
-                {f.v() === -1 ? f.off : f.on}
+                {f.v() === 2 ? (f as any).third : f.v() === -1 ? f.off : f.on}
               </Button>
             )}
           </For>

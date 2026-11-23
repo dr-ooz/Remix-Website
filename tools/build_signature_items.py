@@ -105,9 +105,14 @@ NOT_HOLDERS = {"Aurora Crystal": ["Venonat"]}
 for item, hs in NOT_HOLDERS.items():
     if item in out:
         out[item]["holders"] = [h for h in out[item]["holders"] if h not in hs]
-# Not listed at all: Silvally's Memories (form items, nothing to show) and Metal Powder (only hosts Strange
-# Souvenir's effect in code).
-for item in [i for i in out if i.endswith(" Memory")] + ["Metal Powder"]:
+# Not listed at all: Silvally's Memories and Genesect's Drives (form items, nothing to show), Metal Powder (only
+# hosts Strange Souvenir's effect in code), Shell Bell and Spoiled Milk (Dooz, 2026-11-22).
+# Only these holders show (the item works for the others in code, but the list is about the signature holder).
+ONLY_HOLDERS = {"Buried Idol": ["Darmanitan-Zen"]}
+for item, hs in ONLY_HOLDERS.items():
+    if item in out:
+        out[item]["holders"] = hs
+for item in [i for i in out if i.endswith(" Memory") or i.endswith(" Drive")] + ["Metal Powder", "Shell Bell", "Spoiled Milk"]:
     out.pop(item, None)
 
 json.dump(out, open(os.path.join(DATA, "signature_items.json"), "w", encoding="utf8"), ensure_ascii=False, indent=1)

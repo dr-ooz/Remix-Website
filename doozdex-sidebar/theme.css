@@ -129,3 +129,10 @@ select optgroup {
   opacity: 1;
   background: color-mix(in srgb, var(--color-white) 15%, transparent);
 }
+
+/* the Doozian filter's third step ("Unchanged"): a cool blue */
+.dz-filter-third {
+  background: color-mix(in srgb, #4f8fe0 22%, transparent);
+  outline: 1px solid color-mix(in srgb, #7ab0ff 70%, transparent);
+  color: #d6e6ff;
+}

@@ -344,6 +344,8 @@ if os.path.exists(species_src):
         t = re.search(r"types: \[([^\]]*)\]", line)
         if t and cur:
             vanilla[cur] = [a or b for a, b in re.findall(r"'([^']+)'|\"([^\"]+)\"", t.group(1))]
+    # not Doozian forms, but Dooz redesigned them a bit: they don't count as "Unchanged" (list to come from Dooz)
+    REDESIGNED = set()
     # names that only differ in label from the original game (not new Pokemon)
     LABEL_ONLY = {"Farfetch’d", "Nidoran", "Burmy-Plant", "Burmy-Sand", "Burmy-Snow", "Wormadam-Plant", "Wormadam-Sand",
                   "Wormadam-Snow", "Gastrodon-West", "Basculin-Blue", "Aegislash", "Zygarde-50%", "Oricorio-Pa'u",
@@ -362,6 +364,8 @@ if os.path.exists(species_src):
             p["vanillaTypes"] = old
         if p["name"] not in vanilla and p["name"] not in LABEL_ONLY:
             p["doozian"] = True
+        elif p["name"] in REDESIGNED:
+            p["redesigned"] = True
 
 # Signature items that change type matchups (from the calc's item effects): immunities, resistances, Cell Battery's
 # Trifecta, and abilities the item grants (Fairy Flower -> Sap Sipper). The sidebar's type chart loads them.
@@ -404,12 +408,19 @@ if os.path.exists(fx_path):
 # Signature items for the Pokemon list's item groups: icon id (the site's img/items/bitem_<id>.png), the in-game
 # description, and a rank for the "semi-signature" items that go first (everyone gets something from them; their
 # holders get more): the 18 type boosters, weather rocks, terrain seeds, then the rest of Dooz's list.
-SEMI_SIGNATURE = ["Silk Scarf", "Charcoal", "Mystic Water", "Magnet", "Miracle Seed", "Never-Melt Ice", "Black Belt",
-                  "Poison Barb", "Soft Sand", "Sharp Beak", "Twisted Spoon", "Silver Powder", "Hard Stone", "Spell Tag",
+# The items' "Featured" order (Dooz, 2026-11-22): the 18 type boosters in DoozDex type order, weather rocks, terrain
+# seeds, Snowball / Cell Battery / Absorb Bulb; then the rest by the dex order of their first holder, except that
+# every fossil item sits together (Treasure Chest, Sharp Bone, Old Amber, the gen 3-5 fossils, then Sail Fossil and
+# the Primora family's items, Jaw Fossil and the Tyrunt family's items), and Leaf Fan follows Coconut.
+# remix-data/item_order.json (from the item order board), when there, replaces all of this.
+FEATURED_FIRST = ["Silk Scarf", "Charcoal", "Mystic Water", "Miracle Seed", "Magnet", "Never-Melt Ice", "Chi Bracelet",
+                  "Poison Barb", "Soft Sand", "Sharp Beak", "Kaleidoscope", "Silver Powder", "Hard Stone", "Spell Tag",
                   "Dragon Fang", "Black Glasses", "Metal Coat", "Fairy Flower",
                   "Heat Rock", "Damp Rock", "Smooth Rock", "Icy Rock",
                   "Electric Seed", "Psychic Seed", "Misty Seed", "Grassy Seed",
-                  "Spoiled Milk", "Chi Bracelet", "Kaleidoscope"]
+                  "Snowball", "Cell Battery", "Absorb Bulb"]
+FOSSILS = ["Treasure Chest", "Sharp Bone", "Old Amber", "Root Fossil", "Claw Fossil", "Skull Fossil", "Armor Fossil",
+           "Cover Fossil", "Plume Fossil"]
 icons_js = os.path.join(CALC, "src", "js", "remix_item_icons.js")
 icon_ids = {}
 if os.path.exists(icons_js):
@@ -425,12 +436,42 @@ if os.path.exists(icons_js):
 descs_path = os.path.join(CALC, "remix-data", "item_descs.json")
 item_descs = json.load(open(descs_path, encoding="utf8")) if os.path.exists(descs_path) else {}
 sig_items = json.load(open(os.path.join(CALC, "remix-data", "signature_items.json"), encoding="utf8"))
+# featured order
+by_name = {p["name"]: p for p in pokedex.values()}
+def first_dex(item):
+    return min([by_name[h].get("dexOrder", 1e6) for h in sig_items[item]["holders"] if h in by_name] or [1e6])
+def fam_items(holder, skip):  # the other items held by that Pokemon's family, in dex order
+    fam = by_name.get(holder, {}).get("family")
+    its = [i for i in sig_items if i != skip and any(by_name.get(h, {}).get("family") == fam for h in sig_items[i]["holders"])]
+    return sorted(its, key=first_dex)
+fossil_block = [i for i in FOSSILS if i in sig_items]
+for fossil, holder in (("Sail Fossil", "Primora"), ("Jaw Fossil", "Tyrunt")):
+    if fossil in sig_items:
+        fossil_block += [fossil] + [i for i in fam_items(holder, fossil) if i not in fossil_block]
+rest = sorted([i for i in sig_items if i not in FEATURED_FIRST and i not in fossil_block and i != "Leaf Fan"], key=first_dex)
+featured = [i for i in FEATURED_FIRST if i in sig_items]
+fossil_at = min([first_dex(i) for i in FOSSILS if i in sig_items] or [1e6])  # where the fossils sit (not the family items)
+placed = False
+for i in rest:
+    if not placed and first_dex(i) > fossil_at:
+        featured += fossil_block
+        placed = True
+    featured.append(i)
+    if i == "Coconut" and "Leaf Fan" in sig_items:
+        featured.append("Leaf Fan")
+if not placed:
+    featured += fossil_block
+order_path = os.path.join(CALC, "remix-data", "item_order.json")
+if os.path.exists(order_path):  # the board's order wins; anything new goes at the end
+    board = json.load(open(order_path, encoding="utf8")).get("items", [])
+    featured = [i for i in board if i in sig_items] + [i for i in featured if i not in board]
+SEMI_SIGNATURE = FEATURED_FIRST
+
 item_info = {}
 for name in sig_items:
     key = re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFD", name).lower())
     info = {"icon": icon_ids.get(key), "desc": item_descs.get(name, "")}
-    if name in SEMI_SIGNATURE:
-        info["semi"] = SEMI_SIGNATURE.index(name)
+    info["order"] = featured.index(name) if name in featured else len(featured)
     item_info[name] = info
 with open(os.path.join(OUT, "items.json"), "w", encoding="utf8") as f:
     json.dump(item_info, f, ensure_ascii=False, separators=(",", ":"))

@@ -19,7 +19,7 @@ export const useCalcData = () => {
 };
 
 // items.json (build_data.py): signature item -> {icon (img/items/bitem_<id>.png), in-game description, semi rank}
-export type ItemInfo = { icon?: number; desc: string; semi?: number };
+export type ItemInfo = { icon?: number; desc: string; order?: number };
 const [itemInfo, setItemInfo] = createSignal<Record<string, ItemInfo> | null>(null);
 let itemsStarted = false;
 export const useItemInfo = () => {

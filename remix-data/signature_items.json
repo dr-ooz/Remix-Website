@@ -427,14 +427,6 @@
    "Adaptability"
   ]
  },
- "Shell Bell": {
-  "holders": [
-   "Lapras"
-  ],
-  "abilities": [
-   "Oblivious"
-  ]
- },
  "Rusty Anchor": {
   "holders": [
    "Dhelmise"
@@ -678,15 +670,6 @@
    "Headstrong"
   ]
  },
- "Spoiled Milk": {
-  "holders": [
-   "Miltank"
-  ],
-  "abilities": [
-   "Poison Heal",
-   "Regenerator"
-  ]
- },
  "Root Fossil": {
   "holders": [
    "Cradily",
@@ -907,11 +890,7 @@
  },
  "Buried Idol": {
   "holders": [
-   "Baltoy",
-   "Claydol",
-   "Darmanitan",
-   "Darmanitan-Zen",
-   "Sigilyph"
+   "Darmanitan-Zen"
   ],
   "abilities": [
    "Sandy Shield",
@@ -1153,30 +1132,6 @@
   "holders": [
    "Slurpuff",
    "Swirlix"
-  ],
-  "abilities": []
- },
- "Douse Drive": {
-  "holders": [
-   "Genesect"
-  ],
-  "abilities": []
- },
- "Shock Drive": {
-  "holders": [
-   "Genesect"
-  ],
-  "abilities": []
- },
- "Burn Drive": {
-  "holders": [
-   "Genesect"
-  ],
-  "abilities": []
- },
- "Chill Drive": {
-  "holders": [
-   "Genesect"
   ],
   "abilities": []
  },
