@@ -6,19 +6,15 @@
 /* Layout: a sticky toolbar over one wall of item cards in the current order. Each card = the item's big icon
    joined to a pill of its holders' sprites; drag a card to move it. Submit saves the order for the site. */
 :root {
-  --bg: #f3f1f6; --panel: #ffffff; --card: #ffffff; --line: #d9d3e2; --fg: #221d2b; --muted: #6c6479;
-  --accent: #6a4fd8; --accent-soft: #e7e0fb; --pill: #ece8f2; --icon-bg: #f8f6fb; --ok: #2f8a4c;
+  /* one dark look for the whole board; only the item icon tiles stay light so the icons read clearly */
+  --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
+  --accent: #9d86ff; --accent-soft: #2f2747; --pill: #2c2636; --icon-bg: #f3f1f6; --icon-fg: #221d2b; --ok: #63c483;
   --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
   --body: "Inter", "Segoe UI", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
   --z: 1;
+  color-scheme: dark;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
-  --accent: #9d86ff; --accent-soft: #2f2747; --pill: #2c2636; --icon-bg: #1d1924; --ok: #63c483; color-scheme: dark; } }
-:root[data-theme="dark"] {
-  --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
-  --accent: #9d86ff; --accent-soft: #2f2747; --pill: #2c2636; --icon-bg: #1d1924; --ok: #63c483; color-scheme: dark; }
 body { background: var(--bg); color: var(--fg); font: 14px/1.4 var(--body); }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--panel); }
 .gut { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
@@ -47,7 +43,7 @@ main { padding-block: 16px 40px; }
   width: calc(var(--z) * 86px); padding: calc(var(--z) * 6px) calc(var(--z) * 4px); background: var(--icon-bg);
   border-right: 1px solid var(--line); border-radius: 0 calc(var(--z) * 10px) calc(var(--z) * 10px) 0; }
 .icon img { width: calc(var(--z) * 64px); height: calc(var(--z) * 64px); image-rendering: pixelated; }
-.icon .nm { font: 600 calc(var(--z) * 10.5px)/1.15 var(--body); text-align: center; text-wrap: balance; }
+.icon .nm { font: 600 calc(var(--z) * 10.5px)/1.15 var(--body); text-align: center; text-wrap: balance; color: var(--icon-fg); }
 .pill { display: flex; flex-wrap: wrap; align-items: center; align-content: center; gap: 0 calc(var(--z) * 2px);
   max-width: calc(var(--z) * 260px); margin: calc(var(--z) * 8px); padding: calc(var(--z) * 4px) calc(var(--z) * 10px);
   background: var(--pill); border-radius: 999px; }
