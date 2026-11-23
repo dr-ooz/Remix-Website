@@ -101,14 +101,17 @@ for item, hs in MANUAL.items():
 
 # Holders the text parse gets wrong (an old evolution line from the evo data): removed by hand.
 # Venonat no longer evolves into Venomoth in Remix (Caterpie/Metapod do), so it doesn't get Aurora Crystal.
-NOT_HOLDERS = {"Aurora Crystal": ["Venonat"]}
+NOT_HOLDERS = {"Aurora Crystal": ["Venonat"],
+               "Buried Idol": ["Darmanitan"],          # only Zen Mode Darmanitan (plus Baltoy, Claydol, Sigilyph)
+               "Frozen Claw": ["Sandslash"],           # Alolan Sandslash only (Kanto Sandslash has Toxic Claw)
+               "Toxic Claw": ["Sandslash-Alola"]}
 for item, hs in NOT_HOLDERS.items():
     if item in out:
         out[item]["holders"] = [h for h in out[item]["holders"] if h not in hs]
 # Not listed at all: Silvally's Memories and Genesect's Drives (form items, nothing to show), Metal Powder (only
 # hosts Strange Souvenir's effect in code), Griseous Orb.
 # Only these holders show (the item works for the others in code, but the list is about the signature holder).
-ONLY_HOLDERS = {"Buried Idol": ["Darmanitan-Zen"]}
+ONLY_HOLDERS = {}
 for item, hs in ONLY_HOLDERS.items():
     if item in out:
         out[item]["holders"] = hs

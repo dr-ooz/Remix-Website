@@ -1318,4 +1318,4 @@ body.rx-nav-pinned .rx-nav-logo img { height: 34px; }
 /* EV / IV / base number boxes: dark up/down arrows (the browser's own control follows color-scheme), with a little
    room before them so "252" isn't cut off (sizing the arrows themselves made them disappear) */
 .poke-info input[type="number"] { color-scheme: dark; padding-right: 1px; }
-.poke-info input[type="number"]::-webkit-inner-spin-button { margin-left: 2px; cursor: pointer; }
+.poke-info input[type="number"]::-webkit-inner-spin-button { margin-left: 2px; cursor: pointer; opacity: 1; } /* always shown, not just on hover */

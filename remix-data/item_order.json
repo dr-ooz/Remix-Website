@@ -93,11 +93,11 @@
   "Armor Fossil",
   "Cover Fossil",
   "Plume Fossil",
-  "Sail Fossil",
   "Jaw Fossil",
   "Frozen Crown",
   "Old Amber",
   "Putrid Skull",
+  "Sail Fossil",
   "Shell Bell",
   "Banana Bunch",
   "Aurora Crystal",
@@ -123,6 +123,6 @@
   "Beast Ball",
   "Ultra Space Dust"
  ],
- "submittedAt": "2026-11-23T09:07:02.843Z",
+ "submittedAt": "2026-11-23T09:24:55.264Z",
  "_readme": "From the Signature Item Order board (orders/items). build_data.py uses it as the Featured item order."
 }

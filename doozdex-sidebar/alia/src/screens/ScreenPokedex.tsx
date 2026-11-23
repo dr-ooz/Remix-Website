@@ -428,6 +428,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     getScrollElement: () => parentRef,
     estimateSize: (i) => {
       const t = groupedAndSorted()[i]?.type;
+      const r = groupedAndSorted()[i] as any;
+      // text-only section rows: just their text plus a few px above and below
+      if (t === "header") return r.sub ? 36 : 22;
       return t === "itemhead" ? ITEM_HEAD_H : t === "forms" ? FORMS_H : statBars() ? ROW_H_BARS : 58;
     },
   });
@@ -735,7 +738,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                 </div>
               </div>
             ) : (
-              <div class="flex h-full flex-col items-center justify-center border-b text-center">
+              <div class="flex h-full flex-col items-center justify-center border-b px-1 text-center leading-tight">
                 <div class="text-xs font-bold">{d.label}</div>
                 <Show when={d.sub}>
                   <div class="text-xs text-white/75">{d.sub}</div>

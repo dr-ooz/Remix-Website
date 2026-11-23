@@ -839,7 +839,6 @@
  "Frozen Claw": {
   "holders": [
    "Beartic",
-   "Sandslash",
    "Sandslash-Alola",
    "Sneasel",
    "Weavile"
@@ -853,7 +852,6 @@
    "Gligar",
    "Gliscor",
    "Sandslash",
-   "Sandslash-Alola",
    "Scolipede"
   ],
   "abilities": [
@@ -907,7 +905,10 @@
  },
  "Buried Idol": {
   "holders": [
-   "Darmanitan-Zen"
+   "Baltoy",
+   "Claydol",
+   "Darmanitan-Zen",
+   "Sigilyph"
   ],
   "abilities": [
    "Sandy Shield",
