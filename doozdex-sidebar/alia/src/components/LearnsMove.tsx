@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { RARITY_TIERS, rarityTier } from "@/utils/rarity";
 
 type How = number | "tm" | "tutor";
 type Learner = [PokemonData, How];
@@ -71,16 +72,8 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   const allMons = createMemo(() => Object.values(pokedex() ?? {}).filter((p) => !p.unusable).length);
   // [full label, short label]: by share of all Pokemon, then by count, then by evolution lines
   const words = (): [string, string] | null => {
-    const n = lineCount(), m = monCount(), all = allMons();
-    if (!n) return null;
-    if (all && m >= all * 0.9) return ["Universal", "Universal"];
-    if (all && m >= all * 0.75) return ["Near Universal", "Near Universal"];
-    if (m > 100) return ["Very Widespread", "Very Wide"];
-    if (m > 50) return ["Widespread", "Widespread"];
-    if (n < 5) return ["Signature Move", "Signature"];
-    if (n < 10) return ["Exclusive Distribution", "Exclusive"];
-    if (n <= 20) return ["Limited Distribution", "Limited"];
-    return ["Semi-Limited Distribution", "Semi-Limited"];
+    const i = rarityTier(lineCount(), monCount(), allMons()); // the tiers: utils/rarity.ts
+    return i < 0 ? null : [RARITY_TIERS[i]!.full, RARITY_TIERS[i]!.short];
   };
   const fullText = () => words()?.[0] ?? "";
   const rarity = () => { const w = words(); return !w ? "" : short() ? w[1] : w[0]; };

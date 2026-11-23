@@ -255,6 +255,24 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     return result;
   });
 
+  // how many Pokemon are listed, and how many separate evolution lines they come from (Megas count as their base)
+  const counts = createMemo(() => {
+    const pd = pokedex();
+    const shown = groupedAndSorted().filter((r) => r.type === "item").map((r) => (r as any).data as PokemonData);
+    if (!pd) return { mons: shown.length, lines: 0 };
+    const byName: Record<string, any> = {};
+    for (const p of Object.values(pd)) byName[p.name] = p;
+    const roots = new Set<string>();
+    for (const p of shown) {
+      let n = p.name.replace(/-(Mega|Primal)(-[XY])?$/, "");
+      if (!byName[n]) n = p.name;
+      let guard = 0;
+      while (byName[n]?.prevo && byName[byName[n].prevo] && guard++ < 6) n = byName[n].prevo;
+      roots.add(n);
+    }
+    return { mons: shown.length, lines: roots.size };
+  });
+
   const virtualizer = createVirtualizer({
     get count() {
       return groupedAndSorted()?.length ?? 0;
@@ -445,7 +463,12 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         </div>
 
         <div class="flex items-center gap-1 text-sm font-bold">
-          <div class="flex-1 text-center">Click the Pokemon to see their changes on the Doozdex!</div>
+          <div class="flex flex-1 flex-col text-center">
+            <div>Click the Pokemon to see their changes on the Doozdex!</div>
+            <div class="text-xs font-normal text-white/70">
+              {counts().mons} Pokémon · {counts().lines} evolution line{counts().lines === 1 ? "" : "s"}
+            </div>
+          </div>
           <div class="flex flex-none flex-col gap-0.5">
             <Button class="text-xs" onclick={() => setStatBars(!statBars())}>
               {statBars() ? "Stat numbers" : "Stat bars"}

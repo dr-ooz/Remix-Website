@@ -1,7 +1,8 @@
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
+import { RARITY_TIERS, rarityTier, moveSpread } from "@/utils/rarity";
 
-export type Order = "eff" | "a-z" | "num" | "pow";
+export type Order = "eff" | "a-z" | "num" | "pow" | "rare";
 
 // Effect = the order moves first appear in the Move Guide's categories (Priority ... Misc. Status)
 export const ORDERS: Option<Order>[] = [
@@ -9,6 +10,7 @@ export const ORDERS: Option<Order>[] = [
   { label: "A-Z", value: "a-z" },
   { label: "Index #", value: "num" },
   { label: "Power", value: "pow" },
+  { label: "Rarity", value: "rare" },
 ];
 
 export function ScreenMoves() {
@@ -46,6 +48,19 @@ export function ScreenMoves() {
     try { top = window.top ?? window; void top.location.href; } catch { top = window; }
     if (typeof top.remixMoveGuideJump === "function") { top.remixMoveGuideJump(name); return; }
     top.location.href = new URL("moveguide.html#move=" + encodeURIComponent(name), top.location.href).href;
+  };
+  // Rarity: every move's tier (from the learnsets, live), most common first; tiers can be hidden (remembered)
+  const spread = createMemo(() => { const pd = pokedex(); return pd ? moveSpread(pd) : null; });
+  const tierOf = (name: string) => {
+    const sp = spread();
+    const o = sp?.byMove[nameToId(name)];
+    return o && sp ? rarityTier(o.roots.size, o.mons, sp.all) : -1;
+  };
+  const [hiddenTiers, setHiddenTiersRaw] = createSignal<number[]>((() => { try { return JSON.parse(localStorage.getItem("dzHiddenTiers") || "[]"); } catch { return []; } })());
+  const toggleTier = (i: number) => {
+    const next = hiddenTiers().includes(i) ? hiddenTiers().filter((x) => x !== i) : [...hiddenTiers(), i];
+    setHiddenTiersRaw(next);
+    try { localStorage.setItem("dzHiddenTiers", JSON.stringify(next)); } catch { /* private mode */ }
   };
   const [typeFilter, setTypeFilter] = createSignal("");
   const [categoryFilter, setCategoryFilter] = createSignal("");
@@ -106,7 +121,8 @@ export function ScreenMoves() {
 
     const pk = searchedPokemon()?.learntMoves;
 
-    return filtered().toSorted((a, b) => {
+    // Rarity: hidden tiers drop out
+    return filtered().filter((m) => or !== "rare" || !hiddenTiers().includes(tierOf(m.name))).toSorted((a, b) => {
       const aPinned = p.has(a.name);
       if (aPinned !== p.has(b.name)) return aPinned ? -1 : 1;
 
@@ -129,6 +145,14 @@ export function ScreenMoves() {
         case "pow":
           i = b.power - a.power;
           break;
+        case "rare": {
+          // tier (most common first), then inside a tier by the Remix dex order of its first learner
+          const sp = spread();
+          i = tierOf(a.name) - tierOf(b.name) ||
+            (sp?.byMove[nameToId(a.name)]?.dex ?? 1e6) - (sp?.byMove[nameToId(b.name)]?.dex ?? 1e6) ||
+            a.name.localeCompare(b.name);
+          break;
+        }
         case "eff": {
           // moves not in the guide go last, A-Z
           const ea = (a as any).effectOrder ?? 1e6, eb = (b as any).effectOrder ?? 1e6;
@@ -192,6 +216,25 @@ export function ScreenMoves() {
             )}
           </For>
         </div>
+
+        <Show when={order() === "rare"}>
+          <div class="flex flex-wrap gap-1" title="Click a tier to hide or show its moves">
+            <For each={[...RARITY_TIERS.keys()]}>
+              {(i) => (
+                <button
+                  type="button"
+                  class={cn(
+                    "flex-auto cursor-pointer rounded border px-1 text-[11px]",
+                    hiddenTiers().includes(i) ? "line-through opacity-40" : "dz-filter-on",
+                  )}
+                  onClick={() => toggleTier(i)}
+                >
+                  {RARITY_TIERS[i]!.short}
+                </button>
+              )}
+            </For>
+          </div>
+        </Show>
       </div>
 
       <div class="flex flex-col pb-1 text-center text-xs text-white/70 italic">
