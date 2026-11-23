@@ -66,7 +66,8 @@ var Pokemon = (function () {
         this.weightkg = this.species.weightkg;
         this.level = options.level || 100;
         this.gender = options.gender || this.species.gender || 'M';
-        this.ability = options.ability || ((_c = this.species.abilities) === null || _c === void 0 ? void 0 : _c[0]) || undefined;
+        this.ability = options.ability ||
+            (gen.num === 7 ? undefined : (_c = this.species.abilities) === null || _c === void 0 ? void 0 : _c[0]) || undefined;
         this.abilityOn = !!options.abilityOn;
         this.isDynamaxed = !!options.isDynamaxed;
         this.dynamaxLevel = this.isDynamaxed
@@ -237,6 +238,7 @@ var Pokemon = (function () {
         var form = this.name.split('-').slice(1).join('-');
         switch (this.ability) {
             case 'Neurotoxin': return ['Merciless', 'Poisonous'];
+            case 'Water Bubble': return ['Liquid Veil', 'Rain Dish', 'Damp'];
             case 'Plague': return this.name === 'Raticate-Plague' ? ['Infectious', 'Poisonous', 'Innards Out'] : ['Infectious', 'Poisonous'];
             case 'Masterpiece': return ['Versatility', 'Technician', 'Skill Link'];
             case 'Hibernation': return ['Soporific', 'Permafrost', 'Snow Warning'];

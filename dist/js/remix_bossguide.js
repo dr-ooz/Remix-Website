@@ -3,7 +3,7 @@
 // Each layout is drawn at a fixed design width (like the boss-guide sheet) and scaled to fit.
 // Data: SETDEX_SM (trainer sets) + REMIX_TRAINER_INFO / REMIX_MOVE_BLURBS / REMIX_ITEM_DESCS...
 // from remix_guide_data.js (tools/build_remix_trainers.js).
-// Move BP shown = what the switch-in AI sees (REMIX_MOVE_AI_BP), underlined when hits/crit change it.
+// Move BP shown = what the switch-in AI sees (REMIX_MOVE_AI_BP), with a * when hits/crit change it (no underline).
 // Art: img/art/<id>.webp (tools/import_art.py) -> PokemonDB dream-world ("vector") art -> minisprite.
 // Edit mode (only on localhost or with ?edit=1 in the URL): type in any cell, resize text/art/item icon,
 // Alt+drag any part to move it on every card, drag moves to reorder them. Edits are kept

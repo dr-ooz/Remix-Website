@@ -14,7 +14,7 @@ exports.REMIX_ABILITIES = [
     "Sinister",
     "Ethereal",
     "Trifecta",
-    "Cloud Nine",
+    "Water Bubble",
     "Sixth Sense",
     "Insomnia",
     "Color Change",

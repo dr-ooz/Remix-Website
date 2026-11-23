@@ -1748,7 +1748,7 @@ exports.REMIX_ITEM_EFFECTS = {
                 "Omanyte",
                 "Omastar",
                 "Persian",
-                "Persian-Alola",
+                "Persian-Mega",
                 "Yamask",
                 "Cofagrigus"
             ],

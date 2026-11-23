@@ -75,7 +75,10 @@ export class Pokemon implements State.Pokemon {
 
     this.level = options.level || 100;
     this.gender = options.gender || this.species.gender || 'M';
-    this.ability = options.ability || this.species.abilities?.[0] || undefined;
+    // Remix (gen 7): a blank ability stays blank (never the species' vanilla first ability, e.g. Carracosta's
+    // Solid Rock); other gens keep the default
+    this.ability = options.ability ||
+      (gen.num === 7 ? undefined : this.species.abilities?.[0]) || undefined;
     this.abilityOn = !!options.abilityOn;
 
     this.isDynamaxed = !!options.isDynamaxed;
@@ -206,6 +209,9 @@ export class Pokemon implements State.Pokemon {
     const form = this.name.split('-').slice(1).join('-');
     switch (this.ability as string) {
     case 'Neurotoxin': return ['Merciless', 'Poisonous'];
+    // Remix: Water Bubble (the old Cloud Nine slot) = Liquid Veil (2x own Water, half Fire, no burns) + the buffed Rain
+    // Dish + Damp (its contact -1 Speed doesn't matter for damage)
+    case 'Water Bubble': return ['Liquid Veil', 'Rain Dish', 'Damp'];
     // Remix: Plague (Raticate line) = Infectious + Poisonous; the Plague form (Black Sludge, Lv 40+) also gets Innards
     // Out (its Ghost-type -ate and the Merciless-below-20% part are in the damage code)
     case 'Plague': return this.name === 'Raticate-Plague' ? ['Infectious', 'Poisonous', 'Innards Out'] : ['Infectious', 'Poisonous'];

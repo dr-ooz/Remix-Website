@@ -48,8 +48,8 @@
   "Immune to Fire+Burn, Ice+Freeze & Electric+Para.  Normal moves change to the strongest of the 3 types at the start of the turn, and are boosted by 20%."
  ],
  [
-  "Cloud Nine",
-  "Eliminates the effects of weather."
+  "Water Bubble",
+  "Liquid Veil, Rain Dish, and Damp. In addition, making contact with the Pokémon lowers the  foe's Speed stat due to the slowing bubbles."
  ],
  [
   "Sixth Sense",
@@ -461,7 +461,7 @@
  ],
  [
   "Rock-Solid",
-  "Its rock-solid body takes only 1/4 damage from Rock, Ground, Steel, and Fighting moves."
+  "If Rock-type, Ground/Fighting/Steel/Rock moves only deal 1/4 damage. If not Rock-type, then they deal 1/2 damage instead."
  ],
  [
   "Snow Warning",

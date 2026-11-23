@@ -314,7 +314,8 @@ function autosetWeather(ability, i) {
 		break;
 	default:
 		lastAutoWeather[i] = "";
-		var newWeather = lastAutoWeather[1 - i] !== "" ? lastAutoWeather[1 - i] : "";
+		// back to the other side's ability weather, else the weather you picked yourself (kept across set switches)
+		var newWeather = lastAutoWeather[1 - i] !== "" ? lastAutoWeather[1 - i] : lastManualWeather;
 		$("input:radio[name='weather'][value='" + newWeather + "']").prop("checked", true);
 		break;
 	}
@@ -531,6 +532,12 @@ $(".set-selector").change(function () {
 			stickyMoves.clearStickyMove();
 		}
 		pokeObj.find(".teraToggle").prop("checked", false);
+		// Remix: a new Pokemon on this side: conditions on the Pokemon itself end (Leech Seed, bound, Salt Cure,
+		// Ingrain, Foresight, Protect, switching out); weather, terrain, screens, hazards, Tailwind etc. stay
+		var remixSide = pokeObj.prop("id") === "p2" ? "R" : "L";
+		["leechSeed", "bound", "cure", "ingrain", "foresight", "protect", "switching"].forEach(function (k) {
+			$("#" + k + remixSide).prop("checked", false);
+		});
 		pokeObj.find(".analysis").attr("href", smogonAnalysis(pokemonName));
 		pokeObj.find(".type1").val(pokemon.types[0]);
 		pokeObj.find(".type2").val(pokemon.types[1]);
@@ -600,7 +607,8 @@ $(".set-selector").change(function () {
 					(set.dvs && set.dvs[LEGACY_STATS[gen][i]] !== undefined) ? set.dvs[LEGACY_STATS[gen][i]] : 15);
 			}
 			setSelectValueIfValid(pokeObj.find(".nature"), set.nature, "Hardy");
-			var abilityFallback = (typeof pokemon.abilities !== "undefined") ? pokemon.abilities[0] : "";
+			// Remix: a set without an ability keeps the ability box blank (never the species' vanilla first ability)
+			var abilityFallback = gen === 7 ? "" : (typeof pokemon.abilities !== "undefined") ? pokemon.abilities[0] : "";
 			if ($("#randoms").prop("checked")) {
 				setSelectValueIfValid(abilityObj, randset.abilities && randset.abilities[0], abilityFallback);
 				setSelectValueIfValid(itemObj, randset.items && randset.items[0], "");
@@ -763,7 +771,7 @@ $(".forme").change(function () {
 	var isAltForme = $(this).val() !== pokemonName;
 	if (!chosenSet && !greninjaSet) {
 		// Remix: blank sets only auto-fill single-ability Pokemon
-		setSelectValueIfValid(container.find(".ability"), remixBlankAbility($(this).val()), "");
+		setSelectValueIfValid(container.find(".ability"), "", ""); // Remix: blank sets keep the ability blank
 	} else if (isAltForme && abilities.indexOf(altForme.ab) !== -1 && !greninjaSet) {
 		container.find(".ability").val(altForme.ab);
 	} else if (greninjaSet) {
