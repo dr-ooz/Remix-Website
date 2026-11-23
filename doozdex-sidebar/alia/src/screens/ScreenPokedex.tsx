@@ -20,7 +20,7 @@ const ORDERS: Option<Order>[] = [
 
 type PokemonRowItem =
   | { type: "item"; data: PokemonData; famStart?: boolean }
-  | { type: "header"; label: string }
+  | { type: "header"; label: string; sub?: string }
   | { type: "itemhead"; name: string; icon: string; desc: string; open: boolean; n: number }
   | { type: "forms"; key: string; species: string; n: number; open: boolean };
 const ITEM_HEAD_H = 80; // an item's row: its icon (72px) + its name and up to 4 lines of its in-game description
@@ -275,6 +275,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       result.push({
         type: "header",
         label: `Gains the effects of ${af.join("/")} via a signature item`,
+        sub: "To see full effects of the item, click the Pokemon's icon!",
       });
       for (const p of signatureItemMons) {
         result.push({ type: "item", data: p });
@@ -338,7 +339,16 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         : isort === "fewest" ? lines(a) - lines(b) || groups.get(a)!.length - groups.get(b)!.length || featured(a, b)
         : featured(a, b));
       rows = [];
+      const split = isort === "featured" && items.some((i) => info[i]?.group === 1) && items.some((i) => info[i]?.group !== 1);
+      let lastGroup = 0;
       for (const it of items) {
+        const g = info[it]?.group === 1 ? 1 : 2;
+        if (split && g !== lastGroup) {
+          rows.push(g === 1
+            ? { type: "header", label: "Semi-signature items", sub: "Work for any holder; certain Pokémon unlock more effects" }
+            : { type: "header", label: "Signature items", sub: "Only do something for their own Pokémon" });
+          lastGroup = g;
+        }
         const open = itemFlip()[it] ?? !itemsOnly();
         rows.push({ type: "itemhead", name: it, icon: itemIconUrl(info[it]?.icon), desc: info[it]?.desc ?? "", open, n: groups.get(it)!.length });
         if (open)
@@ -711,8 +721,8 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             ) : (
               <div class="flex h-full flex-col items-center justify-center border-b text-center">
                 <div class="text-xs font-bold">{d.label}</div>
-                <Show when={!d.label.startsWith("New Pokémon")}>
-                  <div class="text-xs">To see full effects of the item, click the Pokemon's icon!</div>
+                <Show when={d.sub}>
+                  <div class="text-xs text-white/75">{d.sub}</div>
                 </Show>
               </div>
             )

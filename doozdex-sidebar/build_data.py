@@ -472,12 +472,16 @@ if os.path.exists(order_path):  # the board's order wins; anything new goes at t
     board = json.load(open(order_path, encoding="utf8")).get("items", [])
     featured = [i for i in board if i in sig_items] + [i for i in featured if i not in board]
 SEMI_SIGNATURE = FEATURED_FIRST
+semi_end = max([featured.index(i) for i in ("Cell Battery", "Solar Panel") if i in featured] or [-1])
 
 item_info = {}
 for name in sig_items:
     key = re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFD", name).lower())
     info = {"icon": icon_ids.get(key), "desc": item_descs.get(name, "")}
     info["order"] = featured.index(name) if name in featured else len(featured)
+    # group 1 = semi-signature (works for any holder, more for certain Pokemon): everything up to Cell Battery /
+    # Solar Panel in the Featured order (Dooz, 2026-11-22); group 2 = items that only work for their own Pokemon
+    info["group"] = 1 if info["order"] <= semi_end else 2
     item_info[name] = info
 with open(os.path.join(OUT, "items.json"), "w", encoding="utf8") as f:
     json.dump(item_info, f, ensure_ascii=False, separators=(",", ":"))

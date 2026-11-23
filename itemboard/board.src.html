@@ -49,6 +49,9 @@ main { padding-block: 16px 40px; }
   background: var(--pill); border-radius: 999px; }
 .pill img { width: calc(var(--z) * 40px); height: calc(var(--z) * 30px); object-fit: contain; image-rendering: pixelated; transform: scaleX(-1); }
 .ghost { opacity: .35; }
+.card.picked { box-shadow: 0 0 0 2px var(--accent); background: var(--accent-soft); }
+.marquee { position: fixed; z-index: 20; border: 1.5px solid var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); border-radius: 4px; pointer-events: none; }
+main { min-height: 70vh; } /* room to start a box below the last row */
 .chosen { box-shadow: 0 0 0 2px var(--accent); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
@@ -65,12 +68,15 @@ main { padding-block: 16px 40px; }
     <button type="button" id="reset">Reset to the site's order</button>
     <button type="button" class="primary" id="submit">Submit order</button>
   </div>
-  <div class="help">Drag an item to move it. The site's Featured item order follows this once you submit. <span id="status"></span></div>
+  <div class="help">Drag an item to move it (the mouse wheel scrolls while you hold it). Drag a box over empty space, or Ctrl-click, to pick several and move them together; Esc or a click on empty space clears the pick. The site's Featured item order follows this once you submit. <span id="status"></span></div>
 </header>
 <main class="gut"><div id="wall"></div></main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
-<script>
+<script type="module">
+// Sortable module build with its multi-drag plugin. Pointer-based dragging (forceFallback) keeps the mouse
+// wheel scrolling the page while an item is held.
+import Sortable, { MultiDrag } from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/modular/sortable.esm.js";
+Sortable.mount(new MultiDrag());
 const ITEMS = __ITEMS__;      // [{name, icon, holders:[sprite key]}] in the site's current order
 const SPRITES = __SPRITES__;  // sprite key -> [Pokemon name, data URI]
 const BY_NAME = new Map(ITEMS.map(i => [i.name, i]));
@@ -111,8 +117,35 @@ function showStatus(msg) {
   if (submittedKey === key(order)) { statusEl.textContent = "Submitted."; statusEl.classList.add("ok"); }
   else statusEl.textContent = submittedKey ? "Changed since your last submit." : "Not submitted yet.";
 }
-Sortable.create(wall, { animation: 120, ghostClass: "ghost", chosenClass: "chosen",
+const sortable = Sortable.create(wall, { animation: 120, ghostClass: "ghost", chosenClass: "chosen",
+  forceFallback: true, fallbackTolerance: 4, scroll: true, scrollSensitivity: 90, scrollSpeed: 18, bubbleScroll: true,
+  multiDrag: true, selectedClass: "picked", multiDragKey: "CTRL", avoidImplicitDeselect: true,
   onEnd() { order = [...wall.children].map(c => c.dataset.name); store(DRAFT_KEY, JSON.stringify(order)); renumber(); showStatus(); } });
+
+// drag a box over empty space to pick every card it touches (hold Ctrl / Shift to add to the pick)
+const box = document.createElement("div"); box.className = "marquee"; box.hidden = true; document.body.append(box);
+let start = null, additive = false;
+function clearPick() { [...wall.querySelectorAll(".picked")].forEach(c => Sortable.utils.deselect(c)); }
+document.addEventListener("pointerdown", e => {
+  if (e.button !== 0 || e.target.closest(".card, header, button")) return;
+  start = { x: e.clientX, y: e.clientY + window.scrollY }; additive = e.ctrlKey || e.shiftKey || e.metaKey;
+  if (!additive) clearPick();
+});
+document.addEventListener("pointermove", e => {
+  if (!start) return;
+  const x1 = Math.min(start.x, e.clientX), x2 = Math.max(start.x, e.clientX);
+  const y1 = Math.min(start.y, e.clientY + window.scrollY), y2 = Math.max(start.y, e.clientY + window.scrollY);
+  if (x2 - x1 < 4 && y2 - y1 < 4) return;
+  Object.assign(box.style, { left: x1 + "px", top: y1 - window.scrollY + "px", width: x2 - x1 + "px", height: y2 - y1 + "px" }); box.hidden = false;
+  for (const c of wall.children) {
+    const r = c.getBoundingClientRect(), top = r.top + window.scrollY, bottom = r.bottom + window.scrollY;
+    const hit = r.right > x1 && r.left < x2 && bottom > y1 && top < y2;
+    if (hit) Sortable.utils.select(c); else if (!additive && c.classList.contains("picked")) Sortable.utils.deselect(c);
+  }
+  e.preventDefault();
+});
+document.addEventListener("pointerup", () => { start = null; box.hidden = true; });
+document.addEventListener("keydown", e => { if (e.key === "Escape") clearPick(); });
 
 document.getElementById("reset").addEventListener("click", () => { order = DEFAULT.slice(); store(DRAFT_KEY, null); render(); });
 document.getElementById("submit").addEventListener("click", async () => {
