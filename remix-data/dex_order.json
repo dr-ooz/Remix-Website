@@ -107,8 +107,8 @@
      "Pachirisu",
      "Plusle",
      "Minun",
-     "Raichu",
-     "Raichu-Alola"
+     "Gorochu",
+     "Raichu"
     ]
    },
    {
@@ -263,16 +263,16 @@
     "id": "grimer",
     "label": null,
     "members": [
-     "Grimer",
-     "Muk"
+     "Grahamer",
+     "S'Muk"
     ]
    },
    {
     "id": "grimeralola",
     "label": null,
     "members": [
-     "Grimer-Alola",
-     "Muk-Alola"
+     "Grimer",
+     "Muk"
     ]
    },
    {
@@ -2823,7 +2823,7 @@
     "label": null,
     "members": [
      "Minior",
-     "Minior-Red",
+     "Minior-Twinkle",
      "Minior-Blaze",
      "Minior-Surge",
      "Minior-Verdant",

@@ -1024,8 +1024,8 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
    "species": [
     "Trubbish",
     "Garbodor",
-    "Grimer-Alola",
-    "Muk-Alola"
+    "Grimer",
+    "Muk"
    ],
    "abilities": [
     "Poisonous",
@@ -1041,8 +1041,8 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
  "Graham Cracker": [
   {
    "species": [
-    "Grimer",
-    "Muk"
+    "Grahamer",
+    "S'Muk"
    ],
    "items": [
     "Covert Cloak"

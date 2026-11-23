@@ -1026,8 +1026,8 @@ exports.REMIX_ITEM_EFFECTS = {
             "species": [
                 "Trubbish",
                 "Garbodor",
-                "Grimer-Alola",
-                "Muk-Alola"
+                "Grimer",
+                "Muk"
             ],
             "abilities": [
                 "Poisonous",
@@ -1043,8 +1043,8 @@ exports.REMIX_ITEM_EFFECTS = {
     "Graham Cracker": [
         {
             "species": [
-                "Grimer",
-                "Muk"
+                "Grahamer",
+                "S'Muk"
             ],
             "items": [
                 "Covert Cloak"

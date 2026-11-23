@@ -418,7 +418,7 @@ Serious Nature
 - Poison Gas
 - Influx
 
-Grimer-Alola (M) @ Oran Berry
+Grimer (M) @ Oran Berry
 Ability: Poison Touch
 Level: 12
 Serious Nature
@@ -1843,7 +1843,7 @@ Adamant Nature
 - Taunt
 - Toxic Spikes
 
-Muk-Alola (F) @ Black Sludge
+Muk (F) @ Black Sludge
 Ability: Poison Touch
 Level: 32
 EVs: 252 HP / 252 SpA
@@ -3916,7 +3916,7 @@ IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe
 
 === [gen7] Pokémon Breeder Savannah (#197) ===
 
-Raichu-Alola (F)
+Raichu (F)
 Ability: Volt Rush
 Level: 55
 Hardy Nature
@@ -4272,7 +4272,7 @@ IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe
 
 === [gen7] Pokémon Trainer Hau (#217) ===
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 34
 EVs: 252 SpA / 252 Spe
@@ -4335,7 +4335,7 @@ Modest Nature
 
 === [gen7] Pokémon Trainer Hau (#218) ===
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 34
 EVs: 252 SpA / 252 Spe
@@ -4398,7 +4398,7 @@ Timid Nature
 
 === [gen7] Pokémon Trainer Hau (#219) ===
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 34
 EVs: 252 SpA / 252 Spe
@@ -4491,7 +4491,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -4554,7 +4554,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -4617,7 +4617,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -4953,7 +4953,7 @@ Naive Nature
 - Aura Sphere
 - Nasty Plot
 
-Muk-Alola (F) @ Shuca Berry
+Muk (F) @ Shuca Berry
 Ability: Poison Touch
 Level: 42
 EVs: 252 HP / 252 Atk
@@ -5763,7 +5763,7 @@ Adamant Nature
 
 === [gen7] Sightseer Akali (#276) ===
 
-Raichu @ Sitrus Berry
+Gorochu @ Sitrus Berry
 Ability: Static
 Level: 31
 Serious Nature
@@ -6412,7 +6412,7 @@ Serious Nature
 
 === [gen7] Team Skull Grunt (#314) ===
 
-Muk @ Sitrus Berry
+S'Muk @ Sitrus Berry
 Ability: Seasonal Spirit
 Level: 43
 Serious Nature
@@ -6514,7 +6514,7 @@ Serious Nature
 
 === [gen7] Team Skull Grunt (#323) ===
 
-Muk-Alola @ Sitrus Berry
+Muk @ Sitrus Berry
 Ability: Gluttony
 Level: 43
 Serious Nature
@@ -7130,7 +7130,7 @@ Jolly Nature
 - Fury Swipes
 - Dizzying Punches
 
-Raichu-Alola (F) @ Electrium Z
+Raichu (F) @ Electrium Z
 Ability: Volt Rush
 Level: 100
 EVs: 252 SpA / 252 Spe
@@ -7193,7 +7193,7 @@ Jolly Nature
 - Fury Swipes
 - Dizzying Punches
 
-Raichu-Alola (F) @ Electrium Z
+Raichu (F) @ Electrium Z
 Ability: Volt Rush
 Level: 100
 EVs: 252 SpA / 252 Spe
@@ -7256,7 +7256,7 @@ Jolly Nature
 - Fury Swipes
 - Dizzying Punches
 
-Raichu-Alola (F) @ Electrium Z
+Raichu (F) @ Electrium Z
 Ability: Volt Rush
 Level: 100
 EVs: 252 SpA / 252 Spe
@@ -7633,7 +7633,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 
 === [gen7] Ace Trainer Chase (#383) ===
 
-Muk-Alola @ Black Sludge
+Muk @ Black Sludge
 Ability: Poison Touch
 Level: 31
 Adamant Nature
@@ -7642,7 +7642,7 @@ Adamant Nature
 - Poison Fang
 - Toxic
 
-Muk @ Black Sludge
+S'Muk @ Black Sludge
 Ability: Seasonal Spirit
 Level: 31
 Quiet Nature
@@ -7999,7 +7999,7 @@ Naive Nature
 - Focus Blast
 - Nasty Plot
 
-Muk-Alola (F) @ Assault Vest
+Muk (F) @ Assault Vest
 Ability: Poison Touch
 Level: 100
 EVs: 252 HP / 252 Atk
@@ -8059,7 +8059,7 @@ IVs: 0 HP / 0 Atk / 0 Def / 0 SpA / 0 SpD / 0 Spe
 
 === [gen7] Captain Sophocles (#405) ===
 
-Raichu (F) @ Focus Sash
+Gorochu (F) @ Focus Sash
 Ability: Lightning Rod
 Level: 100
 EVs: 252 SpA / 252 Spe
@@ -8834,7 +8834,7 @@ IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe
 
 === [gen7] Sightseer George (#433) ===
 
-Grimer (M)
+Grahamer (M)
 Ability: Masterpiece
 Level: 14
 Hardy Nature
@@ -8847,7 +8847,7 @@ IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe
 
 === [gen7] Sightseer George (#434) ===
 
-Muk (M)
+S'Muk (M)
 Ability: Masterpiece
 Level: 55
 Hardy Nature
@@ -9331,7 +9331,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -9394,7 +9394,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -9457,7 +9457,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -9520,7 +9520,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -9583,7 +9583,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -9646,7 +9646,7 @@ Jolly Nature
 - Shadow Punch
 - Power-Up Punch
 
-Raichu-Alola (F) @ Focus Sash
+Raichu (F) @ Focus Sash
 Ability: Volt Rush
 Level: 53
 EVs: 252 SpA / 252 Spe
@@ -10789,7 +10789,7 @@ Jolly Nature
 - Fury Swipes
 - Dizzying Punches
 
-Raichu-Alola (F) @ Electrium Z
+Raichu (F) @ Electrium Z
 Ability: Volt Rush
 Level: 100
 EVs: 252 SpA / 252 Spe
@@ -10852,7 +10852,7 @@ Jolly Nature
 - Fury Swipes
 - Dizzying Punches
 
-Raichu-Alola (F) @ Electrium Z
+Raichu (F) @ Electrium Z
 Ability: Volt Rush
 Level: 100
 EVs: 252 SpA / 252 Spe
@@ -10915,7 +10915,7 @@ Jolly Nature
 - Fury Swipes
 - Dizzying Punches
 
-Raichu-Alola (F) @ Electrium Z
+Raichu (F) @ Electrium Z
 Ability: Volt Rush
 Level: 100
 EVs: 252 SpA / 252 Spe
@@ -11377,7 +11377,7 @@ Bold Nature
 
 === [gen7] Captain Sophocles (#506) ===
 
-Raichu (F) @ Quick Claw
+Gorochu (F) @ Quick Claw
 Ability: Lightning Rod
 Level: 69
 EVs: 252 SpA / 252 Spe
@@ -12070,7 +12070,7 @@ Adamant Nature
 - Mesmer-Eyes
 - Protect
 
-Muk @ Air Balloon
+S'Muk @ Air Balloon
 Ability: Seasonal Spirit
 Level: 100
 EVs: 252 HP / 252 SpA
@@ -13007,8 +13007,8 @@ Timid Nature
 
 === [gen7] Gentleman Reginald (#563) ===
 
-Venusaur @ Cell Battery
-Ability: Overgrow
+Seaking
+Ability: Lightning Rod
 Level: 51
 Serious Nature
 - Sludge Fling
@@ -13693,7 +13693,7 @@ IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe
 
 === [gen7] Team Rainbow Rocket Grunt (#587) ===
 
-Muk
+S'Muk
 Ability: Seasonal Spirit
 Level: 62
 EVs: 252 HP / 252 Atk
@@ -13917,7 +13917,7 @@ IVs: 15 HP / 30 Atk / 15 Def / 15 SpA / 30 SpD / 15 Spe
 
 === [gen7] Team Rainbow Rocket Grunt (#603) ===
 
-Muk
+S'Muk
 Ability: Seasonal Spirit
 Level: 62
 EVs: 252 HP / 252 SpD
@@ -13993,7 +13993,7 @@ IVs: 15 HP / 30 Atk / 15 Def / 15 SpA / 30 SpD / 15 Spe
 
 === [gen7] Team Rainbow Rocket Grunt (#609) ===
 
-Muk
+S'Muk
 Ability: Seasonal Spirit
 Level: 62
 EVs: 252 HP / 252 Atk
@@ -14803,7 +14803,7 @@ IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 30 SpD / 30 Spe
 
 === [gen7] Team Rainbow Rocket Grunt (#643) ===
 
-Muk
+S'Muk
 Ability: Seasonal Spirit
 Level: 62
 EVs: 252 Def / 252 SpD

@@ -8,7 +8,7 @@ Rattata, Raticate, Raticate-Mega
 Pidgey, Pidgeot, Pidgeot-Mega
 Spearow, Fearow, Skarmory
 Doduo, Dodrio
-Pichu, Pikachu, Dedenne, Togedemaru, Emolga, Pachirisu, Plusle, Minun, Raichu, Raichu-Alola
+Pichu, Pikachu, Dedenne, Togedemaru, Emolga, Pachirisu, Plusle, Minun, Gorochu, Raichu
 Ekans, Arbok
 Sandshrew, Sandslash
 Sandshrew-Alola, Sandslash-Alola
@@ -26,8 +26,8 @@ Poliwag, Poliwhirl, Poliwrath, Politoed
 Farfetch’d
 Abra, Kadabra, Alakazam, Alakazam-Mega
 Geodude, Graveler, Golem, Graveler-Alola, Golem-Alola
+Grahamer, S'Muk
 Grimer, Muk
-Grimer-Alola, Muk-Alola
 Koffing, Weezing
 Slowpoke, Slowbro, Slowbro-Mega, Slowking
 Exeggcute, Exeggutor, Exeggutor-Alola
@@ -322,7 +322,7 @@ Sandygast, Palossand
 Komala
 Mimikyu
 Wimpod, Golisopod
-Minior, Minior-Red, Minior-Blaze, Minior-Surge, Minior-Verdant, Minior-Tidal, Minior-Frost, Minior-Draco
+Minior, Minior-Twinkle, Minior-Blaze, Minior-Surge, Minior-Verdant, Minior-Tidal, Minior-Frost, Minior-Draco
 Torkoal, Turtonator
 Dunsparce, Drampa
 Dhelmise

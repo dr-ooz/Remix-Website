@@ -41,7 +41,7 @@ const outlineFilter = (type: string, colour: string) => {
     f.setAttribute("width", "120%");
     f.setAttribute("height", "120%");
     f.innerHTML =
-      `<feMorphology in="SourceAlpha" operator="dilate" radius="1.1" result="grown"/>` +
+      `<feMorphology in="SourceAlpha" operator="dilate" radius="0.55" result="grown"/>` +
       `<feFlood flood-color="${darkShade(colour)}"/><feComposite in2="grown" operator="in" result="edge"/>` +
       `<feMerge><feMergeNode in="edge"/><feMergeNode in="SourceGraphic"/></feMerge>`;
     host.appendChild(f);

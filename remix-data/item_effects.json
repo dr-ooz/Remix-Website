@@ -1060,8 +1060,8 @@
    "species": [
     "Trubbish",
     "Garbodor",
-    "Grimer-Alola",
-    "Muk-Alola"
+    "Grimer",
+    "Muk"
    ],
    "abilities": [
     "Poisonous",
@@ -1077,8 +1077,8 @@
  "Graham Cracker": [
   {
    "species": [
-    "Grimer",
-    "Muk"
+    "Grahamer",
+    "S'Muk"
    ],
    "items": [
     "Covert Cloak"

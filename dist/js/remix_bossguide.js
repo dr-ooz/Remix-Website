@@ -109,7 +109,9 @@ function bgNatureTip(n) {
 var BG_ART_SLUG = {
 	"lycanroc": "lycanroc-midday", "oricorio": "oricorio-baile", "meowstic-f": "meowstic-female", "nidoran": "nidoran-m",
 	"drugtrio": "dugtrio", "drumtrio": "dugtrio-alolan", "burmy-sand": "burmy-sandy", "wormadam-sand": "wormadam-sandy",
-	"silvally": "silvally-normal"
+	"silvally": "silvally-normal",
+	// Kanto Grimer / Muk / Raichu are Grahamer / S'Muk / Gorochu; the plain names are the Alolan forms now
+	"grahamer": "grimer", "smuk": "muk", "gorochu": "raichu", "grimer": "grimer-alolan", "muk": "muk-alolan", "raichu": "raichu-alolan"
 };
 // ---- Player art: anyone can swap the art of their own team's Pokemon for an image from their computer.
 // Kept only in this browser (localStorage remixPlayerArt: species -> small data URL).
