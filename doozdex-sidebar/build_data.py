@@ -367,7 +367,7 @@ if os.path.exists(species_src):
             if p["name"] in dz_list["doozian"] or p["name"] in dz_list["new"]:
                 p["doozian"] = True
             if p["name"] in dz_list["new"]:
-                p["doozianNew"] = True
+                p["doozianNew"] = dz_list["new"].index(p["name"]) + 1  # its place in the new section (Dooz's order)
             if p["name"] in dz_list["redesigned"]:
                 p["redesigned"] = True
         elif p["name"] not in vanilla and p["name"] not in LABEL_ONLY:

@@ -284,7 +284,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     if (doozState() === 1) {
       const isNew = (r: PokemonRowItem) => r.type === "item" && !!(r.data as any).doozianNew;
       const news = rows.filter(isNew);
-      if (news.length) rows = [...rows.filter((r) => !isNew(r)), { type: "header", label: "New Pokémon (Doozian pre-evolutions & evolutions)" }, ...news.map((r) => ({ ...(r as any), famStart: false }))];
+      if (news.length) rows = [...rows.filter((r) => !isNew(r)), { type: "header", label: "New Pokémon (Doozian pre-evolutions & evolutions)" }, ...news.map((r) => ({ ...(r as any), famStart: false })).sort((a, b) => a.data.doozianNew - b.data.doozianNew)];
     }
 
     // Mega: each Mega under its base form (once per base: Charizard over both Megas), unless base forms are hidden
