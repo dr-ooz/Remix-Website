@@ -218,7 +218,7 @@ FORM_COLUMNS = {  # species number -> the sidebar form for each table column (""
     479: ["", "Heat", "Wash", "Frost", "Fan", "Mow"],
     492: ["", "Sky"],
     586: ["", "Summer", "Autumn", "Winter"],
-    774: ["Red", "Blaze", "Surge", "Verdant", "Frost", "Tidal", "Draco"],
+    774: ["Twinkle", "Blaze", "Surge", "Verdant", "Frost", "Tidal", "Draco"],
 }
 fm_path = os.path.join(CALC, "remix-data", "form_moves.json")
 if os.path.exists(fm_path):
@@ -349,7 +349,7 @@ if os.path.exists(species_src):
     # names that only differ in label from the original game (not new Pokemon)
     LABEL_ONLY = {"Farfetch’d", "Nidoran", "Burmy-Plant", "Burmy-Sand", "Burmy-Snow", "Wormadam-Plant", "Wormadam-Sand",
                   "Wormadam-Snow", "Gastrodon-West", "Basculin-Blue", "Aegislash", "Zygarde-50%", "Oricorio-Pa'u",
-                  "Wishiwashi-Solo", "Type: Null", "Minior", "Minior-Red", "Minior-Blaze", "Minior-Surge",
+                  "Wishiwashi-Solo", "Type: Null", "Minior", "Minior-Red", "Minior-Twinkle", "Minior-Blaze", "Minior-Surge",
                   "Minior-Verdant", "Minior-Frost", "Minior-Tidal", "Minior-Draco"}
     for p in pokedex.values():
         old = vanilla.get(p["name"])

@@ -30,8 +30,10 @@ export const rarityTier = (lines: number, mons: number, all: number) => {
 export const moveSpread = (pd: Record<string, PokemonData>) => {
   const byName: Record<string, any> = {};
   for (const p of Object.values(pd)) byName[p.name] = p;
+  // forms of one species are one line (all of Minior's colors), Megas count as their base
   const root = (name: string) => {
-    let n = name.replace(/-(Mega|Primal)(-[XY])?$/, "");
+    const bs = byName[name]?.baseSpecies;
+    let n = bs && byName[bs] ? bs : name.replace(/-(Mega|Primal)(-[XY])?$/, "");
     if (!byName[n]) n = name;
     let guard = 0;
     while (byName[n]?.prevo && byName[byName[n].prevo] && guard++ < 6) n = byName[n].prevo;

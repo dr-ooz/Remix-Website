@@ -49,7 +49,8 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
     const roots = new Set<string>();
     for (const p of Object.values(pd)) {
       if (p.unusable || !p.learntMoves.find((i) => nameToId(i[0]) === mid)) continue;
-      let n = byName[strip(p.name)] ? strip(p.name) : p.name, guard = 0;
+      const bs = (p as any).baseSpecies; // forms of one species are one line (all of Minior's colors)
+      let n = bs && byName[bs] ? bs : byName[strip(p.name)] ? strip(p.name) : p.name, guard = 0;
       while ((byName[n] as any)?.prevo && byName[(byName[n] as any).prevo] && guard++ < 6) n = (byName[n] as any).prevo;
       roots.add(n);
     }
@@ -137,7 +138,8 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
     // evolution lines from the evo data (prevo / evos); Megas / Primals count as their base Pokemon
     const baseOf = (name: string) => (/-(Mega|Primal)(-[XY])?$/.test(name) && byName[name.replace(/-(Mega|Primal)(-[XY])?$/, "")] ? name.replace(/-(Mega|Primal)(-[XY])?$/, "") : name);
     const rootOf = (name: string) => {
-      let n = baseOf(name), guard = 0;
+      const bs = (byName[name] as any)?.baseSpecies;
+      let n = bs && byName[bs] ? bs : baseOf(name), guard = 0;
       while ((byName[n] as any)?.prevo && byName[(byName[n] as any).prevo] && guard++ < 6) n = (byName[n] as any).prevo;
       return n;
     };

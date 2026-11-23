@@ -21,7 +21,7 @@ const ORDERS: Option<Order>[] = [
 type PokemonRowItem =
   | { type: "item"; data: PokemonData; famStart?: boolean }
   | { type: "header"; label: string }
-  | { type: "itemhead"; name: string; icon: string; desc: string }
+  | { type: "itemhead"; name: string; icon: string; desc: string; open: boolean; n: number }
   | { type: "forms"; key: string; species: string; n: number; open: boolean };
 const ITEM_HEAD_H = 80; // an item's row: its icon (72px) + its name and up to 4 lines of its in-game description
 const FORMS_H = 26; // the "show / hide forms" row under Furfrou / Minior
@@ -58,6 +58,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
   const [itemSort, setItemSort] = createSignal<"featured" | "most" | "fewest" | "az">("featured");
   // Furfrou / Minior forms: folded in the item groups, open elsewhere, unless the viewer flips one
   const [formsFlip, setFormsFlip] = createSignal<Record<string, boolean>>({});
+  // item groups: "Show only items" folds every group; each item's arrow folds / opens just that one
+  const [itemsOnly, setItemsOnly] = createSignal(false);
+  const [itemFlip, setItemFlip] = createSignal<Record<string, boolean>>({});
   const [itemPick, setItemPick] = createSignal("");
   // Mega: only Mega Evolutions, each under its base form (the base forms can be hidden)
   const [megaOnly, setMegaOnly] = createSignal(false);
@@ -319,7 +322,8 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       const firstAt = (it: string) => mons.indexOf(groups.get(it)![0]!);
       // how many separate evolution lines hold it (Megas count as their base)
       const lineOf = (n: string) => {
-        let x = n.replace(/-(Mega|Primal)(-[XY])?$/, "");
+        const bs = (data[nameToId(n)] as any)?.baseSpecies;
+        let x = bs && data[nameToId(bs)] ? bs : n.replace(/-(Mega|Primal)(-[XY])?$/, "");
         if (!data[nameToId(x)]) x = n;
         let g = 0;
         while ((data[nameToId(x)] as any)?.prevo && data[nameToId((data[nameToId(x)] as any).prevo)] && g++ < 6) x = (data[nameToId(x)] as any).prevo;
@@ -335,9 +339,11 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         : featured(a, b));
       rows = [];
       for (const it of items) {
-        rows.push({ type: "itemhead", name: it, icon: itemIconUrl(info[it]?.icon), desc: info[it]?.desc ?? "" });
-        groups.get(it)!.forEach((p, i, l) =>
-          rows.push({ type: "item", data: p, famStart: i > 0 && (p as any).family !== (l[i - 1] as any).family }));
+        const open = itemFlip()[it] ?? !itemsOnly();
+        rows.push({ type: "itemhead", name: it, icon: itemIconUrl(info[it]?.icon), desc: info[it]?.desc ?? "", open, n: groups.get(it)!.length });
+        if (open)
+          groups.get(it)!.forEach((p, i, l) =>
+            rows.push({ type: "item", data: p, famStart: i > 0 && (p as any).family !== (l[i - 1] as any).family }));
       }
     }
 
@@ -381,7 +387,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     for (const p of Object.values(pd)) byName[p.name] = p;
     const roots = new Set<string>();
     for (const p of shown) {
-      let n = p.name.replace(/-(Mega|Primal)(-[XY])?$/, "");
+      // forms of one species are one line (all of Minior's colors), Megas count as their base
+      const bs = (p as any).baseSpecies;
+      let n = bs && byName[bs] ? bs : p.name.replace(/-(Mega|Primal)(-[XY])?$/, "");
       if (!byName[n]) n = p.name;
       let guard = 0;
       while (byName[n]?.prevo && byName[byName[n].prevo] && guard++ < 6) n = byName[n].prevo;
@@ -626,6 +634,14 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             </Show>
             <Show when={itemView()}>
               <div class="mt-0.5 flex items-center justify-center gap-1 text-[11px] font-normal">
+                <button
+                  type="button"
+                  class={cn("cursor-pointer rounded border px-1", itemsOnly() && "dz-filter-on font-bold")}
+                  title="Fold every item's Pokémon away (each item's arrow still opens it)"
+                  onClick={() => { setItemsOnly(!itemsOnly()); setItemFlip({}); }}
+                >
+                  {itemsOnly() ? "Only items ✓" : "Show only items"}
+                </button>
                 <span class="text-white/60">Items:</span>
                 <For each={[["featured", "Featured"], ["most", "Most holders"], ["fewest", "Fewest holders"], ["az", "A-Z"]] as const}>
                   {([v, l]) => (
@@ -672,7 +688,16 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                 {d.open ? `▴ Hide the other ${d.species} forms` : `▾ Show ${d.n} more ${d.species} form${d.n === 1 ? "" : "s"}`}
               </button>
             ) : d.type === "itemhead" ? (
-              <div class="dz-itemhead flex h-full items-center gap-2 border-b px-2">
+              <div class="dz-itemhead flex h-full items-center gap-2 border-b px-1">
+                <button
+                  type="button"
+                  class="flex h-full w-5 flex-none cursor-pointer flex-col items-center justify-center text-[12px] text-white/70 hover:text-white"
+                  title={d.open ? "Hide this item's Pokémon" : "Show this item's Pokémon"}
+                  onClick={() => setItemFlip((m) => ({ ...m, [d.name]: !d.open }))}
+                >
+                  <span>{d.open ? "▾" : "▸"}</span>
+                  <span class="text-[9px]">{d.n}</span>
+                </button>
                 <div
                   class="h-[72px] w-[72px] flex-none bg-contain bg-center bg-no-repeat"
                   style={{ "background-image": d.icon ? `url(${d.icon})` : undefined, "image-rendering": "pixelated" }}

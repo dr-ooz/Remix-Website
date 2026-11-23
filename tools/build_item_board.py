@@ -42,8 +42,7 @@ for name in sorted(info, key=lambda n: info[n].get("order", 1e6)):
         pid = by_name[h][0]
         f = os.path.join(SB, "calcsprites", pid + ".png")
         if os.path.exists(f):
-            sprites.setdefault(pid, [h, uri(f)])
-            holders.append(pid)
+            holders.append(pid)  # names only: the board shows items alone (no sprites)
     items.append({"name": name, "icon": icon or "", "holders": holders})
 
 src = open(os.path.join(ROOT, "itemboard", "board.src.html"), encoding="utf8").read()

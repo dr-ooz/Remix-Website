@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Layout: a sticky toolbar over one wall of item cards in the current order. Each card = the item's big icon
-   joined to a pill of its holders' sprites; drag a card to move it. Submit saves the order for the site. */
+   tile and name; drag a card to move it. Submit saves the order for the site. */
 :root {
   /* one dark look for the whole board; only the item icon tiles stay light so the icons read clearly */
   --bg: #17141c; --panel: #221d2a; --card: #241f2d; --line: #3a3344; --fg: #f1edf7; --muted: #a59cb3;
@@ -41,7 +41,7 @@ main { padding-block: 16px 40px; }
 .card .no { font: 500 calc(var(--z) * 10px) var(--mono); color: var(--muted); align-self: flex-start; padding: calc(var(--z) * 5px) 0 0 calc(var(--z) * 7px); min-width: calc(var(--z) * 18px); }
 .icon { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   width: calc(var(--z) * 86px); padding: calc(var(--z) * 6px) calc(var(--z) * 4px); background: var(--icon-bg);
-  border-right: 1px solid var(--line); border-radius: 0 calc(var(--z) * 10px) calc(var(--z) * 10px) 0; }
+  border-radius: 0 calc(var(--z) * 13px) calc(var(--z) * 13px) 0; }
 .icon img { width: calc(var(--z) * 64px); height: calc(var(--z) * 64px); image-rendering: pixelated; }
 .icon .nm { font: 600 calc(var(--z) * 10.5px)/1.15 var(--body); text-align: center; text-wrap: balance; color: var(--icon-fg); }
 .pill { display: flex; flex-wrap: wrap; align-items: center; align-content: center; gap: 0 calc(var(--z) * 2px);
@@ -65,7 +65,7 @@ main { padding-block: 16px 40px; }
     <button type="button" id="reset">Reset to the site's order</button>
     <button type="button" class="primary" id="submit">Submit order</button>
   </div>
-  <div class="help">Drag a card to move it. The site's Featured item order follows this once you submit. <span id="status"></span></div>
+  <div class="help">Drag an item to move it. The site's Featured item order follows this once you submit. <span id="status"></span></div>
 </header>
 <main class="gut"><div id="wall"></div></main>
 
@@ -94,13 +94,7 @@ function card(name, i) {
   const img = document.createElement("img"); img.src = it.icon; img.alt = "";
   const nm = document.createElement("div"); nm.className = "nm"; nm.textContent = name;
   icon.append(img, nm);
-  const pill = document.createElement("div"); pill.className = "pill";
-  for (const k of it.holders) {
-    const s = SPRITES[k]; if (!s) continue;
-    const p = document.createElement("img"); p.src = s[1]; p.alt = s[0]; p.title = s[0];
-    pill.append(p);
-  }
-  el.append(no, icon, pill);
+  el.append(no, icon); // items only (Dooz, 2026-11-22): no holder sprites
   return el;
 }
 function render() {
