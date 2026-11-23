@@ -22,7 +22,7 @@ const SPRITE_SIZE: Record<string, number> = {
 };
 
 // Sprites stretched to fill the row top to bottom, with this many px left at each edge.
-const SPRITE_FILL: Record<string, number> = { wailord: 1 };
+const SPRITE_FILL: Record<string, number> = { wailord: 1, raticateplague: 3 };
 const CONTENT_H = ROW_H - ROW_LINE;
 
 // Stat display: a little bar graph under the name (default) or colored numbers. Kept per browser.

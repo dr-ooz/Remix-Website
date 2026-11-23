@@ -184,6 +184,10 @@ const SIG = (() => {
   }
   return { signatureItems, magicItems };
 })();
+// each signature item on its own -> the abilities it gives (a Pokemon with two items has both in magicItems)
+export const ITEM_ABILITIES: Record<string, string[]> = Object.fromEntries(
+  Object.entries(sigItemsJson as Record<string, { abilities: string[] }>).map(([k, v]) => [k, v.abilities]),
+);
 
 export const DATASET_IDS: DatasetData[] = [
   {

@@ -3,6 +3,7 @@ import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 import type { JSX } from "solid-js/jsx-runtime";
 import { useItemInfo, itemIconUrl, useCalcData } from "@/utils/calcData";
+import { ITEM_ABILITIES } from "@/utils/constants";
 
 type Order = "num" | "a-z" | "hp" | "atk" | "def" | "spa" | "spd" | "spe" | "bst";
 
@@ -276,9 +277,24 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     };
     section(someMons, `Has some of these abilities (${af.join(" / ")})`);
     section(grantedMons, `Abilities that include the effects of ${af.join(" / ")}`,
-      "Their own ability has these built in (e.g. Star Power includes Levitate)");
-    section(signatureItemMons, `Gains the effects of ${af.join(" / ")} via a signature item`,
-      "To see full effects of the item, click the Pokemon's icon!");
+      "Their own ability has this built in");
+    // signature items: each item's row (icon + in-game description) above the Pokemon it gives the ability to
+    if (signatureItemMons.length) {
+      result.push({ type: "header", label: `Gains the effects of ${af.join(" / ")} via a signature item` });
+      const info = itemInfo() ?? {};
+      const byItem = new Map<string, any[]>();
+      for (const p of signatureItemMons) {
+        const items = (datasetData?.signatureItems[nameToId(p.name)] ?? "").split(" / ").filter(Boolean);
+        const missing = af.filter((a) => !p.abilities.includes(a));
+        const it = items.find((i) => (ITEM_ABILITIES[i] ?? []).some((a) => missing.includes(a))) ?? items[0] ?? "";
+        if (!byItem.has(it)) byItem.set(it, []);
+        byItem.get(it)!.push(p);
+      }
+      for (const [it, mons] of byItem) {
+        if (it) result.push({ type: "itemhead", name: it, icon: itemIconUrl(info[it]?.icon), desc: info[it]?.desc ?? "", open: true, n: mons.length });
+        mons.forEach((p) => result.push({ type: "item", data: p }));
+      }
+    }
 
     let rows = result;
 
