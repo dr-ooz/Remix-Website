@@ -61,7 +61,7 @@ export const Move = (props: {
         >
           {props.data.power || "—"}
         </div>
-        <div class="w-10 text-center">{props.data.acc === 101 ? "—" : props.data.acc}%</div>
+        <div class="w-10 text-center whitespace-nowrap">{props.data.acc === 101 ? "—" : props.data.acc}%</div>
         <div class="w-10 text-center">
           {props.data.pp}
           <span class="text-[10px]">PP</span>

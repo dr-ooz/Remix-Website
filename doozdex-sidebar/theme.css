@@ -81,3 +81,9 @@ select optgroup {
   z-index: 50;
   background: var(--color-white);
 }
+
+/* a filter toggle that is on (Signature Item / Doozian Form / Type Changed) */
+.dz-filter-on {
+  background: color-mix(in srgb, var(--color-white) 18%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--color-white) 55%, transparent);
+}

@@ -128,15 +128,11 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
     const learners: Learner[] = Object.values(pd)
       .filter((p) => p.learntMoves.find((i) => !p.unusable && nameToId(i[0]) === mid))
       .map((p) => [p, p.learntMoves.find((i) => nameToId(i[0]) === mid)![1]] as Learner);
-    // group by family (Pokemon without one stand alone); forms of one species always share a row, even when the
-    // dex board puts them in different families (Georupt-Magma + Georupt-Steam)
+    // group by family (Pokemon without one stand alone)
     const groups = new Map<string, Learner[]>();
-    const speciesRow = new Map<string, string>();
     for (const l of learners) {
       const fam = (l[0] as any).family;
-      const sp = (l[0] as any).baseSpecies || l[0].name;
-      const key = speciesRow.get(sp) ?? (fam != null ? "f" + fam : "p" + l[0].name);
-      if (!speciesRow.has(sp)) speciesRow.set(sp, key);
+      const key = fam != null ? "f" + fam : "p" + l[0].name;
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(l);
     }
@@ -226,7 +222,7 @@ export function LearnsMove(props: { move: string; close: () => void; datasetId: 
   // a plain list (a move has a few hundred learners at most): every row is as tall as its content, so rows never overlap
   return (
     <div
-      class="absolute inset-0 z-10 backdrop-blur-md backdrop-brightness-80"
+      class="absolute inset-0 z-10 bg-black/80 backdrop-blur-md"
       onClick={props.close}
     >
       <div

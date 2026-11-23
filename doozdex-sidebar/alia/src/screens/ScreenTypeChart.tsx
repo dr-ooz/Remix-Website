@@ -36,67 +36,49 @@ export const ScreenTypeChart = () => {
     if (o) setPokemon(o);
   });
 
-  createEffect(() => {
+  // the Pokemon's own types (fixed), its signature items that change matchups, and its abilities that do
+  const mon = createMemo(() => {
     const px = pokedex();
-    const n = pokemon();
-    const p = px && px[nameToId(n)];
+    return (px && pokemon() && px[nameToId(pokemon())]) || null;
+  });
+  const typesFilter = () => {
+    const p = mon();
+    return p ? [p.types[0] ?? "", p.types[1] ?? ""] : ["", ""];
+  };
+  // signature items with a type matchup effect (an immunity / resistance, an added type, or a granted ability that has one)
+  const monItems = createMemo(() => {
     const d = dataset();
-    if (!n || !p || !d) return;
-
-    setTypesFilter([p.types[0], p.types[1] ?? ""]);
-
-    const l = new Set<string>();
-
-    for (const a of p.abilities) if (a) l.add(a);
-
-    const si = d.signatureItems[nameToId(p.name)];
-    const smokingZone =
-      si && d.tcItems.includes(si) && (!d.tciOnlyIf[si] || d.tciOnlyIf[si].includes(p.name));
-    if (smokingZone) l.add(si);
-
-    setAllowedStuff(l);
-
-    if (smokingZone) setItemFilter(si);
-
-    for (const a of p.abilities) {
-      if (a && d.tcAbilities.includes(a)) {
-        setAbilityFilter(a);
-        break;
-      }
-    }
+    const list = (((mon() as any)?.typeItems ?? []) as { name: string; chart: Record<string, number>; abilities: string[]; addType?: string }[]);
+    return list.filter((i) => Object.keys(i.chart).length || i.addType || i.abilities.some((a) => d?.typeChart[a]));
+  });
+  // abilities: the ones that change the chart, then the ones that only stop certain moves (marked *)
+  const monAbilities = createMemo(() => {
+    const d = dataset(), p = mon();
+    if (!d || !p) return [] as string[];
+    const chart = p.abilities.filter((a) => a && d.typeChart[a] && !(TYPES as Option[]).some((t) => t.value === a));
+    const notes = p.abilities.filter((a) => a && ABILITY_NOTES[a] && !chart.includes(a));
+    return [...chart, ...notes];
   });
 
-  const [typesFilter, setTypesFilter] = createSignal(["", ""]);
   const [abilityFilter, setAbilityFilter] = createSignal("");
   const [itemFilter, setItemFilter] = createSignal("");
-  const [allowedStuff, setAllowedStuff] = createSignal(new Set<string>());
+  // a new Pokemon: its first chart-changing ability (else its first starred one), and its item
+  createEffect(on(mon, (p) => {
+    const d = dataset();
+    const ab = monAbilities();
+    setAbilityFilter(ab.find((a) => d?.typeChart[a]) ?? ab[0] ?? "");
+    setItemFilter(monItems()[0]?.name ?? "");
+  }));
 
-  const sameOptions = (a: Option[], b: Option[]) =>
-    a.length === b.length && a.every((o, i) => o.value === b[i]!.value);
-
-  const abilityOptions = createMemo<Option[]>(
-    () => [
-      { label: "(Ability)", value: "" },
-      ...(dataset()
-        ?.tcAbilities.filter((a) => !pokemon() || allowedStuff().has(a))
-        .toSorted()
-        .map((a) => ({ label: a, value: a })) ?? []),
-    ],
-    [{ label: "(Ability)", value: "" }],
-    { equals: sameOptions },
-  );
-
-  const itemOptions = createMemo<Option[]>(
-    () => [
-      { label: "(Item)", value: "" },
-      ...(dataset()
-        ?.tcItems.filter((a) => !pokemon() || allowedStuff().has(a))
-        .toSorted()
-        .map((a) => ({ label: a, value: a })) ?? []),
-    ],
-    [{ label: "(Ability)", value: "" }],
-    { equals: sameOptions },
-  );
+  const abilityOptions = createMemo<Option[]>(() => [
+    { label: "(Ability)", value: "" },
+    ...monAbilities().map((a) => ({ label: ABILITY_NOTES[a] && !dataset()?.typeChart[a] ? a + "*" : a, value: a })),
+  ]);
+  const itemOptions = createMemo<Option[]>(() => [
+    { label: "(Item)", value: "" },
+    ...monItems().map((i) => ({ label: i.name, value: i.name })),
+  ]);
+  const note = () => ABILITY_NOTES[abilityFilter()] ?? "";
 
   const matchUps = createMemo(() => {
     const d = dataset();
@@ -127,7 +109,17 @@ export const ScreenTypeChart = () => {
     };
 
     for (const t of [t1, t2]) if (t) x(t);
-    for (const t of [abilityFilter(), itemFilter()]) if (t) x(t, true);
+    if (abilityFilter() && d.typeChart[abilityFilter()]) x(abilityFilter(), true);
+    const it = monItems().find((i) => i.name === itemFilter());
+    if (it) {
+      if (it.addType && it.addType !== t1 && it.addType !== t2) x(it.addType, true);
+      for (const a of it.abilities) if (d.typeChart[a] && a !== abilityFilter()) x(a, true);
+      for (const [t, v] of Object.entries(it.chart)) {
+        o[t] ??= [1, false];
+        o[t][0] *= v;
+        o[t][1] = true;
+      }
+    }
 
     if (superEffective !== 1) {
       for (const a in o) {
@@ -163,24 +155,17 @@ export const ScreenTypeChart = () => {
           oninput={(e) => setPokemon(e.currentTarget.value)}
         />
 
-        <div class="flex gap-1">
-          <Index each={typesFilter()}>
-            {(t, index) => (
-              <Select
-                options={TYPES.toSorted((a, b) => a.label.localeCompare(b.label))}
-                value={t()}
-                oninput={(e) => {
-                  setTypesFilter((prev) => {
-                    const next = [...prev];
-                    next[index] = e.currentTarget.value;
-                    return next;
-                  });
-                  setPokemon("");
-                }}
-              />
-            )}
-          </Index>
-        </div>
+        <Show when={mon()}>
+          <div class="flex h-6 gap-1">
+            <For each={mon()!.types}>
+              {(t) => (
+                <div class="flex-1 overflow-hidden rounded-xs border">
+                  <Type type={t} muted />
+                </div>
+              )}
+            </For>
+          </div>
+        </Show>
 
         <div class="flex gap-1">
           <Select
@@ -195,6 +180,9 @@ export const ScreenTypeChart = () => {
             oninput={(e) => setItemFilter(e.currentTarget.value)}
           />
         </div>
+        <Show when={note()}>
+          <div class="text-center text-xs text-white/70 italic">* {abilityFilter()}: {note()} (not shown in the chart)</div>
+        </Show>
 
         <div class="grid grid-cols-9 gap-1">
           <For each={sortedTypes()}>

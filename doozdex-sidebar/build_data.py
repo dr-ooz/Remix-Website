@@ -286,6 +286,106 @@ if os.path.exists(evo_path):
     for p in pokedex.values():
         if str(p.get("num")) in evo_at:
             p["evoAt"] = evo_at[str(p["num"])]
+# Moves list "Effect" order: the order moves first appear in the Move Guide's category sections
+# (Priority Attacking Moves ... Assorted Status Moves; the by-type sections are skipped).
+guide_path = os.path.join(CALC, "src", "moveguide", "move_guide.json")
+if os.path.exists(guide_path):
+    import html as _html
+    with open(guide_path, encoding="utf8") as f:
+        guide = json.load(f)
+
+    def _plain(h):
+        return _html.unescape(re.sub(r"<[^>]+>", "", h))
+
+    in_cat, eff = False, []
+    for r in guide["rows"]:
+        if r.get("zone") not in (None, "body"):
+            continue
+        if r["k"] == "h0":
+            in_cat = False
+        if r["k"] == "h1" and r.get("cat"):
+            in_cat = True
+        if in_cat and r["k"] == "row" and len(r["c"]) >= 8:
+            first = _plain(re.split(r"<br>|\n", r["c"][0][3])[0])
+            if re.match(r"(?i)^move name$", first.strip()):
+                continue
+            mid = to_id(first.split(">")[-1].replace("*", "").strip())
+            if mid in moves and mid not in eff:
+                eff.append(mid)
+    for i, mid in enumerate(eff):
+        moves[mid]["effectOrder"] = i
+
+# Filters: "Type Changed" (types differ from the original game's) and "Doozian Form" (Dooz's new / renamed
+# Pokemon and forms). The original types come from the calc's species data before the Remix data is applied.
+species_src = os.path.join(CALC, "calc", "src", "data", "species.ts")
+if os.path.exists(species_src):
+    vanilla, cur = {}, None
+    for line in open(species_src, encoding="utf8"):
+        if "REMIX_PERSONAL_UNMATCHED" in line:
+            break
+        m = re.match(r"^  (['\"]?)([^'\":]+)\1: \{", line)
+        if m:
+            cur = m.group(2)
+        t = re.search(r"types: \[([^\]]*)\]", line)
+        if t and cur:
+            vanilla[cur] = [a or b for a, b in re.findall(r"'([^']+)'|\"([^\"]+)\"", t.group(1))]
+    # names that only differ in label from the original game (not new Pokemon)
+    LABEL_ONLY = {"Farfetch’d", "Nidoran", "Burmy-Plant", "Burmy-Sand", "Burmy-Snow", "Wormadam-Plant", "Wormadam-Sand",
+                  "Wormadam-Snow", "Gastrodon-West", "Basculin-Blue", "Aegislash", "Zygarde-50%", "Oricorio-Pa'u",
+                  "Wishiwashi-Solo", "Type: Null", "Minior", "Minior-Red", "Minior-Blaze", "Minior-Surge",
+                  "Minior-Verdant", "Minior-Frost", "Minior-Tidal", "Minior-Draco"}
+    for p in pokedex.values():
+        old = vanilla.get(p["name"])
+        if old is None:
+            for o in p.get("oldNames", []):
+                cand = vanilla.get(o) or vanilla.get(re.sub(r"(Nidoran)([FM])$", r"\1-\2", o))
+                if cand:
+                    old = cand
+                    break
+        if old and old != p["types"]:
+            p["typeChanged"] = True
+            p["vanillaTypes"] = old
+        if p["name"] not in vanilla and p["name"] not in LABEL_ONLY:
+            p["doozian"] = True
+
+# Signature items that change type matchups (from the calc's item effects): immunities, resistances, Cell Battery's
+# Trifecta, and abilities the item grants (Fairy Flower -> Sap Sipper). The sidebar's type chart loads them.
+fx_path = os.path.join(CALC, "remix-data", "item_effects.json")
+sig_path = os.path.join(CALC, "remix-data", "signature_items.json")
+if os.path.exists(fx_path):
+    with open(fx_path, encoding="utf8") as f:
+        item_fx = json.load(f)
+    sig = json.load(open(sig_path, encoding="utf8")) if os.path.exists(sig_path) else {}
+
+    def holds(pats, p):
+        for s in pats:
+            if s == p["name"] or (s.endswith("-*") and p["name"].startswith(s[:-1])) or (s.endswith("*") and p["name"].startswith(s[:-1])):
+                return True
+        return False
+
+    for item, effs in item_fx.items():
+        if item.startswith("_") or not isinstance(effs, list):
+            continue
+        for e in effs:
+            if not isinstance(e, dict) or not e.get("species"):
+                continue
+            chart = {t: 0 for t in e.get("immune", [])}
+            for t, v in (e.get("resist") or {}).items():
+                chart[t] = v
+            if e.get("trifecta"):
+                chart.update({"Fire": 0, "Ice": 0, "Electric": 0})
+            abil = e.get("abilities", [])
+            add_type = e.get("addType")
+            if not chart and not abil and not add_type:
+                continue
+            pats = list(e["species"]) + list((sig.get(item) or {}).get("holders", []))
+            for p in pokedex.values():
+                if holds(pats, p):
+                    entry = {"name": item, "chart": chart, "abilities": abil}
+                    if add_type:
+                        entry["addType"] = add_type
+                    p.setdefault("typeItems", []).append(entry)
+
 with open(os.path.join(OUT, "data.json"), "w", encoding="utf8") as f:
     json.dump({"pokedex": pokedex, "moves": moves, "sheetId": ""}, f, ensure_ascii=False, separators=(",", ":"))
 

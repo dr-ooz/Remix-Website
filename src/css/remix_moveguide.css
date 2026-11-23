@@ -450,3 +450,8 @@ table.mg td.mg-toctitle { position: relative; }
 .mg-page td:has(> .mg-typehead) { vertical-align: middle !important; padding-top: 0 !important; padding-bottom: 0 !important; }
 .mg-typehead { vertical-align: middle; line-height: 1; }
 .mg-typehead-t { line-height: 1.1; }
+
+/* the two contents buttons: two lines of smaller text in a wider, shorter pill, clear of the title cell's edges */
+.mg-tocbtn { font-size: 19px !important; line-height: 1.15 !important; padding: 7px 30px !important; min-width: 220px; text-align: center; white-space: normal; }
+.mg-tocbtn-l { left: 22px; }
+.mg-tocbtn-r { right: 22px; }

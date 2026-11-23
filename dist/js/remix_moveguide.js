@@ -387,7 +387,7 @@
 		var eb = $(".mg-allbtn");
 		if (eb) {
 			var shut = data.rows.some(function (r, i) { return HEADS[r.k] && zone(r) === "body" && !isOpen(i); });
-			eb.innerHTML = shut ? "▾▾ Open everything" : "▴▴ Close everything";
+			eb.innerHTML = shut ? "▾▾ Open<br>everything" : "▴▴ Close<br>everything";
 		}
 		$$("#mg-guide .mg-chunk").forEach(function (ch) {
 			ch.classList.toggle("mg-chunk-empty", !Array.prototype.some.call(ch.querySelectorAll("tr[data-i]"), function (tr) { return tr.style.display !== "none"; }));
@@ -839,7 +839,7 @@
 
 	function startOpenLabel() {
 		var b = $(".mg-btn[data-act=startopen]");
-		if (b) { b.innerHTML = startOpen ? "▾ Dropdowns start: Expanded" : "▸ Dropdowns start: Collapsed"; b.classList.toggle("on", startOpen); }
+		if (b) { b.innerHTML = startOpen ? "Dropdowns start:<br>▾ Expanded" : "Dropdowns start:<br>▸ Collapsed"; b.classList.toggle("on", startOpen); }
 	}
 	function applyHide() {
 		startOpenLabel();

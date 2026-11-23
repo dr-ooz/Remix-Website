@@ -27,7 +27,10 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
   const moves = useMoves();
   const sheetId = useSheetId();
 
-  const [searchFilter, setSearchFilter] = createSignal("");
+  // the search box: what's typed filters by Pokemon name; picking a type / ability / move / item / filter from its
+  // suggestions drops it into its cell below
+  const [searchText, setSearchText] = createSignal("");
+  const searchFilter = () => nameToId(searchText());
   const [typesFilter, setTypesFilter] = createSignal(["", ""]);
 
   const [order, setOrder] = createSignal<Order>("num");
@@ -35,7 +38,21 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
   const [abilityFilter, setAbilityFilter] = createSignal(["", "", ""]);
 
-  const [itemFilter, setItemFilter] = createSignal(false);
+  // the three filters, and a picked item (shows the Pokemon that hold it)
+  const [sigOnly, setSigOnly] = createSignal(false);
+  const [doozianOnly, setDoozianOnly] = createSignal(false);
+  const [typeChangedOnly, setTypeChangedOnly] = createSignal(false);
+  const [itemPick, setItemPick] = createSignal("");
+  // the filter block can fold away (remembered)
+  const [filtersOpen, setFiltersOpenRaw] = createSignal((() => { try { return localStorage.getItem("dzFiltersOpen") !== "0"; } catch { return true; } })());
+  const setFiltersOpen = (v: boolean) => { setFiltersOpenRaw(v); try { localStorage.setItem("dzFiltersOpen", v ? "1" : "0"); } catch { /* private mode */ } };
+  const activeCount = () =>
+    typesFilter().filter(Boolean).length + abilityFilter().filter(Boolean).length + movesFilter().filter((m) => m[0]).length +
+    (sigOnly() ? 1 : 0) + (doozianOnly() ? 1 : 0) + (typeChangedOnly() ? 1 : 0) + (itemPick() ? 1 : 0);
+  const clearFilters = () => {
+    setTypesFilter(["", ""]); setAbilityFilter(["", "", ""]); setMovesFilter([["", true], ["", true], ["", true], ["", true]]);
+    setSigOnly(false); setDoozianOnly(false); setTypeChangedOnly(false); setItemPick("");
+  };
 
   const [movesFilter, setMovesFilter] = createSignal<[string, boolean][]>([
     ["", true],
@@ -113,7 +130,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     const standardMons: any[] = [];
     const signatureItemMons: any[] = [];
 
-    const ifi = itemFilter();
+    const ip = itemPick();
 
     const or = order();
 
@@ -144,7 +161,11 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       }
       if (!movesMatch) continue;
 
-      if (ifi && !datasetData?.signatureItems[id]) continue;
+      const sig = datasetData?.signatureItems[id];
+      if (sigOnly() && !sig) continue;
+      if (ip && !(sig ?? "").split(" / ").includes(ip)) continue;
+      if (doozianOnly() && !(p as any).doozian) continue;
+      if (typeChangedOnly() && !(p as any).typeChanged) continue;
 
       if (af.length > 0) {
         const sigItem = datasetData?.signatureItems[id];
@@ -247,36 +268,78 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
   const autoCompleteList = createMemo(() => Object.keys({ ...pokedex() }).toSorted());
 
+  // everything the search box can suggest, Pokemon first (like the Showdown dex)
+  const FILTERS = [
+    { label: "Signature Item", tag: "Filter", kind: "filter", value: "sig" },
+    { label: "Doozian Form", tag: "Filter", kind: "filter", value: "doozian" },
+    { label: "Type Changed", tag: "Filter", kind: "filter", value: "typeChanged" },
+  ];
+  const suggestions = createMemo(() => {
+    const pd = pokedex();
+    if (!pd) return [];
+    const ds = DATASET_IDS.find((i) => i.value === datasetId());
+    const items = new Set<string>();
+    for (const v of Object.values(ds?.signatureItems ?? {})) for (const i of v.split(" / ")) items.add(i);
+    return [
+      ...Object.values(pd).map((p) => ({ label: p.name, tag: "Pokémon", kind: "pokemon", value: p.name, rank: 0 })),
+      ...TYPES.filter((t) => t.value).map((t) => ({ label: t.label, tag: "Type", kind: "type", value: t.value, rank: 1 })),
+      ...abilityOptions().filter((o) => o.value).map((o) => ({ label: o.label, tag: "Ability", kind: "ability", value: o.value, rank: 2 })),
+      ...moveOptions().filter((o) => o.value).map((o) => ({ label: o.label, tag: "Move", kind: "move", value: o.value, rank: 3 })),
+      ...[...items].map((i) => ({ label: i, tag: "Item", kind: "item", value: i, rank: 4 })),
+      ...FILTERS.map((f) => ({ ...f, rank: 5 })),
+    ];
+  });
+  // a picked suggestion goes into the first free cell of its kind (a full row: the last cell is replaced)
+  const put = <T,>(list: T[], v: T, empty: (x: T) => boolean, same: (x: T) => boolean) => {
+    if (list.some(same)) return list;
+    const next = [...list];
+    const i = next.findIndex(empty);
+    next[i < 0 ? next.length - 1 : i] = v;
+    return next;
+  };
+  const pickSuggestion = (s: any) => {
+    if (s.kind === "pokemon") { setSearchText(s.value); return; }
+    setSearchText("");
+    if (s.kind === "type") setTypesFilter((l) => put(l, s.value, (x) => !x, (x) => x === s.value));
+    else if (s.kind === "ability") setAbilityFilter((l) => put(l, s.value, (x) => !x, (x) => x === s.value));
+    else if (s.kind === "move") setMovesFilter((l) => put(l, [s.value, true] as [string, boolean], (x) => !x[0], (x) => x[0] === s.value));
+    else if (s.kind === "item") setItemPick(s.value);
+    else if (s.value === "sig") setSigOnly(true);
+    else if (s.value === "doozian") setDoozianOnly(true);
+    else if (s.value === "typeChanged") setTypeChangedOnly(true);
+    setFiltersOpen(true);
+  };
+  // the cells' empty labels: (Type 1) (Type 2), (Ability 1-3), (Move 1-4)
+  const named = (opts: Option[], label: string) => [{ value: "", label }, ...opts.filter((o) => o.value)];
+
   return (
     <>
       <div class="flex flex-col gap-1 p-1 pt-0">
-        <div class="flex gap-1">
+        <div class="flex items-center gap-1">
           <Input
-            value={searchFilter()}
-            oninput={(e) => setSearchFilter(nameToId(e.currentTarget.value))}
-            autocompleteList={autoCompleteList()}
-            placeholder="Search..."
+            value={searchText()}
+            oninput={(e) => setSearchText(e.currentTarget.value)}
+            suggest={suggestions()}
+            onPick={pickSuggestion}
+            max={10}
+            placeholder="Search anything..."
+            title="Pokémon, types, abilities, moves, items, or a filter (Signature Item, Doozian Form, Type Changed)"
           />
-
-          <label
-            for="sig-item"
-            class="flex cursor-pointer items-center justify-center text-white/70"
+          <Button
+            class="flex-none px-1.5 text-xs whitespace-nowrap"
+            title={filtersOpen() ? "Hide the filters" : "Show the filters"}
+            onclick={() => setFiltersOpen(!filtersOpen())}
           >
-            Item
-          </label>
-
-          <Checkbox
-            id="sig-item"
-            checked={itemFilter()}
-            onchange={(e) => setItemFilter(Boolean(e.currentTarget.checked))}
-          />
+            Filters{activeCount() ? ` (${activeCount()})` : ""} {filtersOpen() ? "▴" : "▾"}
+          </Button>
         </div>
 
+        <Show when={filtersOpen()}>
         <div class="flex gap-1">
           <Index each={typesFilter()}>
             {(t, index) => (
               <Select
-                options={TYPES.toSorted((a, b) => a.label.localeCompare(b.label))}
+                options={named(TYPES.toSorted((a, b) => a.label.localeCompare(b.label)), `(Type ${index + 1})`)}
                 value={t()}
                 oninput={(e) =>
                   setTypesFilter((prev) => {
@@ -294,7 +357,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
           <Index each={abilityFilter()}>
             {(t, index) => (
               <Select
-                options={abilityOptions()}
+                options={named(abilityOptions(), `(Ability ${index + 1})`)}
                 value={t()}
                 oninput={(e) =>
                   setAbilityFilter((prev) => {
@@ -314,6 +377,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
               <div class="flex gap-1">
                 <Checkbox
                   checked={t()[1]}
+                  title="Ticked: learns it. Crossed: doesn't learn it"
                   onchange={(e) =>
                     setMovesFilter((prev) => {
                       const next = [...prev];
@@ -323,7 +387,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                   }
                 />
                 <Select
-                  options={moveOptions()}
+                  options={named(moveOptions(), `(Move ${index + 1})`)}
                   value={t()[0]}
                   oninput={(e) =>
                     setMovesFilter((prev) => {
@@ -337,6 +401,33 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             )}
           </Index>
         </div>
+
+        <div class="flex gap-1">
+          <Button class={cn("flex-1 text-xs", sigOnly() && "dz-filter-on font-bold")} onclick={() => setSigOnly(!sigOnly())}>
+            Signature Item
+          </Button>
+          <Button class={cn("flex-1 text-xs", doozianOnly() && "dz-filter-on font-bold")} onclick={() => setDoozianOnly(!doozianOnly())}>
+            Doozian Form
+          </Button>
+          <Button class={cn("flex-1 text-xs", typeChangedOnly() && "dz-filter-on font-bold")} onclick={() => setTypeChangedOnly(!typeChangedOnly())}>
+            Type Changed
+          </Button>
+        </div>
+
+        <Show when={itemPick() || activeCount()}>
+          <div class="flex items-center gap-1 text-xs">
+            <Show when={itemPick()}>
+              <span class="flex-1 truncate">
+                Holds: <b>{itemPick()}</b>{" "}
+                <button type="button" class="cursor-pointer opacity-70 hover:opacity-100" title="Remove" onClick={() => setItemPick("")}>✕</button>
+              </span>
+            </Show>
+            <button type="button" class="ml-auto cursor-pointer text-white/70 underline hover:text-white" onClick={clearFilters}>
+              Clear filters
+            </button>
+          </div>
+        </Show>
+        </Show>
 
         <div class="flex gap-1">
           <For each={ORDERS}>

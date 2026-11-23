@@ -1,13 +1,14 @@
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 
-export type Order = "num" | "a-z" | "pow" | "acc";
+export type Order = "eff" | "a-z" | "num" | "pow";
 
+// Effect = the order moves first appear in the Move Guide's categories (Priority ... Misc. Status)
 export const ORDERS: Option<Order>[] = [
-  { label: "#", value: "num" },
+  { label: "Effect", value: "eff" },
   { label: "A-Z", value: "a-z" },
+  { label: "Index #", value: "num" },
   { label: "Power", value: "pow" },
-  { label: "Acc", value: "acc" },
 ];
 
 export function ScreenMoves() {
@@ -91,8 +92,13 @@ export function ScreenMoves() {
     });
   });
 
-  const [order, setOrder] = createSignal<Order>("num");
-  const [reversed, setReversed] = createSignal(false);
+  // A-Z by default; the viewer's choice (and its direction) is remembered
+  const saved = (() => { try { return JSON.parse(localStorage.getItem("dzMoveSort") || "null"); } catch { return null; } })();
+  const [order, setOrderRaw] = createSignal<Order>(ORDERS.some((o) => o.value === saved?.o) ? saved.o : "a-z");
+  const [reversed, setReversedRaw] = createSignal<boolean>(!!saved?.r);
+  const remember = () => { try { localStorage.setItem("dzMoveSort", JSON.stringify({ o: order(), r: reversed() })); } catch { /* private mode */ } };
+  const setOrder = (o: Order) => { setOrderRaw(o); setReversedRaw(false); remember(); };
+  const setReversed = (f: (p: boolean) => boolean) => { setReversedRaw(f); remember(); };
 
   const sorted = createMemo(() => {
     const or = order();
@@ -123,9 +129,12 @@ export function ScreenMoves() {
         case "pow":
           i = b.power - a.power;
           break;
-        case "acc":
-          i = b.acc - a.acc;
+        case "eff": {
+          // moves not in the guide go last, A-Z
+          const ea = (a as any).effectOrder ?? 1e6, eb = (b as any).effectOrder ?? 1e6;
+          i = ea - eb || a.name.localeCompare(b.name);
           break;
+        }
       }
       return i * (reversed() ? -1 : 1);
     });
@@ -178,6 +187,7 @@ export function ScreenMoves() {
                 }
               >
                 {o.label}
+                {order() === o.value && <span class="text-[10px]"> {reversed() ? "▼" : "▲"}</span>}
               </Button>
             )}
           </For>

@@ -45,6 +45,13 @@ interface DatasetData {
 
 const VANILLA_ABILITIES: Record<string, TypeChart> = {
   "Dry Skin": { Fire: 1.25, Water: 0 },
+  "Sap Sipper": { Grass: 0 },
+  "Motor Drive": { Electric: 0 },
+  "Earth Eater": { Ground: 0 },
+  "Well-Baked Body": { Fire: 0 },
+  "Water Bubble": { Fire: 0.5 },
+  "Purifying Salt": { Ghost: 0.5 },
+  "Prism Armor": { "Super Effective": 0.75 },
   Filter: { "Super Effective": 0.75 },
   "Flash Fire": { Fire: 0 },
   Fluffy: { Fire: 2 },
@@ -130,6 +137,36 @@ const VANILLA_TYPE_CHART: Record<string, TypeChart> = {
 };
 const TCA = Object.keys(VANILLA_ABILITIES);
 
+// Remix abilities that change type matchups (same as the calc's gen 7 immunities)
+const REMIX_ABILITIES: Record<string, TypeChart> = {
+  Ethereal: { Dark: 0 },
+  Unmeltable: { Fire: 0 },
+  Hydration: { Water: 0 },
+  Trifecta: { Fire: 0, Ice: 0, Electric: 0 },
+  Purification: { Poison: 0 },
+  Sinister: { Fairy: 0 },
+};
+
+// Abilities that cut damage from certain moves rather than types: no type chart change, but the sidebar lists them
+// (with a *) and says what they do
+export const ABILITY_NOTES: Record<string, string> = {
+  "Wind Rider": "Immune to wind moves",
+  Bulletproof: "Immune to ball and bomb moves",
+  Soundproof: "Immune to sound moves",
+  "Punk Rock": "Takes half damage from sound moves",
+  "Queenly Majesty": "Immune to priority moves",
+  Dazzling: "Immune to priority moves",
+  "Armor Tail": "Immune to priority moves",
+  Swiftness: "Immune to priority moves",
+  Elegance: "Immune to priority moves",
+  "Ice Scales": "Takes half damage from special moves",
+  "Fur Coat": "Takes half damage from physical moves",
+  Multiscale: "Takes half damage at full HP",
+  "Shadow Shield": "Takes half damage at full HP",
+  Fluffy: "Takes half damage from contact moves (double from Fire)",
+  "Wonder Guard": "Only super effective moves hit it",
+};
+
 // Signature items from the calc's item effects: which Pokemon hold one, and the abilities it gives.
 // A Pokemon with several signature items gets one combined entry ("Metal Coat / Hard Stone").
 import sigItemsJson from "../../../../remix-data/signature_items.json";
@@ -162,14 +199,15 @@ export const DATASET_IDS: DatasetData[] = [
       ...VANILLA_TYPE_CHART,
       Ice: { ...VANILLA_TYPE_CHART.Ice, Ice: 0 },
       Fighting: { ...VANILLA_TYPE_CHART.Fighting, Bug: 1 },
-      Poison: { ...VANILLA_TYPE_CHART.Poison, Water: 2 },
+      Water: { ...VANILLA_TYPE_CHART.Water, Poison: 2 }, // Poison is super effective on Water
       Rock: { ...VANILLA_TYPE_CHART.Rock, Bug: 0.5 },
       Ghost: { ...VANILLA_TYPE_CHART.Ghost, Bug: 1 },
       Fairy: { ...VANILLA_TYPE_CHART.Fairy, Bug: 1 },
 
       "Shiny Scale": { Dragon: 0.5 },
+      ...REMIX_ABILITIES,
     },
-    tcAbilities: [...TCA],
+    tcAbilities: [...TCA, ...Object.keys(REMIX_ABILITIES)],
     tcItems: ["Shiny Scale"],
     tciOnlyIf: { "Shiny Scale": ["Ariados", "Spinarak"] },
   },

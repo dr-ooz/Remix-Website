@@ -3,16 +3,20 @@ import { splitProps } from "solid-js";
 // Edited copy (calc sidebar): no browser suggestion dropdown (it can't follow the theme).
 // Screens can opt in to a themed suggestion list with `suggest` (names to offer) and
 // `onPick` (called with the chosen name). `autocompleteList` is still accepted and ignored.
+// a suggestion: a plain name, or {label, tag} (tag = a small grey word on the right: "Type", "Move"...)
+export type Suggestion = string | { label: string; tag?: string; rank?: number; [k: string]: unknown };
 interface InputProps extends Solid.JSX.InputHTMLAttributes<HTMLInputElement> {
   autocompleteList?: string[];
-  suggest?: string[];
-  onPick?: (name: string) => void;
+  suggest?: Suggestion[];
+  onPick?: (item: any) => void;
+  max?: number;
 }
+const labelOf = (s: Suggestion) => (typeof s === "string" ? s : s.label);
 
 const key = (s: string) => s.normalize("NFD").toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export const Input = (props: InputProps) => {
-  const [local, rest] = splitProps(props, ["class", "autocompleteList", "suggest", "onPick", "oninput", "onInput"]);
+  const [local, rest] = splitProps(props, ["class", "autocompleteList", "suggest", "onPick", "oninput", "onInput", "max"]);
   const [text, setText] = createSignal("");
   const [open, setOpen] = createSignal(false);
   const [active, setActive] = createSignal(0);
@@ -21,18 +25,22 @@ export const Input = (props: InputProps) => {
   const matches = createMemo(() => {
     const q = key(text());
     if (!local.suggest || q.length < 2) return [];
-    const starts: string[] = [], has: string[] = [];
+    // exact names first, then names starting with it, then names containing it; within each, by rank (kind)
+    const exact: Suggestion[] = [], starts: Suggestion[] = [], has: Suggestion[] = [];
     for (const n of local.suggest) {
-      const k = key(n);
-      if (k === q) continue;
+      const k = key(labelOf(n));
+      if (k === q) { if (typeof n !== "string") exact.push(n); continue; }
       if (k.startsWith(q)) starts.push(n);
       else if (k.includes(q)) has.push(n);
     }
-    return [...starts, ...has].slice(0, 8);
+    const r = (x: Suggestion) => (typeof x === "string" ? 0 : x.rank ?? 0);
+    const by = (a: Suggestion, b: Suggestion) => r(a) - r(b);
+    return [...exact.sort(by), ...starts.sort(by), ...has.sort(by)].slice(0, local.max ?? 8);
   });
 
-  const pick = (n: string) => {
+  const pick = (n: Suggestion) => {
     setOpen(false);
+    if (typeof n !== "string") setText("");
     local.onPick?.(n);
   };
 
@@ -70,7 +78,10 @@ export const Input = (props: InputProps) => {
                 onMouseDown={(e) => { e.preventDefault(); pick(n); }}
                 onMouseEnter={() => setActive(i())}
               >
-                {n}
+                <span class="flex items-center justify-between gap-2">
+                  <span>{labelOf(n)}</span>
+                  {typeof n !== "string" && n.tag && <span class="text-[10px] italic opacity-60">{n.tag}</span>}
+                </span>
               </li>
             )}
           </For>
