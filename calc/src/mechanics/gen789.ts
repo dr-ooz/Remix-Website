@@ -2219,10 +2219,14 @@ export function calculateFinalModsSMSSSV(
 
   // Remix (gen 7): 1/4 damage from listed types
   if (gen.num === 7 && (
-    (defender.hasAbility("Rock-Solid") && move.hasType("Rock", "Ground", "Steel", "Fighting")) ||
     (defender.hasAbility("Permafrost") && move.hasType("Ice") && !defender.hasType("Ice")) ||
     (defender.hasAbility("Neurotoxin") && move.hasType("Psychic")))) {
     finalMods.push(1024);
+    desc.defenderAbility = defender.ability;
+  }
+  // Remix: Rock-Solid halves Rock/Ground/Steel/Fighting damage, quarters it if the holder is Rock-type
+  if (gen.num === 7 && defender.hasAbility("Rock-Solid") && move.hasType("Rock", "Ground", "Steel", "Fighting")) {
+    finalMods.push(defender.hasType("Rock") ? 1024 : 2048);
     desc.defenderAbility = defender.ability;
   }
   // Remix: Power Construct Complete form takes 1/4 from Fairy, 1/2 from Flying

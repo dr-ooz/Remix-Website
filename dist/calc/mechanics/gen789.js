@@ -1742,10 +1742,13 @@ function calculateFinalModsSMSSSV(gen, attacker, defender, move, field, desc, is
             desc.attackerItem = attacker.item;
         }
     }
-    if (gen.num === 7 && ((defender.hasAbility("Rock-Solid") && move.hasType("Rock", "Ground", "Steel", "Fighting")) ||
-        (defender.hasAbility("Permafrost") && move.hasType("Ice") && !defender.hasType("Ice")) ||
+    if (gen.num === 7 && ((defender.hasAbility("Permafrost") && move.hasType("Ice") && !defender.hasType("Ice")) ||
         (defender.hasAbility("Neurotoxin") && move.hasType("Psychic")))) {
         finalMods.push(1024);
+        desc.defenderAbility = defender.ability;
+    }
+    if (gen.num === 7 && defender.hasAbility("Rock-Solid") && move.hasType("Rock", "Ground", "Steel", "Fighting")) {
+        finalMods.push(defender.hasType("Rock") ? 1024 : 2048);
         desc.defenderAbility = defender.ability;
     }
     if (gen.num === 7 && defender.named("Zygarde-Complete") && defender.hasAbility("Power Construct") &&
