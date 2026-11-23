@@ -1,3 +1,4 @@
+import { CHART_TYPES, useCalcData } from "@/utils/calcData";
 const COLOURS = {
   8: "#4adaff",
   4: "#73D216",
@@ -45,34 +46,43 @@ export const ScreenTypeChart = () => {
     const p = mon();
     return p ? [p.types[0] ?? "", p.types[1] ?? ""] : ["", ""];
   };
-  // signature items with a type matchup effect (an immunity / resistance, an added type, or a granted ability that has one)
+  // the calc's own charts for this Pokemon (tools/build_sidebar_calc.js): "ability|item" -> multipliers
+  const calcData = useCalcData();
+  const charts = createMemo(() => (mon() && calcData()?.charts[nameToId(mon()!.name)]) || null);
+  // its signature items / abilities that change a matchup (per the calc), then the abilities that only stop certain
+  // moves (marked *)
   const monItems = createMemo(() => {
-    const d = dataset();
-    const list = (((mon() as any)?.typeItems ?? []) as { name: string; chart: Record<string, number>; abilities: string[]; addType?: string }[]);
-    return list.filter((i) => Object.keys(i.chart).length || i.addType || i.abilities.some((a) => d?.typeChart[a]));
+    const c = charts();
+    const names = [...new Set((((mon() as any)?.typeItems ?? []) as { name: string }[]).map((i) => i.name))];
+    return c ? names.filter((n) => Object.keys(c).some((k) => k.split("|")[1] === n)).map((name) => ({ name })) : [];
   });
-  // abilities: the ones that change the chart, then the ones that only stop certain moves (marked *)
+  // an ability changes the chart when it differs from the same item without it (not just because of the item)
+  const changesChart = (a: string) => {
+    const c = charts();
+    if (!c) return false;
+    const same = (x?: number[], y?: number[]) => (x ?? c["|"]!).every((v, i) => v === (y ?? c["|"]!)[i]);
+    return ["", ...monItems().map((i) => i.name)].some((it) => !same(c[a + "|" + it], c["|" + it]));
+  };
   const monAbilities = createMemo(() => {
-    const d = dataset(), p = mon();
-    if (!d || !p) return [] as string[];
-    const chart = p.abilities.filter((a) => a && d.typeChart[a] && !(TYPES as Option[]).some((t) => t.value === a));
+    const c = charts(), p = mon();
+    if (!p) return [] as string[];
+    const chart = p.abilities.filter((a) => a && changesChart(a));
     const notes = p.abilities.filter((a) => a && ABILITY_NOTES[a] && !chart.includes(a));
     return [...chart, ...notes];
   });
-
   const [abilityFilter, setAbilityFilter] = createSignal("");
   const [itemFilter, setItemFilter] = createSignal("");
   // a new Pokemon: its first chart-changing ability (else its first starred one), and its item
-  createEffect(on(mon, (p) => {
+  createEffect(on([mon, charts], () => {
     const d = dataset();
     const ab = monAbilities();
-    setAbilityFilter(ab.find((a) => d?.typeChart[a]) ?? ab[0] ?? "");
+    setAbilityFilter(ab.find((a) => charts()?.[a + "|"]) ?? ab.find(changesChart) ?? ab[0] ?? "");
     setItemFilter(monItems()[0]?.name ?? "");
   }));
 
   const abilityOptions = createMemo<Option[]>(() => [
     { label: "(Ability)", value: "" },
-    ...monAbilities().map((a) => ({ label: ABILITY_NOTES[a] && !dataset()?.typeChart[a] ? a + "*" : a, value: a })),
+    ...monAbilities().map((a) => ({ label: ABILITY_NOTES[a] && !changesChart(a) ? a + "*" : a, value: a })),
   ]);
   const itemOptions = createMemo<Option[]>(() => [
     { label: "(Item)", value: "" },
@@ -80,66 +90,24 @@ export const ScreenTypeChart = () => {
   ]);
   const note = () => ABILITY_NOTES[abilityFilter()] ?? "";
 
+  // the chart: the calc's value for the chosen ability + item; [value, changed by the ability / item]
   const matchUps = createMemo(() => {
-    const d = dataset();
-    if (!d) return {};
-
-    const [t1, t2] = typesFilter();
-
+    const c = charts();
     const o: Record<string, [number, boolean]> = {};
-    let superEffective = 1;
-    let superEffectiveFromStuff = false;
-
-    const x = (t: string, fromStuff = false) => {
-      const c = d.typeChart[t];
-      for (const a in c) {
-        const v = c[a as keyof typeof c];
-        if (v === undefined || v === 1) continue;
-
-        if (a === "Super Effective") {
-          superEffective *= v;
-          if (fromStuff) superEffectiveFromStuff = true;
-          continue;
-        }
-
-        o[a] ??= [1, false];
-        o[a][0] *= v;
-        if (fromStuff) o[a][1] = true;
-      }
-    };
-
-    for (const t of [t1, t2]) if (t) x(t);
-    if (abilityFilter() && d.typeChart[abilityFilter()]) x(abilityFilter(), true);
-    const it = monItems().find((i) => i.name === itemFilter());
-    if (it) {
-      if (it.addType && it.addType !== t1 && it.addType !== t2) x(it.addType, true);
-      for (const a of it.abilities) if (d.typeChart[a] && a !== abilityFilter()) x(a, true);
-      for (const [t, v] of Object.entries(it.chart)) {
-        o[t] ??= [1, false];
-        o[t][0] *= v;
-        o[t][1] = true;
-      }
-    }
-
-    if (superEffective !== 1) {
-      for (const a in o) {
-        if (o[a]![0] > 1) {
-          o[a]![0] *= superEffective;
-          if (superEffectiveFromStuff) o[a]![1] = true;
-        }
-      }
-    }
-
+    if (!c) return o;
+    const base = c["|"]!;
+    const cur = c[abilityFilter() + "|" + itemFilter()] ?? base;
+    CHART_TYPES.forEach((t, i) => { o[t] = [cur[i]!, cur[i] !== base[i]]; });
     return o;
   });
 
-  // Same order as the calc's type chart: biggest weakness first, then neutral, then resists
-  // (mild to strong), immunities last. Ties keep the normal type order.
+  // Same order as the calc's type chart: biggest weakness first, then neutral, then resists (mild to strong),
+  // immunities last; inside a group the ones the ability / item changed come first, then the normal type order.
   const sortedTypes = createMemo(() => {
     const m = matchUps();
     return TYPES.slice(1)
-      .map((t, i) => ({ t, i, x: m[t.value]?.[0] ?? 1 }))
-      .sort((a, b) => b.x - a.x || a.i - b.i)
+      .map((t, i) => ({ t, i, x: m[t.value]?.[0] ?? 1, f: m[t.value]?.[1] ? 1 : 0 }))
+      .sort((a, b) => b.x - a.x || b.f - a.f || a.i - b.i)
       .map((o) => o.t);
   });
 
@@ -193,7 +161,10 @@ export const ScreenTypeChart = () => {
               const v = () => matchUps()[t.value]?.[0] ?? 1;
               const f = () => matchUps()[t.value]?.[1] ?? false;
               return (
-                <div class="flex aspect-2/3 flex-col overflow-hidden rounded-xs border">
+                <div
+                  class={cn("flex aspect-2/3 flex-col overflow-hidden rounded-xs border", f() && "dz-tc-from")}
+                  title={f() ? `${t.value}: changed by ${[abilityFilter(), itemFilter()].filter(Boolean).join(" / ")}` : undefined}
+                >
                   <div class="flex-1 border-b">
                     <Type type={t.value} />
                   </div>
@@ -205,7 +176,7 @@ export const ScreenTypeChart = () => {
                     }}
                   >
                     {v()}
-                    {f() && "*"}
+                    {f() && <span class="dz-tc-star">*</span>}
                   </div>
                 </div>
               );

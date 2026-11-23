@@ -87,3 +87,13 @@ select optgroup {
   background: color-mix(in srgb, var(--color-white) 18%, transparent);
   outline: 1px solid color-mix(in srgb, var(--color-white) 55%, transparent);
 }
+
+/* type chart: a matchup changed by the ability / item: a thin gold outline + a gold star (same as the calc's chart) */
+.dz-tc-from {
+  border-color: #e9c46a !important;
+  box-shadow: 0 0 0 1px #e9c46a;
+}
+.dz-tc-star {
+  color: #f2cd6b;
+  margin-left: 1px;
+}

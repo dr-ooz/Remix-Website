@@ -1310,3 +1310,7 @@ body.rse-on #rx-nav { position: static; } /* the sheet editor's toolbar owns the
 .rx-nav-logo img { height: 66px; }
 .rx-nav-right img { height: 54px; }
 body.rx-nav-pinned .rx-nav-logo img { height: 34px; }
+
+/* a matchup changed by the ability / item: a thin gold outline + a gold star (same as the DoozDex sidebar) */
+.tc-cell.tc-cell-from { box-shadow: 0 0 0 1.5px #e9c46a; border-radius: 3px; }
+.tc-val.tc-from::after { color: #f2cd6b; opacity: 1; }

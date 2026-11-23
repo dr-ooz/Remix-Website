@@ -297,7 +297,7 @@ if os.path.exists(guide_path):
     def _plain(h):
         return _html.unescape(re.sub(r"<[^>]+>", "", h))
 
-    in_cat, eff = False, []
+    in_cat, eff, cats = False, [], []  # cats: [{name, moves}] in guide order (for the sidebar's Effect categories window)
     for r in guide["rows"]:
         if r.get("zone") not in (None, "body"):
             continue
@@ -305,6 +305,8 @@ if os.path.exists(guide_path):
             in_cat = False
         if r["k"] == "h1" and r.get("cat"):
             in_cat = True
+            cname = re.split(r"\s*\(", _plain(re.split(r"<br>|\n", r["c"][0][3])[0]).strip())[0].strip()
+            cats.append({"name": cname, "moves": []})
         if in_cat and r["k"] == "row" and len(r["c"]) >= 8:
             first = _plain(re.split(r"<br>|\n", r["c"][0][3])[0])
             if re.match(r"(?i)^move name$", first.strip()):
@@ -312,8 +314,12 @@ if os.path.exists(guide_path):
             mid = to_id(first.split(">")[-1].replace("*", "").strip())
             if mid in moves and mid not in eff:
                 eff.append(mid)
+            if mid in moves and cats and mid not in cats[-1]["moves"]:
+                cats[-1]["moves"].append(mid)
     for i, mid in enumerate(eff):
         moves[mid]["effectOrder"] = i
+    with open(os.path.join(OUT, "effect_cats.json"), "w", encoding="utf8") as f:
+        json.dump([c for c in cats if c["moves"]], f, ensure_ascii=False, separators=(",", ":"))
 
 # Filters: "Type Changed" (types differ from the original game's) and "Doozian Form" (Dooz's new / renamed
 # Pokemon and forms). The original types come from the calc's species data before the Remix data is applied.
@@ -386,10 +392,47 @@ if os.path.exists(fx_path):
                         entry["addType"] = add_type
                     p.setdefault("typeItems", []).append(entry)
 
+# Signature items for the Pokemon list's item groups: icon id (the site's img/items/bitem_<id>.png), the in-game
+# description, and a rank for the "semi-signature" items that go first (everyone gets something from them; their
+# holders get more): the 18 type boosters, weather rocks, terrain seeds, then the rest of Dooz's list.
+SEMI_SIGNATURE = ["Silk Scarf", "Charcoal", "Mystic Water", "Magnet", "Miracle Seed", "Never-Melt Ice", "Black Belt",
+                  "Poison Barb", "Soft Sand", "Sharp Beak", "Twisted Spoon", "Silver Powder", "Hard Stone", "Spell Tag",
+                  "Dragon Fang", "Black Glasses", "Metal Coat", "Fairy Flower",
+                  "Heat Rock", "Damp Rock", "Smooth Rock", "Icy Rock",
+                  "Electric Seed", "Psychic Seed", "Misty Seed", "Grassy Seed",
+                  "Spoiled Milk", "Chi Bracelet", "Kaleidoscope"]
+icons_js = os.path.join(CALC, "src", "js", "remix_item_icons.js")
+icon_ids = {}
+if os.path.exists(icons_js):
+    src = open(icons_js, encoding="utf8").read()
+    m = re.search(r"REMIX_ITEM_ICON_IDS = (\{.*?\});", src)
+    icon_ids = json.loads(m.group(1)) if m else {}
+    # stand-in icons (remix_minisprite.js REMIX_ITEM_ICON_OVERRIDES)
+    ms = os.path.join(CALC, "src", "js", "remix_minisprite.js")
+    mtxt = open(ms, encoding="utf8").read() if os.path.exists(ms) else ""
+    om = re.search(r"REMIX_ITEM_ICON_OVERRIDES = \{(.*?)\};", mtxt, re.S)
+    for k, v in re.findall(r"(\w+): (\d+)", om.group(1) if om else ""):
+        icon_ids[k] = int(v)
+descs_path = os.path.join(CALC, "remix-data", "item_descs.json")
+item_descs = json.load(open(descs_path, encoding="utf8")) if os.path.exists(descs_path) else {}
+sig_items = json.load(open(os.path.join(CALC, "remix-data", "signature_items.json"), encoding="utf8"))
+item_info = {}
+for name in sig_items:
+    key = re.sub(r"[^a-z0-9]", "", unicodedata.normalize("NFD", name).lower())
+    info = {"icon": icon_ids.get(key), "desc": item_descs.get(name, "")}
+    if name in SEMI_SIGNATURE:
+        info["semi"] = SEMI_SIGNATURE.index(name)
+    item_info[name] = info
+with open(os.path.join(OUT, "items.json"), "w", encoding="utf8") as f:
+    json.dump(item_info, f, ensure_ascii=False, separators=(",", ":"))
+
 with open(os.path.join(OUT, "data.json"), "w", encoding="utf8") as f:
     json.dump({"pokedex": pokedex, "moves": moves, "sheetId": ""}, f, ensure_ascii=False, separators=(",", ":"))
 
 print(f"DoozDex sidebar data: {len(pokedex)} Pokemon, {len(moves)} moves, {sprites_done} sprites -> {OUT}")
+# type charts + effective move power from the calc's own engine (calc_data.json), so the sidebar matches the calc
+import subprocess
+subprocess.run(["node", os.path.join(CALC, "tools", "build_sidebar_calc.js")], check=False)
 missing = [p["name"] for k, p in pokedex.items() if not os.path.exists(os.path.join(SPRITES_OUT, k + ".png"))]
 if missing:
     print(f"No calc sprite for {len(missing)}: " + ", ".join(missing[:25]) + (" ..." if len(missing) > 25 else ""))

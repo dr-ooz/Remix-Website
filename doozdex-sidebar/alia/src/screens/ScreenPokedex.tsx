@@ -2,6 +2,7 @@ import { statBars, setStatBars, ROW_H_BARS } from "../components/Pokemon";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 import type { JSX } from "solid-js/jsx-runtime";
+import { useItemInfo, itemIconUrl } from "@/utils/calcData";
 
 type Order = "num" | "a-z" | "hp" | "atk" | "def" | "spa" | "spd" | "spe" | "bst";
 
@@ -17,7 +18,11 @@ const ORDERS: Option<Order>[] = [
   { label: "BST", value: "bst" },
 ];
 
-type PokemonRowItem = { type: "item"; data: PokemonData; famStart?: boolean } | { type: "header"; label: string };
+type PokemonRowItem =
+  | { type: "item"; data: PokemonData; famStart?: boolean }
+  | { type: "header"; label: string }
+  | { type: "itemhead"; name: string; icon: string; desc: string };
+const ITEM_HEAD_H = 74; // an item's row: its icon + up to 4 lines of its in-game description
 
 export const ScreenPokedex = (props: { datasetId: string }) => {
   onMount(() => useOPT()![1](null));
@@ -43,15 +48,19 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
   const [doozianOnly, setDoozianOnly] = createSignal(false);
   const [typeChangedOnly, setTypeChangedOnly] = createSignal(false);
   const [itemPick, setItemPick] = createSignal("");
+  // Mega: only Mega Evolutions, each under its base form (the base forms can be hidden)
+  const [megaOnly, setMegaOnly] = createSignal(false);
+  const [hideBase, setHideBase] = createSignal(false);
+  const itemInfo = useItemInfo();
   // the filter block can fold away (remembered)
   const [filtersOpen, setFiltersOpenRaw] = createSignal((() => { try { return localStorage.getItem("dzFiltersOpen") !== "0"; } catch { return true; } })());
   const setFiltersOpen = (v: boolean) => { setFiltersOpenRaw(v); try { localStorage.setItem("dzFiltersOpen", v ? "1" : "0"); } catch { /* private mode */ } };
   const activeCount = () =>
     typesFilter().filter(Boolean).length + abilityFilter().filter(Boolean).length + movesFilter().filter((m) => m[0]).length +
-    (sigOnly() ? 1 : 0) + (doozianOnly() ? 1 : 0) + (typeChangedOnly() ? 1 : 0) + (itemPick() ? 1 : 0);
+    (sigOnly() ? 1 : 0) + (doozianOnly() ? 1 : 0) + (typeChangedOnly() ? 1 : 0) + (itemPick() ? 1 : 0) + (megaOnly() ? 1 : 0);
   const clearFilters = () => {
     setTypesFilter(["", ""]); setAbilityFilter(["", "", ""]); setMovesFilter([["", true], ["", true], ["", true], ["", true]]);
-    setSigOnly(false); setDoozianOnly(false); setTypeChangedOnly(false); setItemPick("");
+    setSigOnly(false); setDoozianOnly(false); setTypeChangedOnly(false); setItemPick(""); setMegaOnly(false);
   };
 
   const [movesFilter, setMovesFilter] = createSignal<[string, boolean][]>([
@@ -166,6 +175,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       if (ip && !(sig ?? "").split(" / ").includes(ip)) continue;
       if (doozianOnly() && !(p as any).doozian) continue;
       if (typeChangedOnly() && !(p as any).typeChanged) continue;
+      if (megaOnly() && !/-Mega(-[XY])?$/.test(p.name)) continue;
 
       if (af.length > 0) {
         const sigItem = datasetData?.signatureItems[id];
@@ -252,13 +262,55 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       }
     }
 
-    return result;
+    let rows = result;
+
+    // Mega: each Mega under its base form (once per base: Charizard over both Megas), unless base forms are hidden
+    if (megaOnly() && !hideBase()) {
+      const seen = new Set<string>(), out: PokemonRowItem[] = [];
+      for (const r of rows) {
+        if (r.type === "item") {
+          const base = data[nameToId((r.data as any).baseSpecies || r.data.name.replace(/-Mega(-[XY])?$/, ""))];
+          if (base && !seen.has(base.name)) {
+            seen.add(base.name);
+            out.push({ type: "item", data: base, famStart: out.length > 0 });
+          }
+          out.push({ ...r, famStart: false });
+        } else out.push(r);
+      }
+      rows = out;
+    }
+
+    // Signature Item / a picked item: the Pokemon grouped by item, each group under a row with the item's icon and
+    // in-game description. Semi-signature items (type boosters, weather rocks, seeds...) first, the rest by dex order.
+    if (sigOnly() || ip) {
+      const info = itemInfo() ?? {};
+      const mons = [...rows.filter((r) => r.type === "item").map((r) => (r as any).data as PokemonData), ...signatureItemMons];
+      const groups = new Map<string, PokemonData[]>();
+      mons.forEach((p) => {
+        for (const it of (datasetData?.signatureItems[nameToId(p.name)] ?? "").split(" / ")) {
+          if (!it || (ip && it !== ip)) continue;
+          if (!groups.has(it)) groups.set(it, []);
+          if (!groups.get(it)!.includes(p)) groups.get(it)!.push(p);
+        }
+      });
+      const firstAt = (it: string) => mons.indexOf(groups.get(it)![0]!);
+      const items = [...groups.keys()].sort((a, b) =>
+        (info[a]?.semi ?? 1e3) - (info[b]?.semi ?? 1e3) || firstAt(a) - firstAt(b));
+      rows = [];
+      for (const it of items) {
+        rows.push({ type: "itemhead", name: it, icon: itemIconUrl(info[it]?.icon), desc: info[it]?.desc ?? "" });
+        groups.get(it)!.forEach((p, i, l) =>
+          rows.push({ type: "item", data: p, famStart: i > 0 && (p as any).family !== (l[i - 1] as any).family }));
+      }
+    }
+
+    return rows;
   });
 
   // how many Pokemon are listed, and how many separate evolution lines they come from (Megas count as their base)
   const counts = createMemo(() => {
     const pd = pokedex();
-    const shown = groupedAndSorted().filter((r) => r.type === "item").map((r) => (r as any).data as PokemonData);
+    const shown = [...new Set(groupedAndSorted().filter((r) => r.type === "item").map((r) => (r as any).data as PokemonData))];
     if (!pd) return { mons: shown.length, lines: 0 };
     const byName: Record<string, any> = {};
     for (const p of Object.values(pd)) byName[p.name] = p;
@@ -278,11 +330,11 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       return groupedAndSorted()?.length ?? 0;
     },
     getScrollElement: () => parentRef,
-    estimateSize: () => (statBars() ? ROW_H_BARS : 58),
+    estimateSize: (i) => (groupedAndSorted()[i]?.type === "itemhead" ? ITEM_HEAD_H : statBars() ? ROW_H_BARS : 58),
   });
 
   // row height changes with the stat display: re-measure the list when it's switched
-  createEffect(on(statBars, () => virtualizer.measure(), { defer: true }));
+  createEffect(on([statBars, groupedAndSorted], () => virtualizer.measure(), { defer: true }));
 
   const autoCompleteList = createMemo(() => Object.keys({ ...pokedex() }).toSorted());
 
@@ -291,6 +343,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     { label: "Signature Item", tag: "Filter", kind: "filter", value: "sig" },
     { label: "Doozian Form", tag: "Filter", kind: "filter", value: "doozian" },
     { label: "Type Changed", tag: "Filter", kind: "filter", value: "typeChanged" },
+    { label: "Mega", tag: "Filter", kind: "filter", value: "mega" },
   ];
   const suggestions = createMemo(() => {
     const pd = pokedex();
@@ -325,6 +378,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     else if (s.value === "sig") setSigOnly(true);
     else if (s.value === "doozian") setDoozianOnly(true);
     else if (s.value === "typeChanged") setTypeChangedOnly(true);
+    else if (s.value === "mega") setMegaOnly(true);
     setFiltersOpen(true);
   };
   // the cells' empty labels: (Type 1) (Type 2), (Ability 1-3), (Move 1-4)
@@ -344,11 +398,14 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             title="Pokémon, types, abilities, moves, items, or a filter (Signature Item, Doozian Form, Type Changed)"
           />
           <Button
-            class="flex-none px-1.5 text-xs whitespace-nowrap"
+            class="flex-none px-1.5 py-0 whitespace-nowrap"
             title={filtersOpen() ? "Hide the filters" : "Show the filters"}
             onclick={() => setFiltersOpen(!filtersOpen())}
           >
-            Filters{activeCount() ? ` (${activeCount()})` : ""} {filtersOpen() ? "▴" : "▾"}
+            <span class="flex flex-col text-[10px] leading-[1.05]">
+              <span>{filtersOpen() ? "Hide" : "Show"}</span>
+              <span>Filters{activeCount() ? ` (${activeCount()})` : ""}</span>
+            </span>
           </Button>
         </div>
 
@@ -430,7 +487,15 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
           <Button class={cn("flex-1 text-xs", typeChangedOnly() && "dz-filter-on font-bold")} onclick={() => setTypeChangedOnly(!typeChangedOnly())}>
             Type Changed
           </Button>
+          <Button class={cn("flex-none px-2 text-xs", megaOnly() && "dz-filter-on font-bold")} onclick={() => setMegaOnly(!megaOnly())}>
+            Mega
+          </Button>
         </div>
+        <Show when={megaOnly()}>
+          <Button class="text-xs" onclick={() => setHideBase(!hideBase())}>
+            {hideBase() ? "Base forms hidden (show them)" : "Base forms shown (hide them)"}
+          </Button>
+        </Show>
 
         <Show when={itemPick() || activeCount()}>
           <div class="flex items-center gap-1 text-xs">
@@ -489,6 +554,18 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                   <div class="dz-family-line pointer-events-none absolute right-0 left-0" style={{ "z-index": 50 }} />
                 </Show>
                 <Pokemon data={d.data} datasetId={props.datasetId} sheetId={sheetId()!} />
+              </div>
+            ) : d.type === "itemhead" ? (
+              <div class="dz-itemhead flex h-full items-center gap-2 border-b px-2">
+                <div
+                  class="h-12 w-12 flex-none bg-contain bg-center bg-no-repeat"
+                  style={{ "background-image": d.icon ? `url(${d.icon})` : undefined, "image-rendering": "pixelated" }}
+                  title={d.name}
+                />
+                <div class="min-w-0 flex-auto">
+                  <div class="text-[13px] leading-tight font-bold">{d.name}</div>
+                  <div class="line-clamp-4 text-[11px] leading-[1.2] text-white/80">{d.desc}</div>
+                </div>
               </div>
             ) : (
               <div class="flex h-full flex-col items-center justify-center border-b text-center">

@@ -158,7 +158,9 @@ function remixUpdateTypeChart(info, defender, field) {
 			cell.attr("title", t[0] + ": 0x (blocked by " + why + ")");
 			return;
 		}
-		order.push({cell: cell, x: isNaN(x) ? 1 : x, i: i});
+		var ord = {cell: cell, x: isNaN(x) ? 1 : x, i: i, f: 0};
+		order.push(ord);
+		cell.removeClass("tc-cell-from");
 		if (isNaN(x)) { v.text("–").attr("class", "tc-val"); cell.removeAttr("title"); return; }
 		var from = [];
 		if (x !== p) {
@@ -167,12 +169,15 @@ function remixUpdateTypeChart(info, defender, field) {
 			if (!from.length) from.push(defender.item || defender.ability); // only both together change it
 		}
 		v.text(remixTCText(x)).attr("class", "tc-val " + remixTCClass(x) + (from.length ? " tc-from" : ""));
+		cell.toggleClass("tc-cell-from", !!from.length);
+		ord.f = from.length ? 1 : 0;
 		cell.attr("title", t[0] + ": " + (x === 1 ? "neutral" : remixTCText(x)) +
 			(from.length ? " (types alone: " + (p === 1 ? "neutral" : remixTCText(p)) + "; changed by " + from.join(" + ") + ")" : ""));
 	});
 	// Sort: biggest weakness first, then neutral, then resists (mild to strong), immunities last.
 	// Ties keep the normal type order. 0 sorts below every resist on its own (0 < 0.0625).
-	order.sort(function (a, b) { return b.x - a.x || a.i - b.i; });
+	// Inside a group, the matchups the ability / item changed come first.
+	order.sort(function (a, b) { return b.x - a.x || (b.f || 0) - (a.f || 0) || a.i - b.i; });
 	var grid = chart.find(".tc-grid");
 	order.forEach(function (o) { grid.append(o.cell); });
 }

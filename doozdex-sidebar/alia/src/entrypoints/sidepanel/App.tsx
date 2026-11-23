@@ -68,7 +68,7 @@ const Layout = () => {
             <a href="https://alicedcodes.github.io" target="_blank" rel="noopener" class="font-bold text-[#c9a6ef] underline">
               Alia
             </a>{" "}
-            for her work on the sidebar functionality!
+            for her help on the sidebar functionality!
           </span>
         </div>
         <Button
