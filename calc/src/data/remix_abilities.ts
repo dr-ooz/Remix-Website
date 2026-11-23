@@ -75,7 +75,7 @@ export const REMIX_ABILITIES: string[] = [
  "Swiftness",
  "Pure Power",
  "Oblivious",
- "Air Lock",
+ "Plague",
  "Tangled Feet",
  "Motor Drive",
  "Rivalry",

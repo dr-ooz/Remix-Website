@@ -470,7 +470,7 @@ Serious Nature
 - Play Nice
 
 Rattata
-Ability: Teleportation
+Ability: Plague
 Level: 8
 Serious Nature
 - Pummel
@@ -3598,7 +3598,7 @@ Hardy Nature
 - Charm
 
 Raticate @ Sitrus Berry
-Ability: Teleportation
+Ability: Plague
 Level: 23
 Hardy Nature
 - Rage
@@ -5785,7 +5785,7 @@ Serious Nature
 - Flame Wheel
 
 Raticate @ Sitrus Berry
-Ability: Teleportation
+Ability: Plague
 Level: 55
 Serious Nature
 - Fake Out
@@ -13009,10 +13009,10 @@ Timid Nature
 
 Seaking
 Ability: Lightning Rod
-Level: 51
+Level: 100
 Serious Nature
-- Sludge Fling
-- Seed Flare
+- Spectral Beam
+- Hydro Pump
 
 Jolteon @ Focus Sash
 Ability: Sinister
@@ -13815,7 +13815,7 @@ IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe
 === [gen7] Team Rainbow Rocket Grunt (#595) ===
 
 Raticate
-Ability: Teleportation
+Ability: Plague
 Level: 62
 Serious Nature
 IVs: 15 HP / 15 Atk / 15 Def / 15 SpA / 15 SpD / 15 Spe

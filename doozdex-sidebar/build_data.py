@@ -71,7 +71,7 @@ SKIP = {"gourgeist", "gourgeistlarge", "mimikyubusted"}  # Gourgeist: only Small
 SIDEBAR_HIDE = {"giratina", "giratinaorigin", "necrozmadawnwings", "necrozmaduskmane", "necrozmaultra", "mewtwomega"}
 
 # Base forms that should still show their form name.
-FORM_LABEL = {"oricorio": "Baile", "lycanroc": "Midday"}
+FORM_LABEL = {"oricorio": "Baile", "lycanroc": "Midday", "raticate": "Rabid"}
 
 # Calc sprite files whose names don't follow the usual pattern.
 SPRITE_ALIAS = {"nidoranf": "nidoran-f", "nidoranm": "nidoran-m", "basculinblue": "basculin-blue-striped",
@@ -153,7 +153,7 @@ for i, d in enumerate(dex):
         continue
     name = renamed(raw)
     if "Totem" in name:
-        continue  # no Totem forms (judged by the final name: Raticate-Mega was a Totem slot)
+        continue  # no Totem forms (judged by the final name: Raticate-Plague is a Totem slot)
     pid = to_id(name)
     if pid in pokedex or pid in SKIP or pid in SIDEBAR_HIDE:
         continue  # first entry wins (duplicate form slots)

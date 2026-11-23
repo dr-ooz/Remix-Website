@@ -40,7 +40,7 @@ var REMIX_SPECIES_RENAMES = {
   "Kecleon": "Guzzleon",
   "Meloetta": "Meloetta-Techno",
   "Persian-Alola": "Persian-Mega",
-  "Raticate-Alola-Totem": "Raticate-Mega",
+  "Raticate-Alola-Totem": "Raticate-Plague",
   "Amaura": "Primora",
   "Mewtwo-Mega-Y": "Mewtwo-Mega",
   "Burmy": "Burmy-Plant",

@@ -206,6 +206,9 @@ export class Pokemon implements State.Pokemon {
     const form = this.name.split('-').slice(1).join('-');
     switch (this.ability as string) {
     case 'Neurotoxin': return ['Merciless', 'Poisonous'];
+    // Remix: Plague (Raticate line) = Infectious + Poisonous; the Plague form (Black Sludge, Lv 40+) also gets Innards
+    // Out (its Ghost-type -ate and the Merciless-below-20% part are in the damage code)
+    case 'Plague': return this.name === 'Raticate-Plague' ? ['Infectious', 'Poisonous', 'Innards Out'] : ['Infectious', 'Poisonous'];
     case 'Masterpiece': return ['Versatility', 'Technician', 'Skill Link'];
     case 'Hibernation': return ['Soporific', 'Permafrost', 'Snow Warning'];
     case 'Scribble': return ['Prankster'];

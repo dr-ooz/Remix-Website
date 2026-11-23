@@ -4,7 +4,7 @@ Squirtle, Wartortle, Blastoise, Blastoise-Mega
 Caterpie, Metapod, Venomoth
 Venonat, Butterfree
 Combee, Vespiquen, Beedrill, Beedrill-Mega
-Rattata, Raticate, Raticate-Mega
+Rattata, Raticate, Raticate-Plague
 Pidgey, Pidgeot, Pidgeot-Mega
 Spearow, Fearow, Skarmory
 Doduo, Dodrio

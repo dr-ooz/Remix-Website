@@ -127,7 +127,9 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
             (gen.num === 7 && !!move.remix && move.remix.highCrit &&
                 (attacker.hasItem("Scope Lens", "Razor Claw") || attacker.hasAbility("Super Luck"))) ||
             (attacker.hasAbility("Merciless") &&
-                (gen.num === 7 ? !!defender.status : defender.hasStatus("psn", "tox")))) &&
+                (gen.num === 7 ? !!defender.status : defender.hasStatus("psn", "tox"))) ||
+            (gen.num === 7 && attacker.hasAbility("Plague") && attacker.named("Raticate-Plague") && !!defender.status &&
+                attacker.curHP() <= Math.floor(attacker.maxHP() / 5))) &&
         move.timesUsed === 1;
     var type = move.type;
     if (move.named("Weather Ball")) {
@@ -240,6 +242,9 @@ function calculateSMSSSV(gen, attacker, defender, move, field) {
         }
         else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("Incinerate") && normal)) {
             type = "Fire";
+        }
+        else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("Plague") && attacker.named("Raticate-Plague") && normal)) {
+            type = "Ghost";
         }
         else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("RKS System") && normal)) {
             type = attacker.types[0];

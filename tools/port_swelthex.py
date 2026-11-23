@@ -175,6 +175,8 @@ def calc_species_names(calc, hexdir, dry, report):
 # into a generated override table (RemixForms.cs) that GetFormList applies for Gen 7: species -> (form index, name).
 MINIOR = ["Twinkle", "Blaze", "Surge", "Verdant", "Frost", "Tidal", "Draco"]  # game colour order Red/Pink..Violet, the calc's names
 EXTRA_FORMS = {412: [(1, "Sand"), (2, "Snow")],  # Burmy cloaks (not separate calc entries; see species_renames.json)
+               # Raticate: form 0 = Rabid, form 1 = an unused dummy, form 2 = Plague (the game's Totem slot, a real form now)
+               20: [(0, "Rabid"), (1, "Unused"), (2, "Plague")],
                # Minior: the 7 Meteor shells (forms 0-6) and 7 cores (7-13) all use the calc's colour names
                774: [(i, "M-" + n) for i, n in enumerate(MINIOR)] + [(7 + i, n) for i, n in enumerate(MINIOR)]}
 
@@ -213,7 +215,8 @@ def remix_forms(calc, hexdir, dry, report):
           "        if (!Names.TryGetValue(species, out var names))\n            return list;\n"
           "        var result = new List<string>(list);\n"
           "        foreach (var (form, name) in names)\n        {\n"
-          "            if (FormInfo.IsTotemForm(species, (byte)form, EntityContext.Gen7))\n                continue; // Remix: Totem forms can't be picked\n"
+          "            if (FormInfo.IsTotemForm(species, (byte)form, EntityContext.Gen7) && !(species == 20 && form == 2))\n"
+          "                continue; // Remix: Totem forms can't be picked (except Raticate's Plague form, which uses that slot)\n"
           "            while (result.Count <= form)\n                result.Add(string.Empty);\n"
           "            result[form] = name;\n        }\n"
           "        return result.ToArray();\n    }\n}\n")
@@ -364,6 +367,28 @@ def extra_sprites():
     return out
 
 
+def register_sprites(hexdir, dry, report):
+    """PKHeX only loads a box sprite that is listed in the sprite project's Resources.resx (b_20-2.png -> "b_20_2").
+    Sprites for forms vanilla PKHeX never had (Raticate's Plague form in the Totem slot...) are added here; without
+    an entry PKHeX shows its fallback (the base sprite with a Poke Ball)."""
+    resx = os.path.join(hexdir, "PKHeX.Drawing.PokeSprite", "Properties", "Resources.resx")
+    folder = os.path.join(hexdir, "PKHeX.Drawing.PokeSprite", "Resources", "img", "Big Pokemon Sprites")
+    text = open(resx, encoding="utf-8").read()
+    have = set(re.findall(r'<data name="(b_[^"]+)"', text))
+    add = []
+    for f in sorted(os.listdir(folder)):
+        m = re.match(r"(b_[\w-]+)\.png$", f)
+        if m and m.group(1).replace("-", "_") not in have:
+            add.append((m.group(1).replace("-", "_"), f))
+    entry = ('  <data name="%s" type="System.Resources.ResXFileRef, System.Windows.Forms">\n'
+             '    <value>..\\Resources\\img\\Big Pokemon Sprites\\%s;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, '
+             'Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>\n  </data>\n')
+    if add and not dry:
+        text = text.replace("</root>", "".join(entry % a for a in add) + "</root>", 1)
+        open(resx, "w", encoding="utf-8", newline="").write(text)
+    report.append("sprite resources: %d new box sprites registered (%s)" % (len(add), ", ".join(a[0] for a in add[:12])))
+
+
 def write_sprite(icon, num, n, img, dry):
     """b_<num>[-<form>].png: the minisprite at box scale, bottom-centre on PKHeX's 68x56 canvas. Any stock female
     variant (b_<num>f.png, e.g. Hippopotas) gets the same Remix sprite."""
@@ -436,6 +461,7 @@ def sprites(calc, hexdir, dry, report):
         write_sprite(icon, num, n, img, dry)
         done += 1
     report.append("species sprites: %d written, %d without a calc sprite: %s" % (done, len(missing), ", ".join(missing[:40])))
+    register_sprites(hexdir, dry, report)
     isrc, idone = os.path.join(calc, "dist", "img", "items"), 0
     for f in os.listdir(isrc):
         if not re.match(r"bitem_\d+\.png$", f):

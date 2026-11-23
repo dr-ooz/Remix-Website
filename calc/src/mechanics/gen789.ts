@@ -170,7 +170,10 @@ export function calculateSMSSSV(
       (gen.num === 7 && !!(move as any).remix && (move as any).remix.highCrit &&
         (attacker.hasItem("Scope Lens", "Razor Claw") || attacker.hasAbility("Super Luck"))) ||
       (attacker.hasAbility("Merciless") &&
-        (gen.num === 7 ? !!defender.status : defender.hasStatus("psn", "tox")))) &&
+        (gen.num === 7 ? !!defender.status : defender.hasStatus("psn", "tox"))) ||
+      // Remix: Plague form = Merciless (crits a statused target) only at 1/5 HP or less
+      (gen.num === 7 && attacker.hasAbility("Plague") && attacker.named("Raticate-Plague") && !!defender.status &&
+        attacker.curHP() <= Math.floor(attacker.maxHP() / 5))) &&
     move.timesUsed === 1;
 
   let type = move.type;
@@ -290,6 +293,8 @@ export function calculateSMSSSV(
       if (!attacker.hasAbility("Trifecta")) desc.attackerItem = attacker.item;
     } else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("Incinerate") && normal)) {
       type = "Fire"; // Remix: Incinerate = Normal -> Fire, 1.2x
+    } else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("Plague") && attacker.named("Raticate-Plague") && normal)) {
+      type = "Ghost"; // Remix: Plague form = Ghost-type Aerilate (Normal -> Ghost, 1.2x)
     } else if ((isRemixAte = gen.num === 7 && attacker.hasAbility("RKS System") && normal)) {
       type = attacker.types[0]; // Remix: Normal moves match its Memory type, 1.2x
     } else if (gen.num === 7 && normal && attacker.hasAbility("Star Power") &&

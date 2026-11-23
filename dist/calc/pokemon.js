@@ -237,6 +237,7 @@ var Pokemon = (function () {
         var form = this.name.split('-').slice(1).join('-');
         switch (this.ability) {
             case 'Neurotoxin': return ['Merciless', 'Poisonous'];
+            case 'Plague': return this.name === 'Raticate-Plague' ? ['Infectious', 'Poisonous', 'Innards Out'] : ['Infectious', 'Poisonous'];
             case 'Masterpiece': return ['Versatility', 'Technician', 'Skill Link'];
             case 'Hibernation': return ['Soporific', 'Permafrost', 'Snow Warning'];
             case 'Scribble': return ['Prankster'];
