@@ -280,6 +280,13 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
     let rows = result;
 
+    // Doozian forms: the new Pokemon (new pre-evolutions / evolutions of their own) go last, after a divider
+    if (doozState() === 1) {
+      const isNew = (r: PokemonRowItem) => r.type === "item" && !!(r.data as any).doozianNew;
+      const news = rows.filter(isNew);
+      if (news.length) rows = [...rows.filter((r) => !isNew(r)), { type: "header", label: "New Pokémon (Doozian pre-evolutions & evolutions)" }, ...news.map((r) => ({ ...(r as any), famStart: false }))];
+    }
+
     // Mega: each Mega under its base form (once per base: Charizard over both Megas), unless base forms are hidden
     if (megaOnly() && !hideBase()) {
       const seen = new Set<string>(), out: PokemonRowItem[] = [];
@@ -679,9 +686,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             ) : (
               <div class="flex h-full flex-col items-center justify-center border-b text-center">
                 <div class="text-xs font-bold">{d.label}</div>
-                <div class="text-xs">
-                  To see full effects of the item, click the Pokemon's icon!
-                </div>
+                <Show when={!d.label.startsWith("New Pokémon")}>
+                  <div class="text-xs">To see full effects of the item, click the Pokemon's icon!</div>
+                </Show>
               </div>
             )
           }

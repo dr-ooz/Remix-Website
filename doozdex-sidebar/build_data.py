@@ -344,8 +344,8 @@ if os.path.exists(species_src):
         t = re.search(r"types: \[([^\]]*)\]", line)
         if t and cur:
             vanilla[cur] = [a or b for a, b in re.findall(r"'([^']+)'|\"([^\"]+)\"", t.group(1))]
-    # not Doozian forms, but Dooz redesigned them a bit: they don't count as "Unchanged" (list to come from Dooz)
-    REDESIGNED = set()
+    dz_path = os.path.join(CALC, "remix-data", "doozian_forms.json")
+    dz_list = json.load(open(dz_path, encoding="utf8")) if os.path.exists(dz_path) else None
     # names that only differ in label from the original game (not new Pokemon)
     LABEL_ONLY = {"Farfetch’d", "Nidoran", "Burmy-Plant", "Burmy-Sand", "Burmy-Snow", "Wormadam-Plant", "Wormadam-Sand",
                   "Wormadam-Snow", "Gastrodon-West", "Basculin-Blue", "Aegislash", "Zygarde-50%", "Oricorio-Pa'u",
@@ -362,10 +362,16 @@ if os.path.exists(species_src):
         if old and old != p["types"]:
             p["typeChanged"] = True
             p["vanillaTypes"] = old
-        if p["name"] not in vanilla and p["name"] not in LABEL_ONLY:
+        # Doozian forms (Dooz's list, remix-data/doozian_forms.json); without the list: anything not in the original game
+        if dz_list is not None:
+            if p["name"] in dz_list["doozian"] or p["name"] in dz_list["new"]:
+                p["doozian"] = True
+            if p["name"] in dz_list["new"]:
+                p["doozianNew"] = True
+            if p["name"] in dz_list["redesigned"]:
+                p["redesigned"] = True
+        elif p["name"] not in vanilla and p["name"] not in LABEL_ONLY:
             p["doozian"] = True
-        elif p["name"] in REDESIGNED:
-            p["redesigned"] = True
 
 # Signature items that change type matchups (from the calc's item effects): immunities, resistances, Cell Battery's
 # Trifecta, and abilities the item grants (Fairy Flower -> Sap Sipper). The sidebar's type chart loads them.

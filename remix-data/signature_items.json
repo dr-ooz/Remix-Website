@@ -427,6 +427,14 @@
    "Adaptability"
   ]
  },
+ "Shell Bell": {
+  "holders": [
+   "Lapras"
+  ],
+  "abilities": [
+   "Oblivious"
+  ]
+ },
  "Rusty Anchor": {
   "holders": [
    "Dhelmise"
@@ -668,6 +676,15 @@
   ],
   "abilities": [
    "Headstrong"
+  ]
+ },
+ "Spoiled Milk": {
+  "holders": [
+   "Miltank"
+  ],
+  "abilities": [
+   "Poison Heal",
+   "Regenerator"
   ]
  },
  "Root Fossil": {
