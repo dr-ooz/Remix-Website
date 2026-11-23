@@ -17,6 +17,25 @@ const darkShade = (hex: string) => {
   return "#" + rgb.map((v) => ("0" + Math.round((v + m) * 255).toString(16)).slice(-2)).join("");
 };
 
+// The outline's grow radius. Browsers round a morphology radius UP to whole screen pixels, so a fixed "1.1px"
+// draws 2 screen pixels per side at 100% scaling (too thick) but looks thinner on a scaled-up screen. This picks
+// the radius that comes out as one CSS pixel's worth of whole screen pixels at the current scale, and re-applies
+// it when the page zoom / screen scale changes.
+const outlineRadius = () => {
+  const dpr = (typeof window !== "undefined" && window.devicePixelRatio) || 1;
+  return ((Math.max(1, Math.round(dpr)) / dpr) - 0.02).toFixed(3);
+};
+if (typeof window !== "undefined" && window.matchMedia) {
+  const watch = () => {
+    const mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+    mq.addEventListener?.("change", () => {
+      document.querySelectorAll("#rx-type-filters feMorphology").forEach((m) => m.setAttribute("radius", outlineRadius()));
+      watch();
+    }, { once: true });
+  };
+  watch();
+}
+
 // One SVG filter per type: the symbol grown evenly by a fraction of a pixel (feMorphology), filled with the
 // dark shade, under the symbol. Even all the way round (stacked drop-shadows thickened it unevenly).
 const made = new Set<string>();
@@ -41,7 +60,7 @@ const outlineFilter = (type: string, colour: string) => {
     f.setAttribute("width", "120%");
     f.setAttribute("height", "120%");
     f.innerHTML =
-      `<feMorphology in="SourceAlpha" operator="dilate" radius="0.55" result="grown"/>` +
+      `<feMorphology in="SourceAlpha" operator="dilate" radius="${outlineRadius()}" result="grown"/>` +
       `<feFlood flood-color="${darkShade(colour)}"/><feComposite in2="grown" operator="in" result="edge"/>` +
       `<feMerge><feMergeNode in="edge"/><feMergeNode in="SourceGraphic"/></feMerge>`;
     host.appendChild(f);
