@@ -61,6 +61,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
   const [formsFlip, setFormsFlip] = createSignal<Record<string, boolean>>({});
   // item groups: "Show only items" folds every group; each item's arrow folds / opens just that one
   const [itemsOnly, setItemsOnly] = createSignal(false);
+  // Doozian filter: which section comes first (remembered)
+  const [dzFirst, setDzFirstRaw] = createSignal<string>((() => { try { return localStorage.getItem("dzDoozianFirst") || "main"; } catch { return "main"; } })());
+  const setDzFirst = (v: string) => { setDzFirstRaw(v); try { localStorage.setItem("dzDoozianFirst", v); } catch { /* private mode */ } };
   const [itemFlip, setItemFlip] = createSignal<Record<string, boolean>>({});
   const [itemPick, setItemPick] = createSignal("");
   // Mega: only Mega Evolutions, each under its base form (the base forms can be hidden)
@@ -309,11 +312,14 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       const main = rows.filter((r) => r.type === "item" && !onlyNew.has(r.data.name)).map((r) => (r as any).data as PokemonData);
       const pick = (names?: string[]) => (names ?? []).map((n) => byName.get(n)).filter(Boolean) as PokemonData[];
       const news = pick(DOOZIAN_ORDER.newOrder), renamed = pick(DOOZIAN_ORDER.renamed);
-      rows = [
-        ...lines(main, or === "num"),
-        ...(news.length ? [{ type: "header", label: "New Pokémon", sub: "Doozian pre-evolutions & evolutions" } as PokemonRowItem, ...lines(news, true)] : []),
-        ...(renamed.length ? [{ type: "header", label: "Renamed" } as PokemonRowItem, ...lines(renamed, true)] : []),
-      ];
+      const sections: Record<string, PokemonRowItem[]> = {
+        main: main.length ? [{ type: "header", label: "Doozian Forms" } as PokemonRowItem, ...lines(main, or === "num")] : [],
+        new: news.length ? [{ type: "header", label: "New Pokémon", sub: "Doozian pre-evolutions & evolutions" } as PokemonRowItem, ...lines(news, true)] : [],
+        renamed: renamed.length ? [{ type: "header", label: "Renamed" } as PokemonRowItem, ...lines(renamed, true)] : [],
+      };
+      // the chosen section first, the others in their usual order after it
+      const first = dzFirst();
+      rows = [first, ...["main", "new", "renamed"].filter((k) => k !== first)].flatMap((k) => sections[k] ?? []);
     }
 
     // Mega: each Mega under its base form (once per base: Charizard over both Megas), unless base forms are hidden
@@ -664,6 +670,20 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             <div class="text-xs font-normal text-white/70">
               {counts().mons} Pokémon · {counts().lines} evolution line{counts().lines === 1 ? "" : "s"}
             </div>
+            <Show when={doozState() === 1}>
+              <label class="mx-auto mt-0.5 flex items-center gap-1 text-[11px] font-normal">
+                <span class="text-white/60">Show first:</span>
+                <select
+                  class="cursor-pointer rounded border bg-black px-1"
+                  value={dzFirst()}
+                  onChange={(e) => { setDzFirst(e.currentTarget.value); parentRef?.scrollTo({ top: 0 }); }}
+                >
+                  <option value="main">Doozian Forms</option>
+                  <option value="new">New Pokémon</option>
+                  <option value="renamed">Renamed</option>
+                </select>
+              </label>
+            </Show>
             <Show when={megaOnly()}>
               <button type="button" class="mx-auto cursor-pointer text-xs font-normal text-white/80 underline hover:text-white" onClick={() => setHideBase(!hideBase())}>
                 {hideBase() ? "Base forms hidden (click to show)" : "Base forms shown (click to hide)"}
