@@ -1,0 +1,3314 @@
+{
+"Bulbasaur": [
+11,
+3
+],
+"Ivysaur": [
+11,
+3
+],
+"Venusaur": [
+11,
+3
+],
+"Venusaur-Mega": [
+11,
+3
+],
+"Charmander": [
+9
+],
+"Charmeleon": [
+9
+],
+"Charizard": [
+9,
+2
+],
+"Charizard-Mega-X": [
+9,
+15
+],
+"Charizard-Mega-Y": [
+9,
+2
+],
+"Squirtle": [
+10
+],
+"Wartortle": [
+10
+],
+"Blastoise": [
+10
+],
+"Blastoise-Mega": [
+10
+],
+"Caterpie": [
+6
+],
+"Metapod": [
+6
+],
+"Butterfree": [
+6,
+2
+],
+"Weedle": [
+6,
+3
+],
+"Kakuna": [
+6,
+3
+],
+"Beedrill": [
+6,
+3
+],
+"Beedrill-Mega": [
+6,
+3
+],
+"Pidgey": [
+0,
+2
+],
+"Pidgeotto": [
+0,
+2
+],
+"Pidgeot": [
+0,
+2
+],
+"Pidgeot-Mega": [
+0,
+2
+],
+"Rattata": [
+0
+],
+"Rattata-Alola": [
+16,
+0
+],
+"Raticate": [
+0
+],
+"Raticate-Alola": [
+16,
+0
+],
+"Raticate-Alola-Totem": [
+16,
+0
+],
+"Spearow": [
+0,
+2
+],
+"Fearow": [
+0,
+2
+],
+"Ekans": [
+3
+],
+"Arbok": [
+3
+],
+"Pikachu": [
+12
+],
+"Raichu": [
+12
+],
+"Raichu-Alola": [
+12,
+13
+],
+"Sandshrew": [
+4
+],
+"Sandshrew-Alola": [
+14,
+8
+],
+"Sandslash": [
+4
+],
+"Sandslash-Alola": [
+14,
+8
+],
+"NidoranF": [
+3
+],
+"Nidorina": [
+3
+],
+"Nidoqueen": [
+3,
+4
+],
+"NidoranM": [
+3
+],
+"Nidorino": [
+3
+],
+"Nidoking": [
+3,
+4
+],
+"Clefairy": [
+17
+],
+"Clefable": [
+17
+],
+"Vulpix": [
+9
+],
+"Vulpix-Alola": [
+14
+],
+"Ninetales": [
+9
+],
+"Ninetales-Alola": [
+14,
+17
+],
+"Jigglypuff": [
+0,
+17
+],
+"Wigglytuff": [
+0,
+17
+],
+"Zubat": [
+3,
+2
+],
+"Golbat": [
+3,
+2
+],
+"Oddish": [
+11,
+3
+],
+"Gloom": [
+11,
+3
+],
+"Vileplume": [
+11,
+3
+],
+"Paras": [
+6,
+11
+],
+"Parasect": [
+6,
+11
+],
+"Venonat": [
+6,
+3
+],
+"Venomoth": [
+6,
+3
+],
+"Diglett": [
+4
+],
+"Diglett-Alola": [
+4,
+8
+],
+"Dugtrio": [
+4
+],
+"Dugtrio-Alola": [
+4,
+8
+],
+"Meowth": [
+0
+],
+"Meowth-Alola": [
+16
+],
+"Persian": [
+0
+],
+"Persian-Alola": [
+16
+],
+"Psyduck": [
+10
+],
+"Golduck": [
+10
+],
+"Mankey": [
+1
+],
+"Primeape": [
+1
+],
+"Growlithe": [
+9
+],
+"Arcanine": [
+9
+],
+"Poliwag": [
+10
+],
+"Poliwhirl": [
+10
+],
+"Poliwrath": [
+10,
+1
+],
+"Abra": [
+13
+],
+"Kadabra": [
+13
+],
+"Alakazam": [
+13
+],
+"Alakazam-Mega": [
+13
+],
+"Machop": [
+1
+],
+"Machoke": [
+1
+],
+"Machamp": [
+1
+],
+"Bellsprout": [
+11,
+3
+],
+"Weepinbell": [
+11,
+3
+],
+"Victreebel": [
+11,
+3
+],
+"Tentacool": [
+10,
+3
+],
+"Tentacruel": [
+10,
+3
+],
+"Geodude": [
+5,
+4
+],
+"Geodude-Alola": [
+5,
+12
+],
+"Graveler": [
+5,
+4
+],
+"Graveler-Alola": [
+5,
+12
+],
+"Golem": [
+5,
+4
+],
+"Golem-Alola": [
+5,
+12
+],
+"Ponyta": [
+9
+],
+"Rapidash": [
+9
+],
+"Slowpoke": [
+10,
+13
+],
+"Slowbro": [
+10,
+13
+],
+"Slowbro-Mega": [
+10,
+13
+],
+"Magnemite": [
+12,
+8
+],
+"Magneton": [
+12,
+8
+],
+"Farfetch’d": [
+0,
+2
+],
+"Doduo": [
+0,
+2
+],
+"Dodrio": [
+0,
+2
+],
+"Seel": [
+10
+],
+"Dewgong": [
+10,
+14
+],
+"Grimer": [
+3
+],
+"Grimer-Alola": [
+3,
+16
+],
+"Muk": [
+3
+],
+"Muk-Alola": [
+3,
+16
+],
+"Shellder": [
+10
+],
+"Cloyster": [
+10,
+14
+],
+"Gastly": [
+7,
+3
+],
+"Haunter": [
+7,
+3
+],
+"Gengar": [
+7,
+3
+],
+"Gengar-Mega": [
+7,
+3
+],
+"Onix": [
+5,
+4
+],
+"Drowzee": [
+13
+],
+"Hypno": [
+13
+],
+"Krabby": [
+10
+],
+"Kingler": [
+10
+],
+"Voltorb": [
+12
+],
+"Electrode": [
+12
+],
+"Exeggcute": [
+11,
+13
+],
+"Exeggutor": [
+11,
+13
+],
+"Exeggutor-Alola": [
+11,
+15
+],
+"Cubone": [
+4
+],
+"Marowak": [
+4
+],
+"Marowak-Alola": [
+9,
+7
+],
+"Marowak-Alola-Totem": [
+9,
+7
+],
+"Hitmonlee": [
+1
+],
+"Hitmonchan": [
+1
+],
+"Lickitung": [
+0
+],
+"Koffing": [
+3
+],
+"Weezing": [
+3
+],
+"Rhyhorn": [
+4,
+5
+],
+"Rhydon": [
+4,
+5
+],
+"Chansey": [
+0
+],
+"Tangela": [
+11
+],
+"Kangaskhan": [
+0
+],
+"Kangaskhan-Mega": [
+0
+],
+"Horsea": [
+10
+],
+"Seadra": [
+10
+],
+"Goldeen": [
+10
+],
+"Seaking": [
+10
+],
+"Staryu": [
+10
+],
+"Starmie": [
+10,
+13
+],
+"Mr. Mime": [
+13,
+17
+],
+"Scyther": [
+6,
+2
+],
+"Jynx": [
+14,
+13
+],
+"Electabuzz": [
+12
+],
+"Magmar": [
+9
+],
+"Pinsir": [
+6
+],
+"Pinsir-Mega": [
+6,
+2
+],
+"Tauros": [
+0
+],
+"Magikarp": [
+10
+],
+"Gyarados": [
+10,
+2
+],
+"Gyarados-Mega": [
+10,
+16
+],
+"Lapras": [
+10,
+14
+],
+"Ditto": [
+0
+],
+"Eevee": [
+0
+],
+"Vaporeon": [
+10
+],
+"Jolteon": [
+12
+],
+"Flareon": [
+9
+],
+"Porygon": [
+0
+],
+"Omanyte": [
+5,
+10
+],
+"Omastar": [
+5,
+10
+],
+"Kabuto": [
+5,
+10
+],
+"Kabutops": [
+5,
+10
+],
+"Aerodactyl": [
+5,
+2
+],
+"Aerodactyl-Mega": [
+5,
+2
+],
+"Snorlax": [
+0
+],
+"Articuno": [
+14,
+2
+],
+"Zapdos": [
+12,
+2
+],
+"Moltres": [
+9,
+2
+],
+"Dratini": [
+15
+],
+"Dragonair": [
+15
+],
+"Dragonite": [
+15,
+2
+],
+"Mew": [
+13
+],
+"Chikorita": [
+11
+],
+"Bayleef": [
+11
+],
+"Meganium": [
+11
+],
+"Cyndaquil": [
+9
+],
+"Quilava": [
+9
+],
+"Typhlosion": [
+9
+],
+"Totodile": [
+10
+],
+"Croconaw": [
+10
+],
+"Feraligatr": [
+10
+],
+"Sentret": [
+0
+],
+"Furret": [
+0
+],
+"Hoothoot": [
+0,
+2
+],
+"Noctowl": [
+0,
+2
+],
+"Ledyba": [
+6,
+2
+],
+"Ledian": [
+6,
+2
+],
+"Spinarak": [
+6,
+3
+],
+"Ariados": [
+6,
+3
+],
+"Crobat": [
+3,
+2
+],
+"Chinchou": [
+10,
+12
+],
+"Lanturn": [
+10,
+12
+],
+"Pichu": [
+12
+],
+"Cleffa": [
+17
+],
+"Igglybuff": [
+0,
+17
+],
+"Togepi": [
+17
+],
+"Togetic": [
+17,
+2
+],
+"Natu": [
+13,
+2
+],
+"Xatu": [
+13,
+2
+],
+"Mareep": [
+12
+],
+"Flaaffy": [
+12
+],
+"Ampharos": [
+12
+],
+"Ampharos-Mega": [
+12,
+15
+],
+"Bellossom": [
+11
+],
+"Marill": [
+10,
+17
+],
+"Azumarill": [
+10,
+17
+],
+"Sudowoodo": [
+5
+],
+"Politoed": [
+10
+],
+"Hoppip": [
+11,
+2
+],
+"Skiploom": [
+11,
+2
+],
+"Jumpluff": [
+11,
+2
+],
+"Aipom": [
+0
+],
+"Sunkern": [
+11
+],
+"Sunflora": [
+11
+],
+"Yanma": [
+6,
+2
+],
+"Wooper": [
+10,
+4
+],
+"Quagsire": [
+10,
+4
+],
+"Espeon": [
+13
+],
+"Umbreon": [
+16
+],
+"Murkrow": [
+16,
+2
+],
+"Slowking": [
+10,
+13
+],
+"Misdreavus": [
+7
+],
+"Unown": [
+13
+],
+"Wobbuffet": [
+13
+],
+"Girafarig": [
+0,
+13
+],
+"Pineco": [
+6
+],
+"Forretress": [
+6,
+8
+],
+"Dunsparce": [
+0
+],
+"Gligar": [
+4,
+2
+],
+"Steelix": [
+8,
+4
+],
+"Steelix-Mega": [
+8,
+4
+],
+"Snubbull": [
+17
+],
+"Granbull": [
+17
+],
+"Qwilfish": [
+10,
+3
+],
+"Scizor": [
+6,
+8
+],
+"Scizor-Mega": [
+6,
+8
+],
+"Shuckle": [
+6,
+5
+],
+"Heracross": [
+6,
+1
+],
+"Heracross-Mega": [
+6,
+1
+],
+"Sneasel": [
+16,
+14
+],
+"Teddiursa": [
+0
+],
+"Ursaring": [
+0
+],
+"Slugma": [
+9
+],
+"Magcargo": [
+9,
+5
+],
+"Swinub": [
+14,
+4
+],
+"Piloswine": [
+14,
+4
+],
+"Corsola": [
+10,
+5
+],
+"Remoraid": [
+10
+],
+"Octillery": [
+10
+],
+"Delibird": [
+14,
+2
+],
+"Mantine": [
+10,
+2
+],
+"Skarmory": [
+8,
+2
+],
+"Houndour": [
+16,
+9
+],
+"Houndoom": [
+16,
+9
+],
+"Houndoom-Mega": [
+16,
+9
+],
+"Kingdra": [
+10,
+15
+],
+"Phanpy": [
+4
+],
+"Donphan": [
+4
+],
+"Porygon2": [
+0
+],
+"Stantler": [
+0
+],
+"Smeargle": [
+0
+],
+"Tyrogue": [
+1
+],
+"Hitmontop": [
+1
+],
+"Smoochum": [
+14,
+13
+],
+"Elekid": [
+12
+],
+"Magby": [
+9
+],
+"Miltank": [
+0
+],
+"Blissey": [
+0
+],
+"Raikou": [
+12
+],
+"Entei": [
+9
+],
+"Suicune": [
+10
+],
+"Larvitar": [
+5,
+4
+],
+"Pupitar": [
+5,
+4
+],
+"Tyranitar": [
+5,
+16
+],
+"Tyranitar-Mega": [
+5,
+16
+],
+"Lugia": [
+13,
+2
+],
+"Ho-Oh": [
+9,
+2
+],
+"Celebi": [
+13,
+11
+],
+"Treecko": [
+11
+],
+"Grovyle": [
+11
+],
+"Sceptile": [
+11
+],
+"Sceptile-Mega": [
+11,
+15
+],
+"Torchic": [
+9
+],
+"Combusken": [
+9,
+1
+],
+"Blaziken": [
+9,
+1
+],
+"Blaziken-Mega": [
+9,
+1
+],
+"Mudkip": [
+10
+],
+"Marshtomp": [
+10,
+4
+],
+"Swampert": [
+10,
+4
+],
+"Swampert-Mega": [
+10,
+4
+],
+"Poochyena": [
+16
+],
+"Mightyena": [
+16
+],
+"Zigzagoon": [
+0
+],
+"Linoone": [
+0
+],
+"Wurmple": [
+6
+],
+"Silcoon": [
+6
+],
+"Beautifly": [
+6,
+2
+],
+"Cascoon": [
+6
+],
+"Dustox": [
+6,
+3
+],
+"Lotad": [
+10,
+11
+],
+"Lombre": [
+10,
+11
+],
+"Ludicolo": [
+10,
+11
+],
+"Seedot": [
+11
+],
+"Nuzleaf": [
+11,
+16
+],
+"Shiftry": [
+11,
+16
+],
+"Taillow": [
+0,
+2
+],
+"Swellow": [
+0,
+2
+],
+"Wingull": [
+10,
+2
+],
+"Pelipper": [
+10,
+2
+],
+"Ralts": [
+13,
+17
+],
+"Kirlia": [
+13,
+17
+],
+"Gardevoir": [
+13,
+17
+],
+"Gardevoir-Mega": [
+13,
+17
+],
+"Surskit": [
+6,
+10
+],
+"Masquerain": [
+6,
+2
+],
+"Shroomish": [
+11
+],
+"Breloom": [
+11,
+1
+],
+"Slakoth": [
+0
+],
+"Vigoroth": [
+0
+],
+"Slaking": [
+0
+],
+"Nincada": [
+6,
+4
+],
+"Ninjask": [
+6,
+2
+],
+"Shedinja": [
+6,
+7
+],
+"Whismur": [
+0
+],
+"Loudred": [
+0
+],
+"Exploud": [
+0
+],
+"Makuhita": [
+1
+],
+"Hariyama": [
+1
+],
+"Azurill": [
+0,
+17
+],
+"Nosepass": [
+5
+],
+"Skitty": [
+0
+],
+"Delcatty": [
+0
+],
+"Sableye": [
+16,
+7
+],
+"Sableye-Mega": [
+16,
+7
+],
+"Mawile": [
+8,
+17
+],
+"Mawile-Mega": [
+8,
+17
+],
+"Aron": [
+8,
+5
+],
+"Lairon": [
+8,
+5
+],
+"Aggron": [
+8,
+5
+],
+"Aggron-Mega": [
+8
+],
+"Meditite": [
+1,
+13
+],
+"Medicham": [
+1,
+13
+],
+"Medicham-Mega": [
+1,
+13
+],
+"Electrike": [
+12
+],
+"Manectric": [
+12
+],
+"Manectric-Mega": [
+12
+],
+"Plusle": [
+12
+],
+"Minun": [
+12
+],
+"Volbeat": [
+6
+],
+"Illumise": [
+6
+],
+"Roselia": [
+11,
+3
+],
+"Gulpin": [
+3
+],
+"Swalot": [
+3
+],
+"Carvanha": [
+10,
+16
+],
+"Sharpedo": [
+10,
+16
+],
+"Sharpedo-Mega": [
+10,
+16
+],
+"Wailmer": [
+10
+],
+"Wailord": [
+10
+],
+"Numel": [
+9,
+4
+],
+"Camerupt": [
+9,
+4
+],
+"Camerupt-Mega": [
+9,
+4
+],
+"Torkoal": [
+9
+],
+"Spoink": [
+13
+],
+"Grumpig": [
+13
+],
+"Spinda": [
+0
+],
+"Trapinch": [
+4
+],
+"Vibrava": [
+4,
+15
+],
+"Flygon": [
+4,
+15
+],
+"Cacnea": [
+11
+],
+"Cacturne": [
+11,
+16
+],
+"Swablu": [
+0,
+2
+],
+"Altaria": [
+15,
+2
+],
+"Altaria-Mega": [
+15,
+17
+],
+"Zangoose": [
+0
+],
+"Seviper": [
+3
+],
+"Lunatone": [
+5,
+13
+],
+"Solrock": [
+5,
+13
+],
+"Barboach": [
+10,
+4
+],
+"Whiscash": [
+10,
+4
+],
+"Corphish": [
+10
+],
+"Crawdaunt": [
+10,
+16
+],
+"Baltoy": [
+4,
+13
+],
+"Claydol": [
+4,
+13
+],
+"Lileep": [
+5,
+11
+],
+"Cradily": [
+5,
+11
+],
+"Anorith": [
+5,
+6
+],
+"Armaldo": [
+5,
+6
+],
+"Feebas": [
+10
+],
+"Milotic": [
+10
+],
+"Castform": [
+0
+],
+"Castform-Sunny": [
+9
+],
+"Castform-Rainy": [
+10
+],
+"Castform-Snowy": [
+14
+],
+"Kecleon": [
+0
+],
+"Shuppet": [
+7
+],
+"Banette": [
+7
+],
+"Banette-Mega": [
+7
+],
+"Duskull": [
+7
+],
+"Dusclops": [
+7
+],
+"Tropius": [
+11,
+2
+],
+"Chimecho": [
+13
+],
+"Absol": [
+16
+],
+"Absol-Mega": [
+16
+],
+"Wynaut": [
+13
+],
+"Snorunt": [
+14
+],
+"Glalie": [
+14
+],
+"Glalie-Mega": [
+14
+],
+"Spheal": [
+14,
+10
+],
+"Sealeo": [
+14,
+10
+],
+"Walrein": [
+14,
+10
+],
+"Clamperl": [
+10
+],
+"Huntail": [
+10
+],
+"Gorebyss": [
+10
+],
+"Relicanth": [
+10,
+5
+],
+"Luvdisc": [
+10
+],
+"Bagon": [
+15
+],
+"Shelgon": [
+15
+],
+"Salamence": [
+15,
+2
+],
+"Salamence-Mega": [
+15,
+2
+],
+"Beldum": [
+8,
+13
+],
+"Metang": [
+8,
+13
+],
+"Metagross": [
+8,
+13
+],
+"Metagross-Mega": [
+8,
+13
+],
+"Regirock": [
+5
+],
+"Regice": [
+14
+],
+"Registeel": [
+8
+],
+"Latias": [
+15,
+13
+],
+"Latias-Mega": [
+15,
+13
+],
+"Latios": [
+15,
+13
+],
+"Latios-Mega": [
+15,
+13
+],
+"Jirachi": [
+8,
+13
+],
+"Deoxys": [
+13
+],
+"Deoxys-Attack": [
+13
+],
+"Deoxys-Defense": [
+13
+],
+"Deoxys-Speed": [
+13
+],
+"Turtwig": [
+11
+],
+"Grotle": [
+11
+],
+"Torterra": [
+11,
+4
+],
+"Chimchar": [
+9
+],
+"Monferno": [
+9,
+1
+],
+"Infernape": [
+9,
+1
+],
+"Piplup": [
+10
+],
+"Prinplup": [
+10
+],
+"Empoleon": [
+10,
+8
+],
+"Starly": [
+0,
+2
+],
+"Staravia": [
+0,
+2
+],
+"Staraptor": [
+0,
+2
+],
+"Bidoof": [
+0
+],
+"Bibarel": [
+0,
+10
+],
+"Kricketot": [
+6
+],
+"Kricketune": [
+6
+],
+"Shinx": [
+12
+],
+"Luxio": [
+12
+],
+"Luxray": [
+12
+],
+"Budew": [
+11,
+3
+],
+"Roserade": [
+11,
+3
+],
+"Cranidos": [
+5
+],
+"Rampardos": [
+5
+],
+"Shieldon": [
+5,
+8
+],
+"Bastiodon": [
+5,
+8
+],
+"Burmy": [
+6
+],
+"Wormadam": [
+6,
+11
+],
+"Wormadam-Sandy": [
+6,
+4
+],
+"Wormadam-Trash": [
+6,
+8
+],
+"Mothim": [
+6,
+2
+],
+"Combee": [
+6,
+2
+],
+"Vespiquen": [
+6,
+2
+],
+"Pachirisu": [
+12
+],
+"Buizel": [
+10
+],
+"Floatzel": [
+10
+],
+"Cherubi": [
+11
+],
+"Cherrim": [
+11
+],
+"Cherrim-Sunshine": [
+11
+],
+"Shellos": [
+10
+],
+"Shellos-East": [
+10
+],
+"Gastrodon": [
+10,
+4
+],
+"Gastrodon-East": [
+10,
+4
+],
+"Ambipom": [
+0
+],
+"Drifloon": [
+7,
+2
+],
+"Drifblim": [
+7,
+2
+],
+"Buneary": [
+0
+],
+"Lopunny": [
+0
+],
+"Lopunny-Mega": [
+0,
+1
+],
+"Mismagius": [
+7
+],
+"Honchkrow": [
+16,
+2
+],
+"Glameow": [
+0
+],
+"Purugly": [
+0
+],
+"Chingling": [
+13
+],
+"Stunky": [
+3,
+16
+],
+"Skuntank": [
+3,
+16
+],
+"Bronzor": [
+8,
+13
+],
+"Bronzong": [
+8,
+13
+],
+"Bonsly": [
+5
+],
+"Mime Jr.": [
+13,
+17
+],
+"Happiny": [
+0
+],
+"Chatot": [
+0,
+2
+],
+"Spiritomb": [
+7,
+16
+],
+"Gible": [
+15,
+4
+],
+"Gabite": [
+15,
+4
+],
+"Garchomp": [
+15,
+4
+],
+"Garchomp-Mega": [
+15,
+4
+],
+"Munchlax": [
+0
+],
+"Riolu": [
+1
+],
+"Lucario": [
+1,
+8
+],
+"Lucario-Mega": [
+1,
+8
+],
+"Hippopotas": [
+4
+],
+"Hippowdon": [
+4
+],
+"Skorupi": [
+3,
+6
+],
+"Drapion": [
+3,
+16
+],
+"Croagunk": [
+3,
+1
+],
+"Toxicroak": [
+3,
+1
+],
+"Carnivine": [
+11
+],
+"Finneon": [
+10
+],
+"Lumineon": [
+10
+],
+"Mantyke": [
+10,
+2
+],
+"Snover": [
+11,
+14
+],
+"Abomasnow": [
+11,
+14
+],
+"Abomasnow-Mega": [
+11,
+14
+],
+"Weavile": [
+16,
+14
+],
+"Magnezone": [
+12,
+8
+],
+"Lickilicky": [
+0
+],
+"Rhyperior": [
+4,
+5
+],
+"Tangrowth": [
+11
+],
+"Electivire": [
+12
+],
+"Magmortar": [
+9
+],
+"Togekiss": [
+17,
+2
+],
+"Yanmega": [
+6,
+2
+],
+"Leafeon": [
+11
+],
+"Glaceon": [
+14
+],
+"Gliscor": [
+4,
+2
+],
+"Mamoswine": [
+14,
+4
+],
+"Porygon-Z": [
+0
+],
+"Gallade": [
+13,
+1
+],
+"Gallade-Mega": [
+13,
+1
+],
+"Probopass": [
+5,
+8
+],
+"Dusknoir": [
+7
+],
+"Froslass": [
+14,
+7
+],
+"Rotom": [
+12,
+7
+],
+"Rotom-Heat": [
+12,
+9
+],
+"Rotom-Wash": [
+12,
+10
+],
+"Rotom-Frost": [
+12,
+14
+],
+"Rotom-Fan": [
+12,
+2
+],
+"Rotom-Mow": [
+12,
+11
+],
+"Uxie": [
+13
+],
+"Mesprit": [
+13
+],
+"Azelf": [
+13
+],
+"Heatran": [
+9,
+8
+],
+"Regigigas": [
+0
+],
+"Giratina": [
+7,
+15
+],
+"Giratina-Origin": [
+7,
+15
+],
+"Cresselia": [
+13
+],
+"Phione": [
+10
+],
+"Manaphy": [
+10
+],
+"Darkrai": [
+16
+],
+"Shaymin": [
+11
+],
+"Shaymin-Sky": [
+11,
+2
+],
+"Victini": [
+13,
+9
+],
+"Snivy": [
+11
+],
+"Servine": [
+11
+],
+"Serperior": [
+11
+],
+"Tepig": [
+9
+],
+"Pignite": [
+9,
+1
+],
+"Emboar": [
+9,
+1
+],
+"Oshawott": [
+10
+],
+"Dewott": [
+10
+],
+"Samurott": [
+10
+],
+"Patrat": [
+0
+],
+"Watchog": [
+0
+],
+"Lillipup": [
+0
+],
+"Herdier": [
+0
+],
+"Stoutland": [
+0
+],
+"Purrloin": [
+16
+],
+"Liepard": [
+16
+],
+"Pansage": [
+11
+],
+"Simisage": [
+11
+],
+"Pansear": [
+9
+],
+"Simisear": [
+9
+],
+"Panpour": [
+10
+],
+"Simipour": [
+10
+],
+"Munna": [
+13
+],
+"Musharna": [
+13
+],
+"Pidove": [
+0,
+2
+],
+"Tranquill": [
+0,
+2
+],
+"Unfezant": [
+0,
+2
+],
+"Blitzle": [
+12
+],
+"Zebstrika": [
+12
+],
+"Roggenrola": [
+5
+],
+"Boldore": [
+5
+],
+"Gigalith": [
+5
+],
+"Woobat": [
+13,
+2
+],
+"Swoobat": [
+13,
+2
+],
+"Drilbur": [
+4
+],
+"Excadrill": [
+4,
+8
+],
+"Audino": [
+0
+],
+"Audino-Mega": [
+0,
+17
+],
+"Timburr": [
+1
+],
+"Gurdurr": [
+1
+],
+"Conkeldurr": [
+1
+],
+"Tympole": [
+10
+],
+"Palpitoad": [
+10,
+4
+],
+"Seismitoad": [
+10,
+4
+],
+"Throh": [
+1
+],
+"Sawk": [
+1
+],
+"Sewaddle": [
+6,
+11
+],
+"Swadloon": [
+6,
+11
+],
+"Leavanny": [
+6,
+11
+],
+"Venipede": [
+6,
+3
+],
+"Whirlipede": [
+6,
+3
+],
+"Scolipede": [
+6,
+3
+],
+"Cottonee": [
+11,
+17
+],
+"Whimsicott": [
+11,
+17
+],
+"Petilil": [
+11
+],
+"Lilligant": [
+11
+],
+"Basculin": [
+10
+],
+"Basculin-Blue": [
+10
+],
+"Sandile": [
+4,
+16
+],
+"Krokorok": [
+4,
+16
+],
+"Krookodile": [
+4,
+16
+],
+"Darumaka": [
+9
+],
+"Darmanitan": [
+9
+],
+"Darmanitan-Zen": [
+9,
+13
+],
+"Maractus": [
+11
+],
+"Dwebble": [
+6,
+5
+],
+"Crustle": [
+6,
+5
+],
+"Scraggy": [
+16,
+1
+],
+"Scrafty": [
+16,
+1
+],
+"Sigilyph": [
+13,
+2
+],
+"Yamask": [
+7
+],
+"Cofagrigus": [
+7
+],
+"Tirtouga": [
+10,
+5
+],
+"Carracosta": [
+10,
+5
+],
+"Archen": [
+5,
+2
+],
+"Archeops": [
+5,
+2
+],
+"Trubbish": [
+3
+],
+"Garbodor": [
+3
+],
+"Zorua": [
+16
+],
+"Zoroark": [
+16
+],
+"Minccino": [
+0
+],
+"Cinccino": [
+0
+],
+"Gothita": [
+13
+],
+"Gothorita": [
+13
+],
+"Gothitelle": [
+13
+],
+"Solosis": [
+13
+],
+"Duosion": [
+13
+],
+"Reuniclus": [
+13
+],
+"Ducklett": [
+10,
+2
+],
+"Swanna": [
+10,
+2
+],
+"Vanillite": [
+14
+],
+"Vanillish": [
+14
+],
+"Vanilluxe": [
+14
+],
+"Deerling": [
+0,
+11
+],
+"Sawsbuck": [
+0,
+11
+],
+"Emolga": [
+12,
+2
+],
+"Karrablast": [
+6
+],
+"Escavalier": [
+6,
+8
+],
+"Foongus": [
+11,
+3
+],
+"Amoonguss": [
+11,
+3
+],
+"Frillish": [
+10,
+7
+],
+"Jellicent": [
+10,
+7
+],
+"Alomomola": [
+10
+],
+"Joltik": [
+6,
+12
+],
+"Galvantula": [
+6,
+12
+],
+"Ferroseed": [
+11,
+8
+],
+"Ferrothorn": [
+11,
+8
+],
+"Klink": [
+8
+],
+"Klang": [
+8
+],
+"Klinklang": [
+8
+],
+"Tynamo": [
+12
+],
+"Eelektrik": [
+12
+],
+"Eelektross": [
+12
+],
+"Elgyem": [
+13
+],
+"Beheeyem": [
+13
+],
+"Litwick": [
+7,
+9
+],
+"Lampent": [
+7,
+9
+],
+"Chandelure": [
+7,
+9
+],
+"Axew": [
+15
+],
+"Fraxure": [
+15
+],
+"Haxorus": [
+15
+],
+"Cubchoo": [
+14
+],
+"Beartic": [
+14
+],
+"Cryogonal": [
+14
+],
+"Shelmet": [
+6
+],
+"Accelgor": [
+6
+],
+"Stunfisk": [
+4,
+12
+],
+"Mienfoo": [
+1
+],
+"Mienshao": [
+1
+],
+"Druddigon": [
+15
+],
+"Golett": [
+4,
+7
+],
+"Golurk": [
+4,
+7
+],
+"Pawniard": [
+16,
+8
+],
+"Bisharp": [
+16,
+8
+],
+"Bouffalant": [
+0
+],
+"Rufflet": [
+0,
+2
+],
+"Braviary": [
+0,
+2
+],
+"Vullaby": [
+16,
+2
+],
+"Mandibuzz": [
+16,
+2
+],
+"Heatmor": [
+9
+],
+"Durant": [
+6,
+8
+],
+"Deino": [
+16,
+15
+],
+"Zweilous": [
+16,
+15
+],
+"Hydreigon": [
+16,
+15
+],
+"Larvesta": [
+6,
+9
+],
+"Volcarona": [
+6,
+9
+],
+"Cobalion": [
+8,
+1
+],
+"Terrakion": [
+5,
+1
+],
+"Virizion": [
+11,
+1
+],
+"Tornadus": [
+2
+],
+"Tornadus-Therian": [
+2
+],
+"Thundurus": [
+12,
+2
+],
+"Thundurus-Therian": [
+12,
+2
+],
+"Landorus": [
+4,
+2
+],
+"Landorus-Therian": [
+4,
+2
+],
+"Kyurem": [
+15,
+14
+],
+"Kyurem-White": [
+15,
+14
+],
+"Kyurem-Black": [
+15,
+14
+],
+"Keldeo": [
+10,
+1
+],
+"Keldeo-Resolute": [
+10,
+1
+],
+"Meloetta": [
+0,
+13
+],
+"Meloetta-Pirouette": [
+0,
+1
+],
+"Genesect": [
+6,
+8
+],
+"Chespin": [
+11
+],
+"Quilladin": [
+11
+],
+"Chesnaught": [
+11,
+1
+],
+"Fennekin": [
+9
+],
+"Braixen": [
+9
+],
+"Delphox": [
+9,
+13
+],
+"Froakie": [
+10
+],
+"Frogadier": [
+10
+],
+"Greninja": [
+10,
+16
+],
+"Greninja-Ash": [
+10,
+16
+],
+"Bunnelby": [
+0
+],
+"Diggersby": [
+0,
+4
+],
+"Fletchling": [
+0,
+2
+],
+"Fletchinder": [
+9,
+2
+],
+"Talonflame": [
+9,
+2
+],
+"Scatterbug": [
+6
+],
+"Spewpa": [
+6
+],
+"Vivillon": [
+6,
+2
+],
+"Litleo": [
+9,
+0
+],
+"Pyroar": [
+9,
+0
+],
+"Flabebe": [
+17
+],
+"Floette": [
+17
+],
+"Floette-Eternal": [
+17
+],
+"Florges": [
+17
+],
+"Skiddo": [
+11
+],
+"Gogoat": [
+11
+],
+"Pancham": [
+1
+],
+"Pangoro": [
+1,
+16
+],
+"Furfrou": [
+0
+],
+"Furfrou-Heart": [
+0
+],
+"Furfrou-Star": [
+0
+],
+"Furfrou-Diamond": [
+0
+],
+"Furfrou-Debutante": [
+0
+],
+"Furfrou-Matron": [
+0
+],
+"Furfrou-Dandy": [
+0
+],
+"Furfrou-La-Reine": [
+0
+],
+"Furfrou-Kabuki": [
+0
+],
+"Furfrou-Pharaoh": [
+0
+],
+"Espurr": [
+13
+],
+"Meowstic": [
+13
+],
+"Meowstic-F": [
+13
+],
+"Honedge": [
+8,
+7
+],
+"Doublade": [
+8,
+7
+],
+"Aegislash": [
+8,
+7
+],
+"Aegislash-Blade": [
+8,
+7
+],
+"Spritzee": [
+17
+],
+"Aromatisse": [
+17
+],
+"Swirlix": [
+17
+],
+"Slurpuff": [
+17
+],
+"Inkay": [
+16,
+13
+],
+"Malamar": [
+16,
+13
+],
+"Binacle": [
+5,
+10
+],
+"Barbaracle": [
+5,
+10
+],
+"Skrelp": [
+3,
+10
+],
+"Dragalge": [
+3,
+15
+],
+"Clauncher": [
+10
+],
+"Clawitzer": [
+10
+],
+"Helioptile": [
+12,
+0
+],
+"Heliolisk": [
+12,
+0
+],
+"Tyrunt": [
+5,
+15
+],
+"Tyrantrum": [
+5,
+15
+],
+"Amaura": [
+5,
+14
+],
+"Aurorus": [
+5,
+14
+],
+"Sylveon": [
+17
+],
+"Hawlucha": [
+1,
+2
+],
+"Dedenne": [
+12,
+17
+],
+"Carbink": [
+5,
+17
+],
+"Goomy": [
+15
+],
+"Sliggoo": [
+15
+],
+"Goodra": [
+15
+],
+"Klefki": [
+8,
+17
+],
+"Phantump": [
+7,
+11
+],
+"Trevenant": [
+7,
+11
+],
+"Pumpkaboo": [
+7,
+11
+],
+"Gourgeist-Small": [
+7,
+11
+],
+"Gourgeist-Super": [
+7,
+11
+],
+"Bergmite": [
+14
+],
+"Avalugg": [
+14
+],
+"Noibat": [
+2,
+15
+],
+"Noivern": [
+2,
+15
+],
+"Zygarde-10%": [
+15,
+4
+],
+"Zygarde-50%": [
+15,
+4
+],
+"Diancie": [
+5,
+17
+],
+"Diancie-Mega": [
+5,
+17
+],
+"Hoopa": [
+13,
+7
+],
+"Hoopa-Unbound": [
+13,
+16
+],
+"Volcanion": [
+9,
+10
+],
+"Rowlet": [
+11,
+2
+],
+"Dartrix": [
+11,
+2
+],
+"Decidueye": [
+11,
+7
+],
+"Litten": [
+9
+],
+"Torracat": [
+9
+],
+"Incineroar": [
+9,
+16
+],
+"Popplio": [
+10
+],
+"Brionne": [
+10
+],
+"Primarina": [
+10,
+17
+],
+"Pikipek": [
+0,
+2
+],
+"Trumbeak": [
+0,
+2
+],
+"Toucannon": [
+0,
+2
+],
+"Yungoos": [
+0
+],
+"Gumshoos": [
+0
+],
+"Gumshoos-Totem": [
+0
+],
+"Grubbin": [
+6
+],
+"Charjabug": [
+6,
+12
+],
+"Vikavolt": [
+6,
+12
+],
+"Vikavolt-Totem": [
+6,
+12
+],
+"Crabrawler": [
+1
+],
+"Crabominable": [
+1,
+14
+],
+"Oricorio": [
+9,
+2
+],
+"Oricorio-Pom-Pom": [
+12,
+2
+],
+"Oricorio-Pa'u": [
+13,
+2
+],
+"Oricorio-Sensu": [
+7,
+2
+],
+"Cutiefly": [
+6,
+17
+],
+"Ribombee": [
+6,
+17
+],
+"Ribombee-Totem": [
+6,
+17
+],
+"Rockruff": [
+5
+],
+"Lycanroc": [
+5
+],
+"Lycanroc-Midnight": [
+5
+],
+"Lycanroc-Dusk": [
+5
+],
+"Wishiwashi": [
+10
+],
+"Wishiwashi-School": [
+10
+],
+"Mareanie": [
+3,
+10
+],
+"Toxapex": [
+3,
+10
+],
+"Mudbray": [
+4
+],
+"Mudsdale": [
+4
+],
+"Dewpider": [
+10,
+6
+],
+"Araquanid": [
+10,
+6
+],
+"Araquanid-Totem": [
+10,
+6
+],
+"Fomantis": [
+11
+],
+"Lurantis": [
+11
+],
+"Lurantis-Totem": [
+11
+],
+"Morelull": [
+11,
+17
+],
+"Shiinotic": [
+11,
+17
+],
+"Salandit": [
+3,
+9
+],
+"Salazzle": [
+3,
+9
+],
+"Salazzle-Totem": [
+3,
+9
+],
+"Stufful": [
+0,
+1
+],
+"Bewear": [
+0,
+1
+],
+"Bounsweet": [
+11
+],
+"Steenee": [
+11
+],
+"Tsareena": [
+11
+],
+"Comfey": [
+17
+],
+"Oranguru": [
+0,
+13
+],
+"Passimian": [
+1
+],
+"Wimpod": [
+6,
+10
+],
+"Golisopod": [
+6,
+10
+],
+"Sandygast": [
+7,
+4
+],
+"Palossand": [
+7,
+4
+],
+"Pyukumuku": [
+10
+],
+"Type: Null": [
+0
+],
+"Silvally": [
+0
+],
+"Minior": [
+5,
+2
+],
+"Minior-Red": [
+5,
+2
+],
+"Minior-Orange": [
+5,
+2
+],
+"Minior-Yellow": [
+5,
+2
+],
+"Minior-Green": [
+5,
+2
+],
+"Minior-Blue": [
+5,
+2
+],
+"Minior-Indigo": [
+5,
+2
+],
+"Minior-Violet": [
+5,
+2
+],
+"Komala": [
+0
+],
+"Turtonator": [
+9,
+15
+],
+"Togedemaru": [
+12,
+8
+],
+"Togedemaru-Totem": [
+12,
+8
+],
+"Mimikyu": [
+7,
+17
+],
+"Mimikyu-Busted": [
+7,
+17
+],
+"Mimikyu-Totem": [
+7,
+17
+],
+"Mimikyu-Busted-Totem": [
+7,
+17
+],
+"Bruxish": [
+10,
+13
+],
+"Drampa": [
+0,
+15
+],
+"Dhelmise": [
+7,
+11
+],
+"Jangmo-o": [
+15
+],
+"Hakamo-o": [
+15,
+1
+],
+"Kommo-o": [
+15,
+1
+],
+"Kommo-o-Totem": [
+15,
+1
+],
+"Tapu Koko": [
+12,
+17
+],
+"Tapu Lele": [
+13,
+17
+],
+"Tapu Bulu": [
+11,
+17
+],
+"Tapu Fini": [
+10,
+17
+],
+"Cosmog": [
+13
+],
+"Cosmoem": [
+13
+],
+"Solgaleo": [
+13,
+8
+],
+"Lunala": [
+13,
+7
+],
+"Nihilego": [
+5,
+3
+],
+"Buzzwole": [
+6,
+1
+],
+"Pheromosa": [
+6,
+1
+],
+"Xurkitree": [
+12
+],
+"Celesteela": [
+8,
+2
+],
+"Kartana": [
+11,
+8
+],
+"Guzzlord": [
+16,
+15
+],
+"Necrozma": [
+13
+],
+"Necrozma-Dusk-Mane": [
+13,
+8
+],
+"Necrozma-Dawn-Wings": [
+13,
+7
+],
+"Necrozma-Ultra": [
+13,
+15
+],
+"Magearna": [
+8,
+17
+],
+"Marshadow": [
+1,
+7
+],
+"Poipole": [
+3
+],
+"Naganadel": [
+3,
+15
+],
+"Stakataka": [
+5,
+8
+],
+"Blacephalon": [
+9,
+7
+],
+"Zeraora": [
+12
+],
+"Gourgeist": [
+7,
+11
+],
+"Gourgeist-Large": [
+7,
+11
+],
+"Zygarde-Core": [
+15,
+4
+],
+"Zygarde-Complete": [
+15,
+4
+],
+"Mewtwo": [
+13
+],
+"Mewtwo-Mega-Y": [
+13
+]
+}

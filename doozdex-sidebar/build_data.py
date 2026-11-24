@@ -351,14 +351,23 @@ if os.path.exists(species_src):
                   "Wormadam-Snow", "Gastrodon-West", "Basculin-Blue", "Aegislash", "Zygarde-50%", "Oricorio-Pa'u",
                   "Wishiwashi-Solo", "Type: Null", "Minior", "Minior-Red", "Minior-Twinkle", "Minior-Blaze", "Minior-Surge",
                   "Minior-Verdant", "Minior-Frost", "Minior-Tidal", "Minior-Draco"}
+    # "Type Changed" compares with the REAL vanilla Ultra Sun types (remix-data/vanilla_types.json, from the untouched
+    # game's personal data via tools/refresh_vanilla_types.py), not the calc's species data (that came from original
+    # Sweltering Sun, which already changed types). Each entry is compared with its own game slot; forms living in
+    # another species' slot (Sandy Castform, Georupt-Steam) aren't compared.
+    vt_path = os.path.join(CALC, "remix-data", "vanilla_types.json")
+    real_vanilla = {k: list(dict.fromkeys(TYPES[t] for t in v))
+                    for k, v in (json.load(open(vt_path, encoding="utf8")).items() if os.path.exists(vt_path) else [])}
+    NOT_COMPARED = {"Castform-Sandy", "Georupt-Steam"}
     for p in pokedex.values():
-        old = vanilla.get(p["name"])
-        if old is None:
-            for o in p.get("oldNames", []):
-                cand = vanilla.get(o) or vanilla.get(re.sub(r"(Nidoran)([FM])$", r"\1-\2", o))
-                if cand:
-                    old = cand
+        old = None
+        if p["name"] not in NOT_COMPARED:
+            for cand in [*p.get("oldNames", []), p["name"]]:
+                if cand in real_vanilla:
+                    old = real_vanilla[cand]
                     break
+            if old is None and not real_vanilla:  # no vanilla file: fall back to the calc's data
+                old = vanilla.get(p["name"])
         if old and old != p["types"]:
             p["typeChanged"] = True
             p["vanillaTypes"] = old
