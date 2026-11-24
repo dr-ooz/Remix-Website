@@ -7,8 +7,7 @@ export const REMIX_SPECIES_RENAMES: {remove: string[]; rename: {[old: string]: s
   "Mewtwo-Mega-X",
   "Vivillon-Fancy",
   "Vivillon-Pokeball",
-  "Latios-Mega",
-  "Latias-Mega"
+  "Latios-Mega"
  ],
  "rename": {
   "Geodude": "Georupt-Magma",
@@ -16,6 +15,7 @@ export const REMIX_SPECIES_RENAMES: {remove: string[]; rename: {[old: string]: s
   "Meowth-Alola": "Meowth",
   "Pidgeotto": "Avicero",
   "Audino-Mega": "Vitabeat",
+  "Latias-Mega": "Scnypper",
   "Illumise": "Fluibeat",
   "Volbeat": "Jolbeat",
   "Spewpa": "Pupulse",

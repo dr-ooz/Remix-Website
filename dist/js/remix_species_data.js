@@ -68,7 +68,6 @@ var REMIX_SINGLE_ABILITY = {
  "Salamence-Mega": "Aerilate",
  "Metagross-Mega": "Tough Claws",
  "Latias": "Levitate",
- "Latias-Mega": "Levitate",
  "Latios": "Levitate",
  "Latios-Mega": "Levitate",
  "Jirachi": "Good Fortune",

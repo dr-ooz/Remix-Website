@@ -45,7 +45,7 @@ Cubone, Marowak, Marowak-Alola
 Tyrogue, Hitmonlee, Hitmonchan, Hitmontop
 Munchlax, Snorlax
 Pindle, Herakuna, Pinsir, Pinsir-Mega, Heracross, Heracross-Mega
-Scyther, Scizor, Scizor-Mega
+Scnypper, Scyther, Scizor, Scizor-Mega
 Kangakid, Kangaskhan, Kangaskhan-Mega
 Happiny, Chansey, Blissey
 Drowzee, Hypno
