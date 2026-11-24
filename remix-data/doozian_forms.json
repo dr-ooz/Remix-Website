@@ -281,13 +281,13 @@
  "new": [
   "Bounsour",
   "Lunare",
-  "Primora",
   "Scnypper",
   "Pindle",
   "Herakuna",
   "Paneeni",
   "Chimpeace",
   "Chimpower",
+  "Primora",
   "Georupt-Magma",
   "Georupt-Steam",
   "Tapu Bibi",
@@ -325,5 +325,41 @@
   "Medicham-Mega",
   "Lanturn"
  ],
- "_readme": "Dooz's list (2026-11-22). doozian = proper Doozian forms; new = new pre-evolutions/evolutions that are their own Pokemon (listed at the end, after a divider; also Doozian); redesigned = redesigned but not Doozian (not 'Unchanged'). A line includes its Megas. Castform-Sandy and Zygarde-Core stay regular. The new section is listed in this order (Bounsour first)."
+ "_readme": "Dooz's list (2026-11-22). doozian = proper Doozian forms; new = new pre-evolutions/evolutions that are their own Pokemon (listed at the end, after a divider; also Doozian); redesigned = redesigned but not Doozian (not 'Unchanged'). A line includes its Megas. Castform-Sandy and Zygarde-Core stay regular. The new section is listed in this order (Bounsour first). newOrder = the New Pokemon section in order (a name may also be in the main list: Pupulse line, Miltick, Wackitt show twice); renamed = a last \"Renamed\" section (these also stay in the main list); mainExclude = only in the New section.",
+ "newOrder": [
+  "Bounsour",
+  "Pupulse",
+  "Jolbeat",
+  "Fluibeat",
+  "Vitabeat",
+  "Miltick",
+  "Wackitt",
+  "Kangakid",
+  "Lunare",
+  "Scnypper",
+  "Pindle",
+  "Herakuna",
+  "Paneeni",
+  "Chimpeace",
+  "Chimpower",
+  "Primora",
+  "Georupt-Magma",
+  "Georupt-Steam",
+  "Tapu Bibi",
+  "Avicero",
+  "Achroma",
+  "Neurego",
+  "Chrysalyx",
+  "Guzzleon"
+ ],
+ "renamed": [
+  "Gorochu",
+  "Grahamer",
+  "S'Muk",
+  "Drumtrio",
+  "Drugtrio"
+ ],
+ "mainExclude": [
+  "Kangakid"
+ ]
 }

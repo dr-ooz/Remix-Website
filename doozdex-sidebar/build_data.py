@@ -71,7 +71,7 @@ SKIP = {"gourgeist", "gourgeistlarge", "mimikyubusted"}  # Gourgeist: only Small
 SIDEBAR_HIDE = {"giratina", "giratinaorigin", "necrozmadawnwings", "necrozmaduskmane", "necrozmaultra", "mewtwomega"}
 
 # Base forms that should still show their form name.
-FORM_LABEL = {"oricorio": "Baile", "lycanroc": "Midday", "raticate": "Rabid"}
+FORM_LABEL = {"oricorio": "Baile", "lycanroc": "Midday", "raticate": "Rabid", "basculin": "Red"}
 
 # Calc sprite files whose names don't follow the usual pattern.
 SPRITE_ALIAS = {"nidoranf": "nidoran-f", "nidoranm": "nidoran-m", "basculinblue": "basculin-blue-striped",

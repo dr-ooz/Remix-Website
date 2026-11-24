@@ -3,7 +3,7 @@ import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 import type { JSX } from "solid-js/jsx-runtime";
 import { useItemInfo, itemIconUrl, useCalcData } from "@/utils/calcData";
-import { ITEM_ABILITIES } from "@/utils/constants";
+import { ITEM_ABILITIES, DOOZIAN_ORDER } from "@/utils/constants";
 
 type Order = "num" | "a-z" | "hp" | "atk" | "def" | "spa" | "spd" | "spe" | "bst";
 
@@ -297,11 +297,23 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
     let rows = result;
 
-    // Doozian forms: the new Pokemon (new pre-evolutions / evolutions of their own) go last, after a divider
+    // Doozian forms: the main list (in its sort), then "New Pokemon" (Dooz's order; the Pupulse line, Miltick and Wackitt
+    // show again there; Kangakid only there), then "Renamed" (also in the main list). Family lines are worked out again
+    // after the moves (Scnypper leaving the main list used to take Mega Scizor's line with it).
     if (doozState() === 1) {
-      const isNew = (r: PokemonRowItem) => r.type === "item" && !!(r.data as any).doozianNew;
-      const news = rows.filter(isNew);
-      if (news.length) rows = [...rows.filter((r) => !isNew(r)), { type: "header", label: "New Pokémon", sub: "Doozian pre-evolutions & evolutions" }, ...news.map((r) => ({ ...(r as any), famStart: false })).sort((a, b) => a.data.doozianNew - b.data.doozianNew)];
+      const byName = new Map<string, PokemonData>();
+      rows.forEach((r) => { if (r.type === "item") byName.set(r.data.name, r.data); });
+      const onlyNew = new Set([...(DOOZIAN_ORDER.mainExclude ?? []), ...Object.values(data).filter((p) => (p as any).doozianNew).map((p) => p.name)]);
+      const lines = (list: PokemonData[], dividers: boolean): PokemonRowItem[] =>
+        list.map((p, i) => ({ type: "item", data: p, famStart: dividers && i > 0 && (p as any).family !== (list[i - 1] as any).family }));
+      const main = rows.filter((r) => r.type === "item" && !onlyNew.has(r.data.name)).map((r) => (r as any).data as PokemonData);
+      const pick = (names?: string[]) => (names ?? []).map((n) => byName.get(n)).filter(Boolean) as PokemonData[];
+      const news = pick(DOOZIAN_ORDER.newOrder), renamed = pick(DOOZIAN_ORDER.renamed);
+      rows = [
+        ...lines(main, or === "num"),
+        ...(news.length ? [{ type: "header", label: "New Pokémon", sub: "Doozian pre-evolutions & evolutions" } as PokemonRowItem, ...lines(news, true)] : []),
+        ...(renamed.length ? [{ type: "header", label: "Renamed" } as PokemonRowItem, ...lines(renamed, true)] : []),
+      ];
     }
 
     // Mega: each Mega under its base form (once per base: Charizard over both Megas), unless base forms are hidden

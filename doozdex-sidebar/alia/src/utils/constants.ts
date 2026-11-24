@@ -170,6 +170,10 @@ export const ABILITY_NOTES: Record<string, string> = {
 // Signature items from the calc's item effects: which Pokemon hold one, and the abilities it gives.
 // A Pokemon with several signature items gets one combined entry ("Metal Coat / Hard Stone").
 import sigItemsJson from "../../../../remix-data/signature_items.json";
+import doozianJson from "../../../../remix-data/doozian_forms.json";
+// Doozian filter sections (remix-data/doozian_forms.json): the New Pokemon section in order (names can repeat from the
+// main list), the Renamed section, and names that only show in the New section
+export const DOOZIAN_ORDER = doozianJson as unknown as { newOrder?: string[]; renamed?: string[]; mainExclude?: string[] };
 const SIG = (() => {
   const id = (n: string) => n.normalize("NFD").toLowerCase().replace(/[^a-z0-9]/g, "");
   const byMon: Record<string, string[]> = {};
