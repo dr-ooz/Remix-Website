@@ -314,7 +314,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       const news = pick(DOOZIAN_ORDER.newOrder), renamed = pick(DOOZIAN_ORDER.renamed);
       const sections: Record<string, PokemonRowItem[]> = {
         main: main.length ? [{ type: "header", label: "Doozian Forms" } as PokemonRowItem, ...lines(main, or === "num")] : [],
-        new: news.length ? [{ type: "header", label: "New Pokémon", sub: "Doozian pre-evolutions & evolutions" } as PokemonRowItem, ...lines(news, true)] : [],
+        new: news.length ? [{ type: "header", label: "New Pokémon Species", sub: "Doozian pre-evolutions & evolutions" } as PokemonRowItem, ...lines(news, true)] : [],
         renamed: renamed.length ? [{ type: "header", label: "Renamed" } as PokemonRowItem, ...lines(renamed, true)] : [],
       };
       // the chosen section first, the others in their usual order after it
@@ -679,7 +679,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                   onChange={(e) => { setDzFirst(e.currentTarget.value); parentRef?.scrollTo({ top: 0 }); }}
                 >
                   <option value="main">Doozian Forms</option>
-                  <option value="new">New Pokémon</option>
+                  <option value="new">New Pokémon Species</option>
                   <option value="renamed">Renamed</option>
                 </select>
               </label>
