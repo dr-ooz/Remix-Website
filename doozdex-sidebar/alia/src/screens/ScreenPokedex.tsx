@@ -23,9 +23,10 @@ type PokemonRowItem =
   | { type: "item"; data: PokemonData; famStart?: boolean }
   | { type: "header"; label: string; sub?: string }
   | { type: "itemhead"; name: string; icon: string; desc: string; open: boolean; n: number }
-  | { type: "forms"; key: string; species: string; n: number; open: boolean };
+  | { type: "forms"; key: string; species: string; n: number; open: boolean; mons: PokemonData[] };
 const ITEM_HEAD_H = 80; // an item's row: its icon (72px) + its name and up to 4 lines of its in-game description
-const FORMS_H = 26; // the "show / hide forms" row under Furfrou / Minior
+const FORMS_H = 26; // the "show / hide forms" row under Furfrou / Minior (open: just the label)
+const FORMS_STRIP_H = 40; // folded: the hidden forms' minisprites side by side under the label
 // species with many look-alike forms: folded under the first one (folded by default in the item groups)
 const FOLD_SPECIES = ["Furfrou", "Minior"];
 // signature items that also work as the Mega's Mega Stone, so that Mega does show under them
@@ -402,12 +403,20 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         blockKey[i] = sp ? block + ":" + sp : "";
         if (sp) counts[blockKey[i]!] = (counts[blockKey[i]!] ?? 0) + 1;
       });
+      // each block's forms after the first (their minisprites show on the folded row)
+      const rest: Record<string, PokemonData[]> = {}, firstSeen = new Set<string>();
+      rows.forEach((r, i) => {
+        const k = blockKey[i]!;
+        if (!k) return;
+        if (firstSeen.has(k)) (rest[k] ??= []).push((r as any).data);
+        else firstSeen.add(k);
+      });
       const out: PokemonRowItem[] = [], seen = new Set<string>();
       const defOpen = !(sigState() === 1 || ip);
-      // Minior's colors are also folded in the plain scrolling dex (no search / filter on); any filter opens them
+      // Minior colors + Furfrou trims are also folded in the plain scrolling dex (no search / filter on); any filter opens them
       const anyFilter = !!sf || tf.some(Boolean) || af.length > 0 || mf.some(([m]) => m) ||
         sigState() !== 0 || doozState() !== 0 || tcState() !== 0 || megaOnly();
-      const FOLD_UNFILTERED = ["Minior"];
+      const FOLD_UNFILTERED = ["Minior", "Furfrou"];
       rows.forEach((r, i) => {
         const k = blockKey[i]!;
         if (!k || counts[k]! < 2) { out.push(r); return; }
@@ -416,7 +425,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
         if (!seen.has(k)) {
           seen.add(k);
           out.push(r);
-          out.push({ type: "forms", key: k, species: k.split(":")[1]!, n: counts[k]! - 1, open });
+          out.push({ type: "forms", key: k, species: k.split(":")[1]!, n: counts[k]! - 1, open, mons: rest[k] ?? [] });
           return;
         }
         if (open) out.push({ ...(r as any), famStart: false });
@@ -457,7 +466,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       const r = groupedAndSorted()[i] as any;
       // text-only section rows: just their text plus a few px above and below
       if (t === "header") return r.sub ? 36 : 22;
-      return t === "itemhead" ? ITEM_HEAD_H : t === "forms" ? FORMS_H : statBars() ? ROW_H_BARS : 58;
+      return t === "itemhead" ? ITEM_HEAD_H : t === "forms" ? FORMS_H + (r.open ? 0 : FORMS_STRIP_H) : statBars() ? ROW_H_BARS : 58;
     },
   });
 
@@ -748,10 +757,39 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
             ) : d.type === "forms" ? (
               <button
                 type="button"
-                class="flex h-full w-full cursor-pointer items-center justify-center border-b text-[11px] text-white/75 hover:bg-white/5 hover:text-white"
+                class="flex h-full w-full cursor-pointer flex-col border-b text-white/80 hover:bg-white/5 hover:text-white"
                 onClick={() => setFormsFlip((m) => ({ ...m, [d.species]: !d.open }))}
               >
-                {d.open ? `▴ Hide the other ${d.species} forms` : `▾ Show ${d.n} more ${d.species} form${d.n === 1 ? "" : "s"}`}
+                <div class="flex w-full flex-none items-center justify-center text-[13px] font-bold" style={{ height: `${FORMS_H}px` }}>
+                  {d.open ? `▴ Hide the other ${d.species} forms` : `▾ Show ${d.n} more ${d.species} form${d.n === 1 ? "" : "s"}`}
+                </div>
+                {/* folded: every hidden form's minisprite, evenly spaced, each sized to fit its share of the row */}
+                <Show when={!d.open}>
+                  <div class="flex w-full min-h-0 flex-auto px-1 pb-1">
+                    <For each={d.mons}>
+                      {(p) => {
+                        const [top, bottom] = (p as any).spriteY ?? [0, 30];
+                        const w = (p as any).spriteW ?? 40, h = bottom - top;
+                        return (
+                          <div class="flex h-full min-w-0 flex-[1_1_0] items-center justify-center [container-type:size]" title={p.name}>
+                            <div
+                              class="-scale-x-100"
+                              style={{
+                                width: `min(100cqw, ${(100 * w) / h}cqh)`,
+                                "aspect-ratio": `${w} / ${h}`,
+                                "background-image": `url(/calcsprites/${nameToId(p.name)}.png)`,
+                                "background-size": `100% ${(3000 / h).toFixed(3)}%`,
+                                "background-position": `0 ${h < 30 ? ((100 * top) / (30 - h)).toFixed(3) : 0}%`,
+                                "background-repeat": "no-repeat",
+                                "image-rendering": "pixelated",
+                              }}
+                            />
+                          </div>
+                        );
+                      }}
+                    </For>
+                  </div>
+                </Show>
               </button>
             ) : d.type === "itemhead" ? (
               <div class="dz-itemhead relative flex h-full items-center gap-2 border-b px-1">
