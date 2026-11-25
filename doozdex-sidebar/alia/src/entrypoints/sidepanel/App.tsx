@@ -5,6 +5,29 @@ const Layout = () => {
   const [updatingData, setUpdatingData] = createSignal(false);
   const [screen, setScreen] = createSignal("pokedex");
   const [helpOpen, setHelpOpen] = createSignal(false);
+  // Moves tab: the Type Chart above the Move Search (default), or flipped (remembered per browser)
+  const [chartFirst, setChartFirstRaw] = createSignal((() => { try { return localStorage.getItem("dzChartFirst") !== "0"; } catch { return true; } })());
+  const flipMovesTab = () => {
+    const v = !chartFirst();
+    setChartFirstRaw(v);
+    try { localStorage.setItem("dzChartFirst", v ? "1" : "0"); } catch { /* private mode */ }
+  };
+  // a section label on the Moves tab; the top one carries the flip button
+  const SectionLabel = (props: { label: string; top: boolean }) => (
+    <div class="flex shrink-0 items-center px-1.5 pt-1 text-sm font-bold">
+      <span class="flex-1">{props.label}</span>
+      <Show when={props.top}>
+        <button
+          type="button"
+          class="cursor-pointer rounded border px-1 text-[10px] leading-[16px] font-normal text-white/70 hover:text-white"
+          title="Swap the Type Chart and the Move Search"
+          onClick={flipMovesTab}
+        >
+          ⇅ Swap
+        </button>
+      </Show>
+    </div>
+  );
   const [datasetId, setDatasetId] = createSignal(DATASET_IDS[0]!.value);
   const [, setPinnedMoves] = usePinnedMoves();
   const pokedex = usePokedex();
@@ -113,8 +136,14 @@ const Layout = () => {
             <ScreenPokedex datasetId={datasetId()} />
           </Match>
           <Match when={screen() === "moves"}>
-            <ScreenMoves />
-            <ScreenTypeChart />
+            <div class="flex shrink-0 flex-col" style={{ order: chartFirst() ? 0 : 1 }}>
+              <SectionLabel label="Type Chart:" top={chartFirst()} />
+              <ScreenTypeChart />
+            </div>
+            <div class="flex min-h-0 flex-auto flex-col overflow-hidden" style={{ order: chartFirst() ? 1 : 0 }}>
+              <SectionLabel label="Move Search:" top={!chartFirst()} />
+              <ScreenMoves />
+            </div>
           </Match>
         </Switch>
       </div>
