@@ -10,7 +10,8 @@ type FamilyRow = { members: Learner[]; how: How; label: string[] };
 const howRank = (h: How) => (typeof h === "number" ? h : h === "tm" ? 1000 : 1001);
 const howLabel = (how: How) =>
   how === 0 ? (
-    "–"
+    // level 0 in the game's learnsets = learned when it evolves
+    <span class="text-[11px] leading-[12px] font-bold whitespace-nowrap">On Evo</span>
   ) : typeof how === "number" ? (
     <span>
       <span class="text-xs">Lv</span>

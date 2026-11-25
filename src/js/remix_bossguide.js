@@ -399,7 +399,7 @@ function bgMoveEffects(mv, blurb, doubles) {
 		out.push(x);
 	});
 	out = out.map(function (x) {
-		x = x.replace(/\b(\d+)-Turn\b/, "$1 Turns");
+		x = x.replace(/\b(\d+)-Turn\b/, "$1 Turns").replace(/^([+-]\d) Priority$/, "$1 Prio").replace(/^Turn 1 Only$/, "T1 Only");
 		if (/^Sleep$/i.test(x)) return "2 Turn Sleep";
 		if (/^(ALWAYS|\d+%) Sleep$/i.test(x)) return x + " (2 Turns)";
 		var m = new RegExp("^((?:ALWAYS |[0-9]+% )?)[+]([0-9]) (" + BG_STAT_RE + "(?:/" + BG_STAT_RE + ")*|All Stats)$").exec(x);
@@ -767,7 +767,10 @@ function bgFitAll(root) {
 		var join = function (list) { return list.length && list[0] === bpTxt ? [list[0]].concat(list.length > 1 ? [list.slice(1).join(", ")] : []).join(" | ") : list.join(", "); };
 		var html = function (text) {
 			var e = bgEsc(text);
-			return bpTxt ? e.replace(bgEsc(bpTxt), "<span class='bg-bp" + (el.getAttribute("data-bpboost") ? " bg-boost" : "") + "'>" + bgEsc(bpTxt) + "</span>") : e;
+			if (!bpTxt) return e;
+			e = e.replace(bgEsc(bpTxt), "<span class='bg-bp" + (el.getAttribute("data-bpboost") ? " bg-boost" : "") + "'>" + bgEsc(bpTxt) + "</span>");
+			// the explanation right after it: a bit bigger than the effects, smaller than the BP
+			return e.replace(/(<\/span>) (\*?\d+ BP[^<]*)$/, "$1 <span class='bg-bpx'>$2</span>");
 		};
 		el.style.fontSize = el.getAttribute("data-fs") ? el.getAttribute("data-fs") + "px" : "";
 		el.style.paddingTop = el.style.paddingBottom = "";
@@ -783,7 +786,13 @@ function bgFitAll(root) {
 		}
 		meas.font = cs.fontWeight + " " + size + "px " + cs.fontFamily;
 		var best = null;
-		for (var k = 1; k < eff.length; k++) {
+		// a long name's BP + the line explaining it (*75 BP+Crit, 30 BP, Hits 3x) make line 1; the effects line 2
+		var bpx = bpTxt && eff.length > 2 && /^\*?\d+ BP/.test(eff[1]);
+		if (bpx) {
+			var a1 = eff[0] + " " + eff[1], a2 = eff.slice(2).join(", ");
+			best = {w: Math.max(meas.measureText(a1).width * 1.3, meas.measureText(a2).width), l1: a1, l2: a2};
+		}
+		for (var k = 1; !bpx && k < eff.length; k++) {
 			var l1 = join(eff.slice(0, k)), l2 = eff.slice(k).join(", ");
 			var wmax = Math.max(meas.measureText(l1).width, meas.measureText(l2).width);
 			if (!best || wmax < best.w) best = {w: wmax, l1: l1, l2: l2};

@@ -897,6 +897,8 @@ body:not(.dark) .visually-hidden:not(:checked) + label[for=mudslide] { color: #8
 .field-info .rooms-row .btn-quarter { font-size: 0.7em; letter-spacing: -0.3px; }
 .field-info .rooms-row label[for=mudslide], .field-info .rooms-row label[for=gravity] { font-size: 0.8em; letter-spacing: normal; }
 .field-info .rooms-row .btn-quarter { box-sizing: border-box; width: 64px; min-width: 64px; max-width: 64px; }
+/* all four the same height (the Rooms' smaller text made them shorter): fixed height, text centred */
+.field-info .rooms-row .btn-quarter { height: 22.4px; line-height: 14.4px; vertical-align: top; }
 .import-export-row button { white-space: nowrap; font-size: 0.78em; padding: 4px 6px; }
 .import-export-row .import-btn { font-size: 0.95em; }
 .import-export-row .export-btn, .import-export-row .export-all-btn { font-size: 0.9em; }

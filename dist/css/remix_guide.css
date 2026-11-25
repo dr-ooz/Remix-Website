@@ -52,7 +52,8 @@
 .bg-mvtop { font-size: 25px; line-height: 1.1; max-width: 100%; }
 .bg-bp { font-size: 0.8em; font-style: italic; }
 .bg-bp.bg-boost { text-decoration: none; } /* the BP is never underlined; only a boosted move name is (Dooz 2026-11-23) */
-.bg-mvnote .bg-bp { font-size: 1.25em; font-weight: bold; } /* a long name's BP, moved into the note: bigger than the note text */
+.bg-mvnote .bg-bp { font-size: 1.35em; font-weight: bold; } /* a long name's BP, moved into the note: bigger than the note text */
+.bg-mvnote .bg-bpx { font-size: 1.12em; } /* the line explaining that BP (*75 BP+Crit): between the BP and the effects */
 .bg-mvnote { font-size: 15px; line-height: 1.15; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
 .bg-move.bg-empty { background: #222; color: #777; }
 .bg-drag { position: absolute; left: 2px; top: 1px; cursor: grab; font-size: 16px; color: #000; opacity: 0.6; }

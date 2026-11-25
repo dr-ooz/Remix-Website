@@ -58,7 +58,7 @@ def blurb(m, e):
     lo, hi = hits & 0xF, hits >> 4
     if hi > 1: fx.append("%d Hits" % hi if lo == hi else "%d-%d Hits" % (lo, hi))
     if crit >= 6: fx.append("Always Crits")
-    elif crit: fx.append("High Crit")
+    elif crit: fx.append({1: "+1 Crit Rate (12.5%)", 2: "+2 Crit Rate (50%)"}.get(crit, "+%d Crit Rate (100%%)" % crit))
     if drain > 0: fx.append("%d%% Drain" % drain)
     if drain < 0: fx.append("%d%% Recoil" % -drain)
     if heal and not dmg:
