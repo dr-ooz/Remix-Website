@@ -40,7 +40,7 @@
 		return (data.moveH = +Object.keys(n).sort(function (a, b) { return n[b] - n[a]; })[0] || 46);
 	}
 	function isTypeHead(r) { return r.k === "h1" && zone(r) === "body" && !r.cat && !!typeOf(r); }
-	function rowH(r) { return isTypeHead(r) ? 112 : isMoveRow(r) && !r.hSet ? moveH() : !r.hSet && isBlankRow(r) ? Math.max(4, Math.round(r.h * 0.15)) : r.h; }
+	function rowH(r) { return isTypeHead(r) ? 112 : isMoveRow(r) && !r.hSet ? moveH() : !r.hSet && isBlankRow(r) ? Math.max(2, Math.round(r.h * 0.075)) : r.h; } // blank divider rows: half their old 15%
 
 	// A cell that is only rich-text spans: the cell's own font size would add a tall empty strut to every line
 	// (the sheet sizes each line by its own text), so the cell gets size 0 and each span keeps its own size.
@@ -394,6 +394,7 @@
 		});
 		fitMoves();
 		fitTypeGrid();
+		scale(); // sections that were closed get the same size as the rest
 	}
 	function goTo(i) {
 		var sec = sections()[i];
@@ -849,8 +850,13 @@
 	// the sheet's own width, scaled down to fit (never up); very narrow screens scroll sideways instead
 	function scale() {
 		var w = data.cols.reduce(function (a, b) { return a + b; }, 0) + (editing ? 46 : 0);
+		// one width for every section table: a closed (hidden) section measures 0 wide, which used to shrink it to the
+		// minimum and leave it tiny when opened with the sidebar open (until a window resize)
+		var guide = $("#mg-guide"), box = 0;
+		$$(".mg-page table.mg").forEach(function (t) { if (!box && t.parentNode.clientWidth) box = t.parentNode.clientWidth; });
+		if (!box && guide) box = guide.clientWidth;
+		if (!box) return;
 		$$(".mg-page table.mg").forEach(function (t) {
-			var box = t.parentNode.clientWidth;
 			t.style.zoom = Math.max(0.42, Math.min(1, box / w));
 		});
 	}
