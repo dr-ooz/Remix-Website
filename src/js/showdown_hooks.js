@@ -83,18 +83,8 @@ function get_box() {
 		if (names[i].includes("My Box")) {
 			box.push(names[i].split("[")[0]);
 
-			var pok_name = names[i]
-				.split(" (")[0]
-				.toLowerCase()
-				.replace(" ", "-")
-				.replace(".", "")
-				.replace(".", "")
-				.replace("’", "")
-				.replace(":", "")
-				.replace("minior-pink", "minior-red")
-				.replace("dusk-mane", "dusk")
-				.replace("dawn-wings", "dawn")
-				.replace("-totem", "");
+			// same file lookup as the main minisprite (renamed Remix species keep their old slot's sprite)
+			var pok_name = remixSpriteFile(names[i].split(" (")[0].split("[")[0].trim());
 			var pok = `<img class="trainer-pok left-side" src="./img/pokesprite/${pok_name}.png" data-id="${
 				names[i].split("[")[0]
 			}">`;
@@ -112,18 +102,8 @@ function get_trainer_preview(poks) {
 
 	for (i in poks) {
 		pok = poks[i];
-		var pok_name = pok
-			.split(" (")[0]
-			.toLowerCase()
-			.replace(" ", "-")
-			.replace(".", "")
-			.replace(".", "")
-			.replace("’", "")
-			.replace(":", "")
-			.replace("minior-pink", "minior-red")
-			.replace("dusk-mane", "dusk")
-			.replace("dawn-wings", "dawn")
-			.replace("-totem", "");
+		// same file lookup as the main minisprite (renamed Remix species keep their old slot's sprite)
+		var pok_name = remixSpriteFile(pok.split(" (")[0].split("[")[0].trim());
 		var pok_html = `<img class="trainer-pok right-side" src="./img/pokesprite/${pok_name}.png" data-id="${
 			poks[i].split("[")[0]
 		}">`;
