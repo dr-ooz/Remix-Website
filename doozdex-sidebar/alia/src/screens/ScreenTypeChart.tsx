@@ -13,6 +13,13 @@ const COLOURS = {
   0: "#000",
 };
 
+// 2, 0.5, 0.25 ... snapped (as tools/build_sidebar_calc.js does); odd values (Filter's 0.75) kept
+const snap = (x: number) => {
+  if (!(x > 0)) return 0;
+  const l = Math.log2(x), r = Math.round(l);
+  return Math.abs(l - r) < 0.06 ? Math.pow(2, r) : Math.round(x * 100) / 100;
+};
+
 export const ScreenTypeChart = () => {
   const datasetId = useDatasetId();
   const dataset = createMemo(() => {
@@ -70,18 +77,23 @@ export const ScreenTypeChart = () => {
     const notes = p.abilities.filter((a) => a && ABILITY_NOTES[a] && !chart.includes(a));
     return [...chart, ...notes];
   });
+  // its abilities that really change the chart (not the starred ones); with 2+ the chart can show them all at once
+  const chartAbilities = createMemo(() => monAbilities().filter(changesChart));
+  const ALL = "*all";
+  const showAll = () => abilityFilter() === ALL;
   const [abilityFilter, setAbilityFilter] = createSignal("");
   const [itemFilter, setItemFilter] = createSignal("");
   // a new Pokemon: its first chart-changing ability (else its first starred one), and its item
   createEffect(on([mon, charts], () => {
     const d = dataset();
     const ab = monAbilities();
-    setAbilityFilter(ab.find((a) => charts()?.[a + "|"]) ?? ab.find(changesChart) ?? ab[0] ?? "");
+    setAbilityFilter(chartAbilities().length > 1 ? ALL : ab.find((a) => charts()?.[a + "|"]) ?? ab.find(changesChart) ?? ab[0] ?? "");
     setItemFilter(monItems()[0]?.name ?? "");
   }));
 
   const abilityOptions = createMemo<Option[]>(() => [
     { label: "(Ability)", value: "" },
+    ...(chartAbilities().length > 1 ? [{ label: chartAbilities().length === 2 ? "Both abilities" : "All abilities", value: ALL }] : []),
     ...monAbilities().map((a) => ({ label: ABILITY_NOTES[a] && !changesChart(a) ? a + "*" : a, value: a })),
   ]);
   const itemOptions = createMemo<Option[]>(() => [
@@ -89,6 +101,15 @@ export const ScreenTypeChart = () => {
     ...monItems().map((i) => ({ label: i.name, value: i.name })),
   ]);
   const note = () => ABILITY_NOTES[abilityFilter()] ?? "";
+  // the abilities the chart is showing (all of them, or the one picked)
+  const shownAbilities = () => (showAll() ? chartAbilities() : abilityFilter() ? [abilityFilter()] : []);
+  // which of the shown abilities change this type's matchup (with the chosen item)
+  const changers = (type: string) => {
+    const c = charts(), i = CHART_TYPES.indexOf(type as any), it = itemFilter();
+    if (!c || i < 0) return shownAbilities();
+    const noAb = c["|" + it] ?? c["|"]!;
+    return shownAbilities().filter((a) => (c[a + "|" + it] ?? noAb)[i] !== noAb[i]);
+  };
 
   // the chart: the calc's value for the chosen ability + item; [value, changed by the ability / item]
   const matchUps = createMemo(() => {
@@ -96,7 +117,18 @@ export const ScreenTypeChart = () => {
     const o: Record<string, [number, boolean]> = {};
     if (!c) return o;
     const base = c["|"]!;
-    const cur = c[abilityFilter() + "|" + itemFilter()] ?? base;
+    const it = itemFilter();
+    let cur = c[abilityFilter() + "|" + it] ?? base;
+    if (showAll()) {
+      // every ability's own change (vs the same item without it) stacked: Thick Fat's 0.5 and Sap Sipper's 0 together
+      const noAb = c["|" + it] ?? base;
+      cur = noAb.map((v, i) => {
+        if (!v) return v;
+        let x = v;
+        for (const a of chartAbilities()) x *= (c[a + "|" + it] ?? noAb)[i]! / v;
+        return snap(x);
+      });
+    }
     CHART_TYPES.forEach((t, i) => { o[t] = [cur[i]!, cur[i] !== base[i]]; });
     return o;
   });
@@ -151,6 +183,9 @@ export const ScreenTypeChart = () => {
             oninput={(e) => setItemFilter(e.currentTarget.value)}
           />
         </div>
+        <Show when={showAll()}>
+          <div class="text-center text-xs font-bold text-white/80">Showing {chartAbilities().length === 2 ? "both" : "all"}: {chartAbilities().join(" + ")}</div>
+        </Show>
         <Show when={note()}>
           <div class="text-center text-xs text-white/70 italic">* {abilityFilter()}: {note()} (not shown in the chart)</div>
         </Show>
@@ -163,7 +198,7 @@ export const ScreenTypeChart = () => {
               return (
                 <div
                   class={cn("flex aspect-2/3 flex-col overflow-hidden rounded-xs border", f() && "dz-tc-from")}
-                  title={f() ? `${t.value}: changed by ${[abilityFilter(), itemFilter()].filter(Boolean).join(" / ")}` : undefined}
+                  title={f() ? `${t.value}: changed by ${[...changers(t.value), itemFilter()].filter(Boolean).join(" / ")}` : undefined}
                 >
                   <div class="flex-1 border-b">
                     <Type type={t.value} />
