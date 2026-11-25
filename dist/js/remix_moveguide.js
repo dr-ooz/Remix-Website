@@ -889,7 +889,37 @@
 		t.textContent = msg; t.style.display = "block";
 		clearTimeout(toast.t); toast.t = setTimeout(function () { t.style.display = "none"; }, 4000);
 	}
+	// A move shows up in several categories: an edit to one of its rows (text or format) is copied to its other rows.
+	// Only the cells that changed are copied (plus the row height), and only to rows that weren't edited themselves.
+	// Rows are matched by the move's name (as it was before the edit); move rows = rows with a category icon.
+	function moveRowName(r) {
+		if (!r || r.k !== "row" || !r.c || !r.c[0] || !r.c.some(function (c) { return /class="mg-cat"/.test(c[3] || ""); })) return "";
+		var box = document.createElement("div"); box.innerHTML = r.c[0][3] || "";
+		return box.textContent.replace(/\s+/g, " ").trim();
+	}
+	function syncTwins(prevSnap) {
+		if (!prevSnap) return;
+		var prev = JSON.parse(prevSnap).rows, rows = data.rows;
+		if (!prev || prev.length !== rows.length) return; // rows added / removed: can't line them up
+		var js = function (x) { return JSON.stringify(x); }, same = rows.map(function (r, i) { return js(r) === js(prev[i]); });
+		var names = prev.map(moveRowName), touched = [], copied = {};
+		rows.forEach(function (b, i) {
+			var a = prev[i], n = names[i];
+			if (same[i] || !n || !a.c || !b.c || a.c.length !== b.c.length) return;
+			rows.forEach(function (t, j) {
+				if (j === i || names[j] !== n || !same[j] || !t.c || t.c.length !== b.c.length) return;
+				b.c.forEach(function (cell, x) { if (js(cell) !== js(a.c[x])) t.c[x] = JSON.parse(js(cell)); });
+				if (a.h !== b.h) { t.h = b.h; if (b.hSet) t.hSet = b.hSet; }
+				touched.push(j); copied[n] = (copied[n] || 0) + 1;
+			});
+		});
+		if (!touched.length) return;
+		render(touched);
+		var k = Object.keys(copied);
+		toast("Also updated " + touched.length + " other " + (touched.length === 1 ? "entry" : "entries") + " of " + (k.length === 1 ? k[0].split("(")[0].trim() : k.length + " moves"));
+	}
 	function markDirty() {
+		syncTwins(undo[undo.length - 1]);
 		var now = snap();
 		if (undo[undo.length - 1] !== now) { undo.push(now); if (undo.length > 150) undo.shift(); redo = []; }
 		dirty = true; saveDraftSoon(); editTools();
