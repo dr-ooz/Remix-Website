@@ -431,15 +431,16 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       });
       const out: PokemonRowItem[] = [], seen = new Set<string>();
       const defOpen = !(sigState() === 1 || ip);
-      // Minior colors + Furfrou trims are also folded in the plain scrolling dex (no search / filter on); any filter opens them
-      const anyFilter = !!sf || tf.some(Boolean) || af.length > 0 || mf.some(([m]) => m) ||
-        sigState() !== 0 || doozState() !== 0 || tcState() !== 0 || megaOnly();
-      const FOLD_UNFILTERED = ["Minior", "Furfrou"];
+      // Minior colors + Furfrou trims stay folded until the viewer opens them, as long as every form is listed (plain
+      // dex, a name search, Fur Coat...); a filter only some forms pass (one trim's ability) shows those forms in full
+      const FOLD_ALWAYS = ["Minior", "Furfrou"];
+      const allForms: Record<string, number> = {};
+      Object.values(data).forEach((p) => { const sp = speciesOf(p as PokemonData); if (sp) allForms[sp] = (allForms[sp] ?? 0) + 1; });
       rows.forEach((r, i) => {
         const k = blockKey[i]!;
         if (!k || counts[k]! < 2) { out.push(r); return; }
         const sp = k.split(":")[1]!;
-        const open = formsFlip()[sp] ?? (defOpen && (anyFilter || !FOLD_UNFILTERED.includes(sp)));
+        const open = formsFlip()[sp] ?? (defOpen && (counts[k]! < (allForms[sp] ?? 0) || !FOLD_ALWAYS.includes(sp)));
         if (!seen.has(k)) {
           seen.add(k);
           out.push(r);
