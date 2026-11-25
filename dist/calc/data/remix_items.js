@@ -740,14 +740,6 @@ exports.REMIX_ITEM_EFFECTS = {
             ]
         }
     ],
-    "Rusty Anchor": [
-        {
-            "species": [
-                "Dhelmise"
-            ],
-            "addType": "Steel"
-        }
-    ],
     "Pendulum": [
         {
             "species": [
@@ -1090,6 +1082,13 @@ exports.REMIX_ITEM_EFFECTS = {
                 "Poison": 0.5,
                 "Grass": 0.5
             }
+        },
+        {
+            "species": [
+                "Snagghoul",
+                "Dhelmise"
+            ],
+            "addType": "Steel"
         }
     ],
     "Desert Cloak": [

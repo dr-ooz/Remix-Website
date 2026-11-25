@@ -435,12 +435,6 @@
    "Oblivious"
   ]
  },
- "Rusty Anchor": {
-  "holders": [
-   "Dhelmise"
-  ],
-  "abilities": []
- },
  "Pendulum": {
   "holders": [
    "Hypno"
@@ -630,7 +624,9 @@
  },
  "Cracked Compass": {
   "holders": [
-   "Machoke"
+   "Dhelmise",
+   "Machoke",
+   "Snagghoul"
   ],
   "abilities": []
  },

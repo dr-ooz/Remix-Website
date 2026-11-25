@@ -51,6 +51,14 @@ function cpdir(src, dest) {
 	}
 }
 
+// Remix: bring any in-game text edits (ability / item / move descriptions...) onto the site first. Quick when nothing
+// changed; skipped when the Remix Files folder isn't on this PC. A failed sync is reported but doesn't stop the build.
+try {
+	require('child_process').execSync('python tools/sync_game_text.py', {stdio: 'inherit'});
+} catch (e) {
+	console.log('(game text sync failed: the site was built with the text it already had)');
+}
+
 if (process.argv[2] !== 'view') {
 	require('child_process').execSync('npm --prefix calc/ run compile', {stdio: 'inherit'});
 }

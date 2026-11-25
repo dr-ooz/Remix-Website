@@ -774,14 +774,6 @@
    ]
   }
  ],
- "Rusty Anchor": [
-  {
-   "species": [
-    "Dhelmise"
-   ],
-   "addType": "Steel"
-  }
- ],
  "Pendulum": [
   {
    "species": [
@@ -1124,6 +1116,13 @@
     "Poison": 0.5,
     "Grass": 0.5
    }
+  },
+  {
+   "species": [
+    "Snagghoul",
+    "Dhelmise"
+   ],
+   "addType": "Steel"
   }
  ],
  "Desert Cloak": [

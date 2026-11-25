@@ -738,14 +738,6 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
    ]
   }
  ],
- "Rusty Anchor": [
-  {
-   "species": [
-    "Dhelmise"
-   ],
-   "addType": "Steel"
-  }
- ],
  "Pendulum": [
   {
    "species": [
@@ -1088,6 +1080,13 @@ export const REMIX_ITEM_EFFECTS: {[item: string]: any[]} = {
     "Poison": 0.5,
     "Grass": 0.5
    }
+  },
+  {
+   "species": [
+    "Snagghoul",
+    "Dhelmise"
+   ],
+   "addType": "Steel"
   }
  ],
  "Desert Cloak": [

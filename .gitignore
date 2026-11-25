@@ -6,3 +6,5 @@ Thumbs.db
 pnpm-debug.log
 npm-debug.log
 .history/
+# local: fingerprint of the last in-game text sync (tools/sync_game_text.py)
+remix-data/.game_text_stamp
