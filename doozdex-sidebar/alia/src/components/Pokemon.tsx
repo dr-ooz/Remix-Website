@@ -29,7 +29,8 @@ const CONTENT_H = ROW_H - ROW_LINE;
 
 // Stat display: a little bar graph under the name (default) or colored numbers. Kept per browser.
 const BARS_KEY = "dzStatBars";
-const loadBars = () => { try { return localStorage.getItem(BARS_KEY) !== "off"; } catch { return true; } }; // bars by default
+// the "Stat numbers" toggle was removed (2026-11-24): always bars, even for viewers who had picked numbers
+const loadBars = () => true;
 export const [statBars, setStatBarsSignal] = createSignal(loadBars());
 // Bar fill: a darker full-saturation shade of the stat color at the bottom, the mid shade at 35%
 // up, the full color from 87% up.

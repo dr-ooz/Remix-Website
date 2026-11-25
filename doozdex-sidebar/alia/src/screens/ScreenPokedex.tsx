@@ -1,4 +1,4 @@
-import { statBars, setStatBars, ROW_H_BARS } from "../components/Pokemon";
+import { statBars, ROW_H_BARS } from "../components/Pokemon";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import clsx from "clsx";
 import type { JSX } from "solid-js/jsx-runtime";
@@ -457,7 +457,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
   // how many Pokemon are listed, and how many separate evolution lines they come from (Megas count as their base)
   const counts = createMemo(() => {
     const pd = pokedex();
-    const shown = [...new Set(groupedAndSorted().filter((r) => r.type === "item").map((r) => (r as any).data as PokemonData))];
+    // folded forms (Minior / Furfrou) still count
+    const shown = [...new Set(groupedAndSorted().flatMap((r) =>
+      r.type === "item" ? [(r as any).data as PokemonData] : r.type === "forms" && !r.open ? r.mons : []))];
     if (!pd) return { mons: shown.length, lines: 0 };
     const byName: Record<string, any> = {};
     for (const p of Object.values(pd)) byName[p.name] = p;
@@ -702,7 +704,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
         <div class="flex items-center gap-1 text-sm font-bold">
           <div class="flex flex-1 flex-col text-center">
-            <div>Click the Pokemon to see their changes on the Doozdex!</div>
+            <div class="whitespace-nowrap">Click a Pokémon to see its full changes!</div>
             <div class="text-xs font-normal text-white/70">
               {counts().mons} Pokémon · {counts().lines} evolution line{counts().lines === 1 ? "" : "s"}
             </div>
@@ -750,11 +752,6 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                 </For>
               </div>
             </Show>
-          </div>
-          <div class="flex flex-none flex-col gap-0.5">
-            <Button class="text-xs" onclick={() => setStatBars(!statBars())}>
-              {statBars() ? "Stat numbers" : "Stat bars"}
-            </Button>
           </div>
         </div>
       </div>
