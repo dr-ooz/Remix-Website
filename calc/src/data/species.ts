@@ -10224,6 +10224,17 @@ export const REMIX_PERSONAL_UNMATCHED: string[] = [];
   }
   // Georupt-Steam: Georupt's stats until the Alolan Rattata personal slot holds its data
   if (SM["Georupt-Steam"] && SM["Georupt-Magma"] && !applied.has("Georupt-Steam")) (SM["Georupt-Steam"] as any).bs = Object.assign({}, (SM["Georupt-Magma"] as any).bs);
+  // Silvally's Memory forms: the base's stats; types = the Memory's type + Steel, as in the game
+  // (code.bin type2 getter returns Steel for RKS System; Steel Memory = pure Steel)
+  if (applied.has("Silvally")) {
+    for (const name of Object.keys(SM)) {
+      const d = SM[name] as any;
+      if (d.baseSpecies !== "Silvally") continue;
+      const t = name.slice("Silvally-".length);
+      d.types = t === "Steel" ? ["Steel"] : [t, "Steel"];
+      d.bs = Object.assign({}, (SM["Silvally"] as any).bs);
+    }
+  }
   // Cosmetic forms the calc adds itself (Deerling seasons, Burmy cloaks) follow their base.
   for (const name of Object.keys(SM)) {
     const d = SM[name] as any;

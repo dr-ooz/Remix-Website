@@ -200,6 +200,24 @@ for pid, name, src_id, types, abil, sprite in EXTRA:
     save_sprite(pid, p, sprite)
 
 
+# Silvally's Memory forms share the base personal entry in the game; RKS System makes each the Memory's type + Steel
+# (Steel Memory = pure Steel). Each gets its own row and its own minisprite (game icons 1156-1172).
+SILVALLY_TYPES = ["Fighting", "Flying", "Poison", "Ground", "Rock", "Bug", "Ghost", "Steel", "Fire", "Water", "Grass",
+                  "Electric", "Psychic", "Ice", "Dragon", "Dark", "Fairy"]
+if "silvally" in pokedex:
+    src = pokedex["silvally"]
+    for t in SILVALLY_TYPES:
+        pid = "silvally" + t.lower()
+        if pid in pokedex:
+            continue
+        p = {"num": src["num"], "name": "Silvally-" + t, "types": ["Steel"] if t == "Steel" else [t, "Steel"],
+             "baseStats": list(src["baseStats"]), "abilities": list(src["abilities"]), "learntMoves": list(src["learntMoves"]),
+             "baseSpecies": "Silvally", "form": t}
+        for k in ("prevo",):
+            if src.get(k): p[k] = src[k]
+        pokedex[pid] = p
+        save_sprite(pid, p, "silvally-" + t.lower())
+
 # Megas and battle forms (Charizard-Mega-X, Castform-Rainy, Kyurem-White...) have no learnset of their
 # own in the data; in the game they use the base form's moves, so show those.
 for p in pokedex.values():

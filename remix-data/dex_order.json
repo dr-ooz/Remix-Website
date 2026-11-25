@@ -2883,7 +2883,24 @@
     "label": null,
     "members": [
      "Type: Null",
-     "Silvally"
+     "Silvally",
+     "Silvally-Fighting",
+     "Silvally-Flying",
+     "Silvally-Poison",
+     "Silvally-Ground",
+     "Silvally-Rock",
+     "Silvally-Bug",
+     "Silvally-Ghost",
+     "Silvally-Steel",
+     "Silvally-Fire",
+     "Silvally-Water",
+     "Silvally-Grass",
+     "Silvally-Electric",
+     "Silvally-Psychic",
+     "Silvally-Ice",
+     "Silvally-Dragon",
+     "Silvally-Dark",
+     "Silvally-Fairy"
     ]
    },
    {

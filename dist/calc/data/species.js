@@ -62,7 +62,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
-var e_1, _a, e_2, _b, e_3, _c, e_4, _d, e_5, _e, e_6, _f, e_7, _g, e_8, _h, e_9, _j, e_10, _k, e_11, _l;
+var e_1, _a, e_2, _b, e_3, _c, e_4, _d, e_5, _e, e_6, _f, e_7, _g, e_8, _h, e_9, _j, e_10, _k, e_11, _l, e_12, _m;
 exports.__esModule = true;
 
 var util_1 = require("../util");
@@ -10135,11 +10135,11 @@ var REMIX_COSMETIC_FORMS = [
     ["Burmy", ["Sandy", "Trash"]],
 ];
 var _loop_1 = function (base, forms) {
-    var e_12, _4;
+    var e_13, _7;
     var b = SM[base];
     b.otherFormes = forms.map(function (f) { return "".concat(base, "-").concat(f); });
     try {
-        for (var forms_1 = (e_12 = void 0, __values(forms)), forms_1_1 = forms_1.next(); !forms_1_1.done; forms_1_1 = forms_1.next()) {
+        for (var forms_1 = (e_13 = void 0, __values(forms)), forms_1_1 = forms_1.next(); !forms_1_1.done; forms_1_1 = forms_1.next()) {
             var f = forms_1_1.value;
             var form = (0, util_1.extend)(true, {}, b);
             delete form.otherFormes;
@@ -10147,17 +10147,17 @@ var _loop_1 = function (base, forms) {
             SM["".concat(base, "-").concat(f)] = form;
         }
     }
-    catch (e_12_1) { e_12 = { error: e_12_1 }; }
+    catch (e_13_1) { e_13 = { error: e_13_1 }; }
     finally {
         try {
-            if (forms_1_1 && !forms_1_1.done && (_4 = forms_1["return"])) _4.call(forms_1);
+            if (forms_1_1 && !forms_1_1.done && (_7 = forms_1["return"])) _7.call(forms_1);
         }
-        finally { if (e_12) throw e_12.error; }
+        finally { if (e_13) throw e_13.error; }
     }
 };
 try {
     for (var REMIX_COSMETIC_FORMS_1 = __values(REMIX_COSMETIC_FORMS), REMIX_COSMETIC_FORMS_1_1 = REMIX_COSMETIC_FORMS_1.next(); !REMIX_COSMETIC_FORMS_1_1.done; REMIX_COSMETIC_FORMS_1_1 = REMIX_COSMETIC_FORMS_1.next()) {
-        var _m = __read(REMIX_COSMETIC_FORMS_1_1.value, 2), base = _m[0], forms = _m[1];
+        var _o = __read(REMIX_COSMETIC_FORMS_1_1.value, 2), base = _o[0], forms = _o[1];
         _loop_1(base, forms);
     }
 }
@@ -10213,34 +10213,34 @@ delete SM["Pikachu-Libre"];
     }
     var old = Object.assign({}, SM);
     try {
-        for (var _o = __values(Object.keys(SM)), _p = _o.next(); !_p.done; _p = _o.next()) {
-            var name_2 = _p.value;
+        for (var _p = __values(Object.keys(SM)), _q = _p.next(); !_q.done; _q = _p.next()) {
+            var name_2 = _q.value;
             delete SM[name_2];
         }
     }
     catch (e_3_1) { e_3 = { error: e_3_1 }; }
     finally {
         try {
-            if (_p && !_p.done && (_c = _o["return"])) _c.call(_o);
+            if (_q && !_q.done && (_c = _p["return"])) _c.call(_p);
         }
         finally { if (e_3) throw e_3.error; }
     }
     try {
-        for (var _q = __values(Object.keys(old)), _r = _q.next(); !_r.done; _r = _q.next()) {
-            var name_3 = _r.value;
+        for (var _r = __values(Object.keys(old)), _s = _r.next(); !_s.done; _s = _r.next()) {
+            var name_3 = _s.value;
             SM[newName(name_3)] = old[name_3];
         }
     }
     catch (e_4_1) { e_4 = { error: e_4_1 }; }
     finally {
         try {
-            if (_r && !_r.done && (_d = _q["return"])) _d.call(_q);
+            if (_s && !_s.done && (_d = _r["return"])) _d.call(_r);
         }
         finally { if (e_4) throw e_4.error; }
     }
     try {
-        for (var _s = __values(Object.keys(SM)), _t = _s.next(); !_t.done; _t = _s.next()) {
-            var name_4 = _t.value;
+        for (var _t = __values(Object.keys(SM)), _u = _t.next(); !_u.done; _u = _t.next()) {
+            var name_4 = _u.value;
             var d = SM[name_4];
             if (d.baseSpecies) {
                 var base = newName(d.baseSpecies);
@@ -10254,7 +10254,7 @@ delete SM["Pikachu-Libre"];
     catch (e_5_1) { e_5 = { error: e_5_1 }; }
     finally {
         try {
-            if (_t && !_t.done && (_e = _s["return"])) _e.call(_s);
+            if (_u && !_u.done && (_e = _t["return"])) _e.call(_t);
         }
         finally { if (e_5) throw e_5.error; }
     }
@@ -10270,15 +10270,15 @@ delete SM["Pikachu-Libre"];
             delete d.otherFormes;
     };
     try {
-        for (var _u = __values(Object.keys(SM)), _v = _u.next(); !_v.done; _v = _u.next()) {
-            var name_5 = _v.value;
+        for (var _v = __values(Object.keys(SM)), _w = _v.next(); !_w.done; _w = _v.next()) {
+            var name_5 = _w.value;
             _loop_2(name_5);
         }
     }
     catch (e_6_1) { e_6 = { error: e_6_1 }; }
     finally {
         try {
-            if (_v && !_v.done && (_f = _u["return"])) _f.call(_u);
+            if (_w && !_w.done && (_f = _v["return"])) _f.call(_v);
         }
         finally { if (e_6) throw e_6.error; }
     }
@@ -10295,37 +10295,37 @@ exports.REMIX_PERSONAL_UNMATCHED = [];
     var remove = remix_species_renames_1.REMIX_SPECIES_RENAMES.remove, rename = remix_species_renames_1.REMIX_SPECIES_RENAMES.rename;
     var renameLoose = {};
     try {
-        for (var _w = __values(Object.keys(rename)), _x = _w.next(); !_x.done; _x = _w.next()) {
-            var k = _x.value;
+        for (var _x = __values(Object.keys(rename)), _y = _x.next(); !_y.done; _y = _x.next()) {
+            var k = _y.value;
             renameLoose[loose(k)] = rename[k];
         }
     }
     catch (e_7_1) { e_7 = { error: e_7_1 }; }
     finally {
         try {
-            if (_x && !_x.done && (_g = _w["return"])) _g.call(_w);
+            if (_y && !_y.done && (_g = _x["return"])) _g.call(_x);
         }
         finally { if (e_7) throw e_7.error; }
     }
     var removed = new Set(remove.map(loose));
     var byLoose = {};
     try {
-        for (var _y = __values(Object.keys(SM)), _z = _y.next(); !_z.done; _z = _y.next()) {
-            var name_6 = _z.value;
+        for (var _z = __values(Object.keys(SM)), _0 = _z.next(); !_0.done; _0 = _z.next()) {
+            var name_6 = _0.value;
             byLoose[loose(name_6)] = name_6;
         }
     }
     catch (e_8_1) { e_8 = { error: e_8_1 }; }
     finally {
         try {
-            if (_z && !_z.done && (_h = _y["return"])) _h.call(_y);
+            if (_0 && !_0.done && (_h = _z["return"])) _h.call(_z);
         }
         finally { if (e_8) throw e_8.error; }
     }
     var applied = new Set();
     try {
-        for (var _0 = __values(Object.keys(remix_personal_1.REMIX_PERSONAL)), _1 = _0.next(); !_1.done; _1 = _0.next()) {
-            var name_7 = _1.value;
+        for (var _1 = __values(Object.keys(remix_personal_1.REMIX_PERSONAL)), _2 = _1.next(); !_2.done; _2 = _1.next()) {
+            var name_7 = _2.value;
             var calcName = ALIAS[loose(name_7)] || name_7;
             if (calcName === "Castform-Sandy" && !remix_personal_1.REMIX_PERSONAL[name_7].types.includes("Flying"))
                 continue;
@@ -10350,7 +10350,7 @@ exports.REMIX_PERSONAL_UNMATCHED = [];
     catch (e_9_1) { e_9 = { error: e_9_1 }; }
     finally {
         try {
-            if (_1 && !_1.done && (_j = _0["return"])) _j.call(_0);
+            if (_2 && !_2.done && (_j = _1["return"])) _j.call(_1);
         }
         finally { if (e_9) throw e_9.error; }
     }
@@ -10359,30 +10359,50 @@ exports.REMIX_PERSONAL_UNMATCHED = [];
     }
     if (SM["Georupt-Steam"] && SM["Georupt-Magma"] && !applied.has("Georupt-Steam"))
         SM["Georupt-Steam"].bs = Object.assign({}, SM["Georupt-Magma"].bs);
-    var _loop_3 = function (name_8) {
-        var d = SM[name_8];
-        if (applied.has(name_8) || !d.baseSpecies || !applied.has(d.baseSpecies))
+    if (applied.has("Silvally")) {
+        try {
+            for (var _3 = __values(Object.keys(SM)), _4 = _3.next(); !_4.done; _4 = _3.next()) {
+                var name_8 = _4.value;
+                var d = SM[name_8];
+                if (d.baseSpecies !== "Silvally")
+                    continue;
+                var t = name_8.slice("Silvally-".length);
+                d.types = t === "Steel" ? ["Steel"] : [t, "Steel"];
+                d.bs = Object.assign({}, SM["Silvally"].bs);
+            }
+        }
+        catch (e_10_1) { e_10 = { error: e_10_1 }; }
+        finally {
+            try {
+                if (_4 && !_4.done && (_k = _3["return"])) _k.call(_3);
+            }
+            finally { if (e_10) throw e_10.error; }
+        }
+    }
+    var _loop_3 = function (name_9) {
+        var d = SM[name_9];
+        if (applied.has(name_9) || !d.baseSpecies || !applied.has(d.baseSpecies))
             return "continue";
         if (!REMIX_COSMETIC_FORMS.some(function (_a) {
             var _b = __read(_a, 1), base = _b[0];
-            return name_8.startsWith(base + "-");
+            return name_9.startsWith(base + "-");
         }))
             return "continue";
         d.types = SM[d.baseSpecies].types.slice();
         d.bs = Object.assign({}, SM[d.baseSpecies].bs);
     };
     try {
-        for (var _2 = __values(Object.keys(SM)), _3 = _2.next(); !_3.done; _3 = _2.next()) {
-            var name_8 = _3.value;
-            _loop_3(name_8);
+        for (var _5 = __values(Object.keys(SM)), _6 = _5.next(); !_6.done; _6 = _5.next()) {
+            var name_9 = _6.value;
+            _loop_3(name_9);
         }
     }
-    catch (e_10_1) { e_10 = { error: e_10_1 }; }
+    catch (e_11_1) { e_11 = { error: e_11_1 }; }
     finally {
         try {
-            if (_3 && !_3.done && (_k = _2["return"])) _k.call(_2);
+            if (_6 && !_6.done && (_l = _5["return"])) _l.call(_5);
         }
-        finally { if (e_10) throw e_10.error; }
+        finally { if (e_11) throw e_11.error; }
     }
 }
 var SS_PATCH = {
@@ -12782,11 +12802,11 @@ try {
         gen++;
     }
 }
-catch (e_11_1) { e_11 = { error: e_11_1 }; }
+catch (e_12_1) { e_12 = { error: e_12_1 }; }
 finally {
     try {
-        if (SPECIES_1_1 && !SPECIES_1_1.done && (_l = SPECIES_1["return"])) _l.call(SPECIES_1);
+        if (SPECIES_1_1 && !SPECIES_1_1.done && (_m = SPECIES_1["return"])) _m.call(SPECIES_1);
     }
-    finally { if (e_11) throw e_11.error; }
+    finally { if (e_12) throw e_12.error; }
 }
 //# sourceMappingURL=species.js.map

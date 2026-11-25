@@ -28,7 +28,12 @@ const ITEM_HEAD_H = 80; // an item's row: its icon (72px) + its name and up to 4
 const FORMS_H = 26; // the "show / hide forms" row under Furfrou / Minior (open: just the label)
 const FORMS_STRIP_H = 40; // folded: the hidden forms' minisprites side by side under the label
 // species with many look-alike forms: folded under the first one (folded by default in the item groups)
-const FOLD_SPECIES = ["Furfrou", "Minior"];
+const FOLD_SPECIES = ["Furfrou", "Minior", "Silvally"];
+// folded forms shown as a grid (columns) instead of one strip: Silvally's 17 Memory forms = 9 on top, 8 below
+const FORM_GRID: Record<string, number> = { Silvally: 9 };
+const FORM_GRID_ROW_H = 30;
+const stripH = (species: string, n: number) =>
+  FORM_GRID[species] ? Math.ceil(n / FORM_GRID[species]!) * FORM_GRID_ROW_H + 4 : FORMS_STRIP_H;
 // signature items that also work as the Mega's Mega Stone, so that Mega does show under them
 const MEGA_STONE_ITEMS: Record<string, string> = { "Persian-Mega": "Treasure Chest", "Alakazam-Mega": "Frosty Spoon" };
 const cycle = (v: number) => (v === 0 ? 1 : v === 1 ? -1 : 0); // a main filter: off -> on -> reversed -> off
@@ -433,7 +438,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       const defOpen = !(sigState() === 1 || ip);
       // Minior colors + Furfrou trims stay folded until the viewer opens them, as long as every form is listed (plain
       // dex, a name search, Fur Coat...); a filter only some forms pass (one trim's ability) shows those forms in full
-      const FOLD_ALWAYS = ["Minior", "Furfrou"];
+      const FOLD_ALWAYS = ["Minior", "Furfrou", "Silvally"];
       const allForms: Record<string, number> = {};
       Object.values(data).forEach((p) => { const sp = speciesOf(p as PokemonData); if (sp) allForms[sp] = (allForms[sp] ?? 0) + 1; });
       rows.forEach((r, i) => {
@@ -487,7 +492,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       const r = groupedAndSorted()[i] as any;
       // text-only section rows: just their text plus a few px above and below
       if (t === "header") return r.sub ? 36 : 22;
-      return t === "itemhead" ? ITEM_HEAD_H : t === "forms" ? FORMS_H + (r.open ? 0 : FORMS_STRIP_H) : statBars() ? ROW_H_BARS : 58;
+      return t === "itemhead" ? ITEM_HEAD_H : t === "forms" ? FORMS_H + (r.open ? 0 : stripH(r.species, r.mons.length)) : statBars() ? ROW_H_BARS : 58;
     },
   });
 
@@ -781,13 +786,19 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
                 </div>
                 {/* folded: every hidden form's minisprite, evenly spaced, each sized to fit its share of the row */}
                 <Show when={!d.open}>
-                  <div class="flex w-full min-h-0 flex-auto px-1 pb-1">
+                  <div
+                    class={cn("flex w-full min-h-0 flex-auto px-1 pb-1", FORM_GRID[d.species] && "flex-wrap content-start justify-center")}
+                  >
                     <For each={d.mons}>
                       {(p) => {
                         const [top, bottom] = (p as any).spriteY ?? [0, 30];
                         const w = (p as any).spriteW ?? 40, h = bottom - top;
                         return (
-                          <div class="flex h-full min-w-0 flex-[1_1_0] items-center justify-center [container-type:size]" title={p.name}>
+                          <div
+                            class={cn("flex min-w-0 flex-none items-center justify-center [container-type:size]", !FORM_GRID[d.species] && "h-full flex-[1_1_0]")}
+                            style={FORM_GRID[d.species] ? { width: `${100 / FORM_GRID[d.species]!}%`, height: `${FORM_GRID_ROW_H}px` } : undefined}
+                            title={p.name}
+                          >
                             <div
                               class="-scale-x-100"
                               style={{
