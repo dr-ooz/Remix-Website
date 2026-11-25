@@ -59,7 +59,7 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
   const itemView = () => sigState() === 1 || !!itemPick(); // the item groups
   // the item groups' order: featured (semi-signature first, then dex order), most / fewest holders, A-Z
   const [itemSort, setItemSort] = createSignal<"featured" | "most" | "fewest" | "az">("featured");
-  // Furfrou / Minior forms: folded in the item groups, open elsewhere, unless the viewer flips one
+  // Furfrou / Minior forms: folded in the item groups (Minior also in the unfiltered dex), open elsewhere, unless the viewer flips one
   const [formsFlip, setFormsFlip] = createSignal<Record<string, boolean>>({});
   // item groups: "Show only items" folds every group; each item's arrow folds / opens just that one
   const [itemsOnly, setItemsOnly] = createSignal(false);
@@ -404,10 +404,15 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       });
       const out: PokemonRowItem[] = [], seen = new Set<string>();
       const defOpen = !(sigState() === 1 || ip);
+      // Minior's colors are also folded in the plain scrolling dex (no search / filter on); any filter opens them
+      const anyFilter = !!sf || tf.some(Boolean) || af.length > 0 || mf.some(([m]) => m) ||
+        sigState() !== 0 || doozState() !== 0 || tcState() !== 0 || megaOnly();
+      const FOLD_UNFILTERED = ["Minior"];
       rows.forEach((r, i) => {
         const k = blockKey[i]!;
         if (!k || counts[k]! < 2) { out.push(r); return; }
-        const open = formsFlip()[k.split(":")[1]!] ?? defOpen;
+        const sp = k.split(":")[1]!;
+        const open = formsFlip()[sp] ?? (defOpen && (anyFilter || !FOLD_UNFILTERED.includes(sp)));
         if (!seen.has(k)) {
           seen.add(k);
           out.push(r);
