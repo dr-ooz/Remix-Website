@@ -1338,9 +1338,17 @@
     ]
    },
    {
-    "id": "solrock",
-    "label": "Solrock & Lunatone",
+    "id": "minior",
+    "label": null,
     "members": [
+     "Minior",
+     "Minior-Twinkle",
+     "Minior-Blaze",
+     "Minior-Surge",
+     "Minior-Verdant",
+     "Minior-Tidal",
+     "Minior-Frost",
+     "Minior-Draco",
      "Solrock",
      "Lunatone"
     ]
@@ -2817,20 +2825,6 @@
     "members": [
      "Wimpod",
      "Golisopod"
-    ]
-   },
-   {
-    "id": "minior",
-    "label": null,
-    "members": [
-     "Minior",
-     "Minior-Twinkle",
-     "Minior-Blaze",
-     "Minior-Surge",
-     "Minior-Verdant",
-     "Minior-Tidal",
-     "Minior-Frost",
-     "Minior-Draco"
     ]
    },
    {
