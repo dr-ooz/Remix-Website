@@ -325,7 +325,7 @@ Wimpod, Golisopod
 Minior, Minior-Twinkle, Minior-Blaze, Minior-Surge, Minior-Verdant, Minior-Tidal, Minior-Frost, Minior-Draco
 Torkoal, Turtonator
 Dunsparce, Drampa
-Dhelmise
+Snagghoul, Dhelmise
 Jangmo-o, Hakamo-o, Kommo-o
 Tapu Bibi, Tapu Koko, Tapu Lele, Tapu Bulu, Tapu Fini
 Marshadow

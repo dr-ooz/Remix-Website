@@ -18,12 +18,13 @@ FORM_MAP = {
     150: {"": 0, "Mega-Y": 2},                     # Mewtwo (form 1 = Mega X, removed)
     658: {"": 0, "Ash": 2},                       # Greninja (form 1 = Battle Bond copy)
     670: {"": 0, "Eternal": 5},                   # Floette (forms 1-4 = colours)
+    710: {"": 0, "Super": 3},                     # Pumpkaboo (form 3 = Snagghoul, Dhelmise pre-evo)
     711: {"": 0, "Small": 1, "Large": 2, "Super": 3},  # Gourgeist
     718: {"50%": 0, "10%": 1, "Core": 2, "Complete": 4},  # Zygarde (form 3 = 50% that can go Complete)
     774: {"": 0, "Red": 7, "Orange": 8, "Yellow": 9, "Green": 10, "Blue": 11, "Indigo": 12, "Violet": 13},  # Minior
 }
 # forms the extractor doesn't list: (species name, number, form name)
-ADD_FORMS = [("Mewtwo", 150, ""), ("Mewtwo", 150, "Mega-Y"), ("Gourgeist", 711, ""), ("Gourgeist", 711, "Large"), ("Zygarde", 718, "Core"), ("Zygarde", 718, "Complete")]
+ADD_FORMS = [("Mewtwo", 150, ""), ("Mewtwo", 150, "Mega-Y"), ("Gourgeist", 711, ""), ("Gourgeist", 711, "Large"), ("Pumpkaboo", 710, "Super"), ("Zygarde", 718, "Core"), ("Zygarde", 718, "Complete")]
 
 
 def personal_index(f, num, form):

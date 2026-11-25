@@ -186,7 +186,6 @@ var REMIX_SINGLE_ABILITY = {
  "Mimikyu-Busted": "Disguise",
  "Mimikyu-Totem": "Disguise",
  "Mimikyu-Busted-Totem": "Disguise",
- "Dhelmise": "Steelworker",
  "Cosmog": "Unaware",
  "Cosmoem": "Sturdy",
  "Solgaleo": "Full Metal Body",

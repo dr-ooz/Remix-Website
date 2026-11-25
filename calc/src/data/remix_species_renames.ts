@@ -16,6 +16,7 @@ export const REMIX_SPECIES_RENAMES: {remove: string[]; rename: {[old: string]: s
   "Pidgeotto": "Avicero",
   "Audino-Mega": "Vitabeat",
   "Latias-Mega": "Scnypper",
+  "Pumpkaboo-Super": "Snagghoul",
   "Illumise": "Fluibeat",
   "Volbeat": "Jolbeat",
   "Spewpa": "Pupulse",
