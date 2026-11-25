@@ -58,7 +58,8 @@ def main():
     run([node, "tools/build_remix_trainers.js"])
     npm = "npm.cmd" if os.name == "nt" else "npm"
     run([npm, "--prefix", "calc", "run", "compile"])  # the calc's own TypeScript (installed inside calc/)
-    run([py, os.path.join("doozdex-sidebar", "build_data.py")])
+    # the sidebar's full build (its data + its code: the signature item list is built into the code, not loaded)
+    run([npm, "--prefix", "doozdex-sidebar", "run", "build"])
     open(STAMP, "w").write(fp)
     print("game text sync: done")
 
