@@ -29,7 +29,7 @@ const FORMS_H = 26; // the "show / hide forms" row under Furfrou / Minior
 // species with many look-alike forms: folded under the first one (folded by default in the item groups)
 const FOLD_SPECIES = ["Furfrou", "Minior"];
 // signature items that also work as the Mega's Mega Stone, so that Mega does show under them
-const MEGA_STONE_ITEMS: Record<string, string> = { "Persian-Mega": "Treasure Chest" };
+const MEGA_STONE_ITEMS: Record<string, string> = { "Persian-Mega": "Treasure Chest", "Alakazam-Mega": "Frosty Spoon" };
 const cycle = (v: number) => (v === 0 ? 1 : v === 1 ? -1 : 0); // a main filter: off -> on -> reversed -> off
 
 export const ScreenPokedex = (props: { datasetId: string }) => {
