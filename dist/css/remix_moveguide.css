@@ -378,9 +378,9 @@ td.mg-hd:has(.mg-caret2) .mg-caret { left: 50px; }
 .mg-tpill img { height: 1.4em; width: 1.4em; }
 /* blank divider rows: thin (their text size can't hold them open) */
 #mg-guide tr.mg-blank td, #mg-guide tr.mg-blank td * { font-size: 0 !important; line-height: 0 !important; padding: 0 !important; }
-/* resize handles: much bigger targets (they straddle the border and sit above the next header) */
-.rse-colgrip { right: -9px; width: 18px; z-index: 6; }
-.rse-rowgrip { bottom: -9px; height: 18px; z-index: 6; }
+/* resize handles: a thin strip on the border (wide enough to grab, small enough that the row number / column letter stays clickable) */
+.rse-colgrip { right: -5px; width: 10px; z-index: 6; }
+.rse-rowgrip { bottom: -5px; height: 10px; z-index: 6; }
 .rse-colgrip:hover, .rse-rowgrip:hover { background: rgba(11, 87, 208, .45); }
 
 /* contents window titles stay on one line (icons are a touch smaller there) */

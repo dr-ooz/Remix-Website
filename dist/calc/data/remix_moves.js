@@ -1243,7 +1243,7 @@ exports.REMIX_MOVES = {
     },
     "Brainfreeze": {
         "bp": 20,
-        "type": "Steel",
+        "type": "Ice",
         "category": "Special",
         "zp": 100,
         "pp": 1,

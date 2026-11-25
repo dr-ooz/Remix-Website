@@ -972,7 +972,7 @@
 		}
 		var tx = e.target.closest(".tocx [data-cat]");
 		if (tx) { e.preventDefault(); goToCat(tx.getAttribute("data-cat")); return; }
-		if (editing) { var b0 = e.target.closest(".mg-btn"); if (!b0 && !e.target.classList.contains("mg-caret")) return; }
+		if (editing) { var b0 = e.target.closest(".mg-btn"); if (!b0 && !e.target.closest(".mg-caret, .mg-caret2")) return; }
 		var go = e.target.closest("td.mg-go");
 		if (go) {
 			e.preventDefault();

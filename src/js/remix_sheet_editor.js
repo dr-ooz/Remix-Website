@@ -536,7 +536,7 @@ var RemixSheetEditor = (function () {
 				else { var y = g.rows.indexOf(rh.parentNode); active = cellAtXY(g, y, 0); setSel(tb, e.shiftKey && sel ? sel.y0 : y, 0, y, data().cols.length - 1); }
 				return;
 			}
-			if (e.target.closest(".mg-caret")) return; // the dropdown arrow still opens / closes
+			if (e.target.closest(".mg-caret, .mg-caret2")) return; // the dropdown arrows still open / close
 			var c = cellFromEvent(e);
 			if (!c) { if (editTd) endEdit(true); return; }
 			if (editTd && editTd.td === c.td) return; // clicking inside the cell you're typing in

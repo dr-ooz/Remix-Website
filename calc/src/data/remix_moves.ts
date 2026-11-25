@@ -1241,7 +1241,7 @@ export const REMIX_MOVES: {[name: string]: any} = {
  },
  "Brainfreeze": {
   "bp": 20,
-  "type": "Steel",
+  "type": "Ice",
   "category": "Special",
   "zp": 100,
   "pp": 1,
