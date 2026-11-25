@@ -13,6 +13,8 @@ const SPRITE_AREA_MAX = 80; // px: about one big sprite wide; more room goes aro
 
 // Wide sprites drawn over the type icons (but under the name/stats), and how far (px) to nudge them left.
 const SPRITE_SHIFT: Record<string, number> = { charizardmegax: 10, charizardmegay: 10 };
+// px lifted off the cell bottom (sprites whose art sits on the image's last row)
+const SPRITE_RAISE: Record<string, number> = { snagghoul: 3 };
 
 // Sprites drawn bigger/smaller than the rest (they grow up from the feet).
 // Whatever the size, a sprite is never drawn past its row's top or bottom.
@@ -123,7 +125,7 @@ const Sprite = (props: { data: PokemonData; datasetId: string }) => {
     return Math.min(wanted, CONTENT_H / (30 - top)); // keep the top inside the row
   };
   // fill: lift the sprite so its lowest pixel sits `fill` px above the line
-  const lift = () => (fill() !== undefined ? fill() - (30 - rows()[1]) * scale() : 0);
+  const lift = () => (fill() !== undefined ? fill() - (30 - rows()[1]) * scale() : 0) + (SPRITE_RAISE[pokemonId()] ?? 0);
   const width = () => ((props.data as any).spriteW ?? 40) * scale();
   const shift = () => SPRITE_SHIFT[pokemonId()] ?? 0;
 

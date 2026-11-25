@@ -5906,7 +5906,11 @@ export const REMIX_MOVES: {[name: string]: any} = {
   "category": "Physical",
   "zp": 200,
   "pp": 10,
-  "secondaries": true
+  "makesContact": true,
+  "secondaries": true,
+  "remix": {
+   "trap": true
+  }
  },
  "Psychic Terrain": {
   "bp": 0,

@@ -28,6 +28,8 @@ const ITEM_HEAD_H = 80; // an item's row: its icon (72px) + its name and up to 4
 const FORMS_H = 26; // the "show / hide forms" row under Furfrou / Minior
 // species with many look-alike forms: folded under the first one (folded by default in the item groups)
 const FOLD_SPECIES = ["Furfrou", "Minior"];
+// signature items that also work as the Mega's Mega Stone, so that Mega does show under them
+const MEGA_STONE_ITEMS: Record<string, string> = { "Persian-Mega": "Treasure Chest" };
 const cycle = (v: number) => (v === 0 ? 1 : v === 1 ? -1 : 0); // a main filter: off -> on -> reversed -> off
 
 export const ScreenPokedex = (props: { datasetId: string }) => {
@@ -204,7 +206,9 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
       if (doozState() === 2 && ((p as any).doozian || (p as any).redesigned)) continue;
       if (tcState() !== 0 && !!(p as any).typeChanged !== (tcState() === 1)) continue;
       // a Mega has to hold its Mega Stone, so it never shows with a signature item
-      if ((sigState() === 1 || ip) && /-Mega(-[XY])?$/.test(p.name)) continue;
+      // (except items that ARE its Mega Stone: Treasure Chest on Persian)
+      if ((sigState() === 1 || ip) && /-Mega(-[XY])?$/.test(p.name) &&
+          !(MEGA_STONE_ITEMS[p.name] && (!ip || MEGA_STONE_ITEMS[p.name] === ip))) continue;
       if (megaOnly() && !/-Mega(-[XY])?$/.test(p.name)) continue;
 
       if (af.length > 0) {

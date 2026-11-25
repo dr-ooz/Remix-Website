@@ -8807,9 +8807,9 @@
 "drainRecoil": 0,
 "crit": 0,
 "target": 0,
-"contact": false,
+"contact": true,
 "secondary": true,
-"trap": false,
+"trap": true,
 "protect": true,
 "flags": []
 },

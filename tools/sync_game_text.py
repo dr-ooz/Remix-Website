@@ -50,6 +50,7 @@ def main():
     run([py, "tools/refresh_ability_names.py", ROMFS])
     run([py, "tools/refresh_item_names.py", ROMFS])
     run([py, "tools/sync_moves.py", ROMFS])
+    run([py, "tools/refresh_move_extras.py", ROMFS])  # trapping, contact, priority, hits... from the move data
     run([py, "tools/build_move_blurbs.py", ROMFS])
     run([py, "tools/build_signature_items.py"])
     run([node, "tools/build_remix_items.js"])

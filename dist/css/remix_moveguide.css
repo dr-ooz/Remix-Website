@@ -455,3 +455,6 @@ table.mg td.mg-toctitle { position: relative; }
 .mg-tocbtn { font-size: 19px !important; line-height: 1.15 !important; padding: 7px 30px !important; min-width: 220px; text-align: center; white-space: normal; }
 .mg-tocbtn-l { left: 22px; }
 .mg-tocbtn-r { right: 22px; }
+
+/* move-category icons (traced from the guide's own Physical/Special/Status icons): wider than tall */
+.ci.ci-cat, .mg-hpill-2 .ci.ci-cat { width: 1.2em; }

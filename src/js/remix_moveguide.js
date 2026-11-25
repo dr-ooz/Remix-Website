@@ -169,7 +169,7 @@
 	function oneIcon(n) {
 		if (n === "phys" || n === "spec" || n === "status") n = {phys: "cat-physical", spec: "cat-special", status: "cat-status"}[n]; // crisp line versions
 		// "a+b": b drawn over a (e.g. repeat with a ban sign over it)
-		return "<span class='ci'>" + n.split("+").map(function (k, z) { return "<i class='ci-l" + (z ? " ci-over" : "") + "' style='--ci:url(" + new URL("./img/cat-icons/" + k + ".svg", location.href).href + ")'></i>"; }).join("") + "</span>";
+		return "<span class='ci" + (/^cat-/.test(n) ? " ci-cat" : "") + "'>" + n.split("+").map(function (k, z) { return "<i class='ci-l" + (z ? " ci-over" : "") + "' style='--ci:url(" + new URL("./img/cat-icons/" + k + ".svg", location.href).href + ")'></i>"; }).join("") + "</span>";
 	}
 	function iconGroup(list) { return list && list.length ? "<span class='ci-grp'>" + list.map(oneIcon).join("") + "</span>" : ""; }
 	function trimHtml(h) {
