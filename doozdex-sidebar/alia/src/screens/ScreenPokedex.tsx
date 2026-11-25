@@ -171,10 +171,16 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
 
     const or = order();
 
+    // also match the game's original name (Dugtrio -> Drugtrio + Drumtrio, Audino -> Kangakid + Vitabeat)
+    const searchHit = (p: PokemonData) =>
+      nameToId(p.name).includes(sf) || ((p as any).oldNames ?? []).some((o: string) => nameToId(o).includes(sf));
+    // a search shows each match's whole family / group too (the matches first, see below)
+    const hitFamilies = new Set<number>();
+    if (sf) for (const p of Object.values(data)) if (searchHit(p) && (p as any).family != null) hitFamilies.add((p as any).family);
+
     for (const p of Object.values(data)) {
       const id = nameToId(p.name);
-      // also match the game's original name (Dugtrio -> Drugtrio + Drumtrio, Audino -> Kangakid + Vitabeat)
-      if (sf && !id.includes(sf) && !((p as any).oldNames ?? []).some((o: string) => nameToId(o).includes(sf))) continue;
+      if (sf && !searchHit(p) && !hitFamilies.has((p as any).family)) continue;
 
       let typesMatch = true;
       for (let i = 0; i < tf.length; i++) {
@@ -268,6 +274,18 @@ export const ScreenPokedex = (props: { datasetId: string }) => {
     };
 
     standardMons.sort(sortFn);
+    // searching: each family together, the Pokemon that match the search first, then the rest of their family
+    if (sf) {
+      const groups = new Map<any, { hits: any[]; rest: any[] }>();
+      for (const p of standardMons) {
+        const key = p.family ?? "name:" + p.name;
+        if (!groups.has(key)) groups.set(key, { hits: [], rest: [] });
+        groups.get(key)![searchHit(p) ? "hits" : "rest"].push(p);
+      }
+      const order = [...groups.values()].filter((g) => g.hits.length); // families in the order of their first match
+      order.sort((a, b) => standardMons.indexOf(a.hits[0]) - standardMons.indexOf(b.hits[0]));
+      standardMons.splice(0, standardMons.length, ...order.flatMap((g) => [...g.hits, ...g.rest]));
+    }
     signatureItemMons.sort(sortFn);
     someMons.sort(sortFn);
     grantedMons.sort(sortFn);
