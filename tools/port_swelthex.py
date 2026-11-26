@@ -363,7 +363,7 @@ def extra_sprites():
     for n, v in enumerate(VIVILLON):
         out[(666, n)] = "vivillon-" + v if v else "vivillon"
     for n, t in enumerate(SILVALLY):
-        out[(773, n)] = "silvally"  # every type uses the default Gen 7 Silvally sprite (for now)
+        out[(773, n)] = "silvally-" + t if t else "silvally"  # per-type sprites (game a/0/6/2 1156-1172)
     return out
 
 
